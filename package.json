@@ -1,0 +1,32 @@
+{
+  "name": "git-webpack",
+  "version": "0.0.1",
+  "description": "基于 git 的 webpack 多进程调度器",
+  "main": "src/index.js",
+  "bin": "bin/git-webpack",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aui/git-webpack.git"
+  },
+  "keywords": [
+    "webpack",
+    "git",
+    "task",
+    "build"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aui/git-webpack/issues"
+  },
+  "homepage": "https://github.com/aui/git-webpack#readme",
+  "dependencies": {
+    "lodash.defaultsdeep": "^4.6.0"
+  },
+  "devDependencies": {
+    "webpack": "^1.13.3"
+  }
+}
