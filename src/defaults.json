@@ -2,9 +2,6 @@
     "modules": [],
     "assets": "dist/assets.json",
     "dependencies": [],
-    "parallel": 1,
-    "scripts": {
-        "before": "echo 'git-webpack: start'",
-        "after": "echo 'git-webpack: end'"
-    }
+    "parallel": 2,
+    "webpack-cli-args": "--optimize-minimize"
 }

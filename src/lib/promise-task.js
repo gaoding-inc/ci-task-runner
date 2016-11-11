@@ -13,7 +13,7 @@ function serial(tasks) {
 
 /**
  * 并行执行任务
- * @param  {function[]}     tasks 任务列表，任务函数返回 Promise
+ * @param   {function[]}     tasks 任务列表，任务函数返回 Promise
  * @param   {number}        limit 最大并发数
  * @return  {Promise}
  */

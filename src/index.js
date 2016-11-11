@@ -3,22 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
+const fsp = require('fs-promise');
 const childProcess = require('child_process');
 const defaultsDeep = require('lodash.defaultsdeep');
-const promiseify = require('./lib/promiseify');
 const promiseTask = require('./lib/promise-task');
 
-const ARGV = process.argv.slice(2);
-const WORK_PATH = process.cwd();
-const CONFIG_PATH = path.join(WORK_PATH, 'git-webpack.json');
-const CONFIG = defaultsDeep({}, require(CONFIG_PATH), require('./defaults.json'));
-const ASSETS_PATH = path.join(WORK_PATH, CONFIG.assets);
 const WEBPACK_CONFIG_NAME = 'webpack.config.js';
-const FORCE = ARGV.includes('--force');
-
-const readFile = promiseify(fs.readFile, fs);
-const writeFile = promiseify(fs.writeFile, fs);
-const exec = promiseify(childProcess.exec, childProcess);
+const GIT_WEBPACK_DEFAULT = require('./defaults.json');
 
 const ASSETS_DEFAULT = {
     "modified": null,
@@ -26,61 +17,51 @@ const ASSETS_DEFAULT = {
     "modules": {}
 };
 
-module.exports = function() {};
+module.exports = function ({
+    modules = GIT_WEBPACK_DEFAULT.modules,
+    assets = GIT_WEBPACK_DEFAULT.assets,
+    dependencies = GIT_WEBPACK_DEFAULT.dependencies,
+    parallel = GIT_WEBPACK_DEFAULT.parallel,
+    force = false,
+    webpackCliArgs = '',
+    context = process.cwd(),
+    debug = false
+} = {}) {
 
-module.exports = promiseTask.serial([
+    assets = path.join(context, assets);
 
-    // 运行前置脚本
-    () => {
-        if (typeof CONFIG.scripts.before === 'string') {
-            return exec(CONFIG.scripts.before, {
-                pwd: WORK_PATH
-            }).then(log => {
-                console.log(log);
-            });
-        }
-    },
+    return promiseTask.serial([
 
-    // 读取上一次编译结果
-    () => {
-        return readFile(ASSETS_PATH, 'utf8').then(resources => {
-            try {
-                resources = JSON.parse(resources);
-            } catch (e) {
-                resources = ASSETS_DEFAULT;
-            }
+        // 读取上一次编译结果
+        () => {
+            return fsp.readFile(assets, 'utf8')
+                .then(JSON.parse)
+                .catch(() => ASSETS_DEFAULT);
+        },
 
-            return resources;
-        }, errors => {
-            return ASSETS_DEFAULT;
-        });
-    },
+        // 运行 Webpack 任务
+        resources => {
 
-    // 运行 Webpack 任务
-    resources => {
+            let tasks = [];
+            let mainVersion = getBuildVersion(context);
+            let modifies = dependencies.map(f => getBuildVersion(f) !== mainVersion);
+            let dependenciesModified = modifies.includes(true);
 
-        let tasks = [];
-        let mainVersion = getBuildVersion(WORK_PATH);
-        let modifies = CONFIG.dependencies.map(f => getBuildVersion(f) !== mainVersion);
-        let dependenciesModified = modifies.includes(true);
+            modules.forEach(name => {
+                let basic = path.join(context, name);
+                let webpackConfigPath = path.join(basic, WEBPACK_CONFIG_NAME);
+                let version = getBuildVersion(basic);
 
-        CONFIG.modules.forEach(name => {
-            let basic = path.join(WORK_PATH, name);
-            let webpackConfig = path.join(basic, WEBPACK_CONFIG_NAME);
-            let version = getBuildVersion(basic);
+                // 如果模块目录没有修改，则忽略编译
+                // 如果模块目录外的依赖有修改，则强制编译
+                if (!debug && !force && !dependenciesModified && version === mainVersion) {
+                    return;
+                }
 
-            // 如果模块目录没有修改，则忽略编译
-            // 如果模块目录外的依赖有修改，则强制编译
-            if (!FORCE && !dependenciesModified && version === mainVersion) {
-                return;
-            }
+                tasks.push(() => {
 
-            tasks.push(() => {
-
-                // 多进程运行 webpack，加速编译
-                let params = [...ARGV, '--config ' + webpackConfig];
-                return webpackRenner(params)
-                    .then(data => {
+                    // 多进程运行 webpack，加速编译
+                    return webpackRenner(webpackConfigPath, webpackCliArgs).then(data => {
                         let mod = {
                             modified: (new Date()).toISOString(),
                             version: version,
@@ -104,68 +85,64 @@ module.exports = promiseTask.serial([
 
                         resources.modules[name] = mod;
                     });
+                });
             });
-        });
 
 
-        // 并发运行 webpack 任务
-        return promiseTask.parallel(tasks, CONFIG.parallel).then(() => {
-            resources.modified = (new Date()).toISOString();
-            resources.version = getBuildVersion(WORK_PATH);
-            return resources;
-        });
-    },
+            // 并发运行 webpack 任务
+            return promiseTask.parallel(tasks, parallel).then(() => {
+                resources.modified = (new Date()).toISOString();
+                resources.version = getBuildVersion(context);
+                return resources;
+            });
+        },
 
-    // 保存当前编译结果
-    resources => {
-        let data = JSON.stringify(resources, null, 2);
-        return writeFile(ASSETS_PATH, data, 'utf8').then(() => {
-            console.log(util.inspect(resources, {
-                colors: true,
-                depth: null
-            }));
-            return resources;
-        });
-    },
-
-    // 运行后置脚本
-    () => {
-        if (typeof CONFIG.scripts.after === 'string') {
-            return exec(CONFIG.scripts.after, {
-                pwd: WORK_PATH
-            }).then(log => {
-                console.log(log);
-            });;
+        // 保存当前编译结果
+        resources => {
+            let data = JSON.stringify(resources, null, 2);
+            // TODO 创建上级目录
+            // TODO 如果存在多个 git-webpack 进程运行，配置文件可能会错乱
+            return fsp.writeFile(assets, data, 'utf8').then(() => {
+                console.log(util.inspect(resources, {
+                    colors: true,
+                    depth: null
+                }));
+                return resources;
+            });
         }
-    }
 
-]).catch(errors => process.nextTick(() => {
-    throw errors;
-}));
+    ]).catch(errors => process.nextTick(() => {
+        throw errors;
+    }));
+};
 
 
 
 /**
  * 获取模块编译版本号
- * @param  {string}  dir 模块目录
+ * @param  {string}  cwd 模块目录
  * @return {string}      版本号
  */
-function getBuildVersion(dir) {
+function getBuildVersion(cwd) {
     return childProcess.execSync('git log --pretty=format:"%h" -1', {
-        pwd: dir
+        cwd: cwd
     }).toString();
 }
 
 
 /**
  * Webpack 运行器 - 使用子进程启动 Webpack CLI
- * @param   {string[]}  argv    参数
+ * @param   {string}  configPath    配置文件路径
+ * @param   {string}  cliOptions    命令行启动参数
  * @return  {Promise}
  */
-function webpackRenner(argv) {
+function webpackRenner(configPath, cliOptions) {
 
-    argv.push('--json');
+    cliOptions += ' --config ' + configPath;
+    cliOptions += ' --json';
+
     let cmd = webpackRenner.cmd;
+    let cwd = path.dirname(configPath);
 
     if (!cmd) {
         try {
@@ -179,18 +156,39 @@ function webpackRenner(argv) {
         }
     }
 
-    cmd = 'export DEPLOY=1 && ' + cmd; // TODO Windows 兼容
+    //cmd = 'export DEPLOY=1 && ' + cmd; // TODO Windows 兼容
 
-    return exec(cmd + ' ' + argv.join(' ')).then(data => {
-        let json = data.match(/([\w\W]*?\n)?(\{\n[\w\W]*?\n\})\n?$/);
+    return new Promise((resolve, reject) => {
+        childProcess.exec(cmd + ' ' + cliOptions, {
+            cwd: cwd
+        }, (errors, stdout, stderr) => {
+            if (errors) {
+                reject(errors);
+            } else {
+                let data = stdout;
+                let log;
+                let match = data.match(/([\w\W]*?\n)?(\{\n[\w\W]*?\n\})\n?$/);
 
-        if (json) {
-            if (json[1]) {
-                console.log(json[1]);
+                if (match) {
+                    log = match[1];
+                    data = match[2];
+                }
+
+                if (log) {
+                    console.log(log);
+                }
+
+                if (stderr) {
+                    console.error(stderr);
+                }
+
+                try {
+                    data = JSON.parse(data);
+                    resolve(data);
+                } catch (e) {
+                    reject(e);
+                }
             }
-            data = json[2];
-        }
-
-        return JSON.parse(data);
+        });
     });
 }

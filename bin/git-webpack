@@ -1,5 +1,69 @@
 #!/usr/bin/env node
 
 'use strict';
+const fs = require('fs');
+const path = require('path');
+const util = require('util');
+const program = require('commander');
+const defaultsDeep = require('lodash.defaultsdeep');
+const gulp = require('gulp');
 
-require('../');
+
+
+const gitWebpack = require('../');
+const options = {};
+const CONFIG_PATH_NAME = 'git-webpack.json';
+
+program
+    .version(require('../package.json').version)
+    .usage('[options]')
+    .option('--modules <dir>...', '模块列表', list)
+    .option('--assets [file]', '资源描述文件输出路径')
+    .option('--dependencies [dir]...', '依赖的文件与目录列表（它的变更会引起模块重新编译）', list)
+    .option('--parallel [number]', 'Webpack 进程最大并发数', parseInt)
+    .option('--config [path]', '配置文件路径')
+    .option('--webpack-cli-args [options]', 'Webpack 命令行启动参数')
+    .option('--init', '初始化项目，生成配置文件')
+    .option('--debug', '开启调试模式')
+    .parse(process.argv);
+
+
+if (program.init) {
+    fs.access(path.join(process.cwd(), CONFIG_PATH_NAME), errors => {
+        if (errors) {
+            gulp.src(path.join(__dirname, '..', 'src', 'example') + '/**/*').pipe(gulp.dest('./'));
+            console.log(`"${CONFIG_PATH_NAME}" has been created.`);
+        }
+    });
+    return;
+}
+
+
+defaultsDeep(options, {
+    modules: program.modules,
+    assets: program.assets,
+    dependencies: program.dependencies,
+    parallel: program.parallel,
+    webpackCliArgs: program.webpackCliArgs,
+    debug: program.debug
+});
+
+try {
+    if (program.config) {
+        defaultsDeep(options, require(program.config));
+    } else {
+        defaultsDeep(options, require(path.join(process.cwd(), CONFIG_PATH_NAME)));
+    }
+} catch (e) {
+    if (!options.modules || !options.modules.length) {
+        program.help();
+        process.exit(1);
+    }
+}
+
+
+function list(val) {
+    return val.split(',');
+}
+
+gitWebpack(options);

@@ -8,8 +8,8 @@
  */
 function promisify(fn, receiver) {
     return function(...args) {
-        return new Promise(function(resolve, reject) {
-            fn.apply(receiver, [].concat(args, [function(err, res) {
+        return new Promise((resolve, reject) => {
+            fn.apply(receiver, [].concat(args, [(err, res) => {
                 return err ? reject(err) : resolve(res);
             }]));
         });
