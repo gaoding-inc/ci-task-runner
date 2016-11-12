@@ -11,7 +11,7 @@ const gulp = require('gulp');
 
 
 const gitWebpack = require('../');
-const options = {};
+const options = {modules:[]};
 const CONFIG_PATH_NAME = 'git-webpack.json';
 
 program
@@ -48,9 +48,9 @@ if (program.config) {
     // 尝试加载目录默认的配置文件
     try {
         let file = path.join(process.cwd(), CONFIG_PATH_NAME);
-        defaultsDeep(options, require(configFile));
+        defaultsDeep(options, require(file));
         configFile = file;
-    } catch (e) { }
+    } catch (e) {}
 }
 
 
