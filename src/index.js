@@ -21,6 +21,8 @@ const GIT_WEBPACK_DEFAULT = require('./config/git-webpack.default.json');
 const ASSETS_DEFAULT = require(ASSETS_DEFAULT_NAME);
 const access = promiseify(fs.access, fs);
 
+
+
 /**
  * @param   {Object[]|string[]} modules         模块目录列表
  * @param   {Object}            modules.name           模块名
@@ -33,7 +35,7 @@ const access = promiseify(fs.access, fs);
  * @param   {boolean}           debug           调试模式
  * @param   {string}            context         工作目录（绝对路径）
  */
-module.exports = function ({
+module.exports = function({
     modules = GIT_WEBPACK_DEFAULT.modules,
     assets = GIT_WEBPACK_DEFAULT.assets,
     dependencies = GIT_WEBPACK_DEFAULT.dependencies,
@@ -55,15 +57,16 @@ module.exports = function ({
 
 
         // 创建文件索引表
-        () => {
-            return assets ? access(assets).catch((error) => {
-                let basename = path.basename(assets);
-                // 使用 gulp 创建文件可避免目录不存在的问题
-                gulp.src(ASSETS_DEFAULT_PATH)
-                    .pipe(rename(basename))
-                    .pipe(gulp.dest(path.dirname(assets)));
-            }) : null;
-        },
+        () => assets ? access(assets).catch(() => new Promise((resolve, reject) => {
+            let basename = path.basename(assets);
+
+            // 使用 gulp 创建文件可避免目录不存在的问题
+            gulp.src(ASSETS_DEFAULT_PATH)
+                .pipe(rename(basename))
+                .pipe(gulp.dest(path.dirname(assets)))
+                .on('end', errors => errors ? reject(errors) : resolve());
+
+        })) : null,
 
 
         // 运行 Webpack 任务
@@ -75,16 +78,14 @@ module.exports = function ({
 
             let resources = defaultsDeep({}, ASSETS_DEFAULT);
             let dirtyList = list.filter(mod => force || debug || mod.dirty);
-            let tasks = list.map(({name, version}) => {
-                return () => {
+            let tasks = list.map(({name, version}) => () => {
 
-                    let modulePath = path.join(context, name);
-                    let webpackConfigPath = path.join(modulePath, WEBPACK_CONFIG_NAME);
+                let modulePath = path.join(context, name);
+                let webpackConfigPath = path.join(modulePath, WEBPACK_CONFIG_NAME);
 
-                    // 多进程运行 webpack，加速编译
-                    return webpackWorker(webpackConfigPath)
-                        .then(stats => parseAssets({ name, version, stats }));
-                };
+                // 多进程运行 webpack，加速编译
+                return webpackWorker(webpackConfigPath)
+                    .then(stats => parseAssets({ name, version, stats }));
             });
 
 
@@ -93,14 +94,7 @@ module.exports = function ({
             function parseAssets({name, version, stats}) {
                 let hash = stats.hash;
                 let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
-
-                let relative = file => {
-                    if (assets) {
-                        file = path.join(output, file);
-                        file = path.relative(path.dirname(assets), file);
-                    }
-                    return file;
-                };
+                let relative = file => assets ? path.relative(path.dirname(assets), path.join(output, file)) : file;
 
                 let mod = {
                     modified: (new Date()).toISOString(),
@@ -136,21 +130,14 @@ module.exports = function ({
 
 
         // 保存当前编译结果
-        resources => {
-            if (assets) {
-                // 重新读取文件，避免因为多实例运行 git-webpack 导致配置意外覆盖的情况
-                return fsp.readFile(assets, 'utf8')
-                    .then(jsonText => {
-                        let oldJson = JSON.parse(jsonText);
-                        let newJson = defaultsDeep(resources, oldJson);
-                        let newJsonText = JSON.stringify(resources, null, 2);
-                        return fsp.writeFile(assets, newJsonText, 'utf8').then(() => newJson);
-                    });
-            } else {
-                return resources;
-            }
-
-        },
+        // 重新读取文件，避免因为多实例运行 git-webpack 导致配置意外覆盖的情况
+        resources => assets ? fsp.readFile(assets, 'utf8')
+            .then(jsonText => {
+                let oldJson = JSON.parse(jsonText);
+                let newJson = defaultsDeep(resources, oldJson);
+                let newJsonText = JSON.stringify(resources, null, 2);
+                return fsp.writeFile(assets, newJsonText, 'utf8').then(() => newJson);
+            }) : resources,
 
 
         // 显示日志
