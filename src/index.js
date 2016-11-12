@@ -7,7 +7,8 @@ const fsp = require('fs-promise');
 const childProcess = require('child_process');
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('./lib/promise-task');
-
+const webpackRenner = require('./webpack-runner');
+const getBuildVersion = require('./get-build-version');
 const WEBPACK_CONFIG_NAME = 'webpack.config.js';
 const GIT_WEBPACK_DEFAULT = require('./defaults.json');
 
@@ -47,14 +48,18 @@ module.exports = function ({
         resources => {
 
             let tasks = [];
-            let mainVersion = getBuildVersion(context);
-            let modifies = dependencies.map(f => getBuildVersion(f) !== mainVersion);
+            let mainVersion = getBuildVersion(context, context);
+            let modifies = dependencies.map(f => getBuildVersion(f, context) !== mainVersion);
+
+            // 所有模块的公共依赖是否有修改
             let dependenciesModified = modifies.includes(true);
 
-            modules.forEach(name => {
+            modules.forEach(mod => {
+
+                let name = mod;
                 let basic = path.join(context, name);
                 let webpackConfigPath = path.join(basic, WEBPACK_CONFIG_NAME);
-                let version = getBuildVersion(basic);
+                let version = getBuildVersion(basic, basic);
 
                 // 如果模块目录没有修改，则忽略编译
                 // 如果模块目录外的依赖有修改，则强制编译
@@ -97,7 +102,7 @@ module.exports = function ({
             // 并发运行 webpack 任务
             return promiseTask.parallel(tasks, parallel).then(() => {
                 resources.modified = (new Date()).toISOString();
-                resources.version = getBuildVersion(context);
+                resources.version = getBuildVersion(context, context);
                 return resources;
             });
         },
@@ -111,6 +116,8 @@ module.exports = function ({
             if (assets) {
                 let data = JSON.stringify(resources, null, 2);
                 return fsp.writeFile(assets, data, 'utf8').then(() => resources);
+            } else {
+                return resources;
             }
 
         },
@@ -128,80 +135,3 @@ module.exports = function ({
         throw errors;
     }));
 };
-
-
-
-/**
- * 获取模块编译版本号
- * @param  {string}  cwd 模块目录
- * @return {string}      版本号
- */
-function getBuildVersion(cwd) {
-    return childProcess.execSync('git log --pretty=format:"%h" -1', {
-        cwd: cwd
-    }).toString();
-}
-
-
-/**
- * Webpack 运行器 - 使用子进程启动 Webpack CLI
- * @param   {string}  configPath    配置文件路径
- * @param   {string}  cliOptions    命令行启动参数
- * @return  {Promise}
- */
-function webpackRenner(configPath, cliOptions) {
-
-    cliOptions += ' --config ' + configPath;
-    cliOptions += ' --json';
-
-    let cmd = webpackRenner.cmd;
-    let cwd = path.dirname(configPath);
-
-    if (!cmd) {
-        try {
-            let bin = require('webpack/package.json').bin;
-            let binFile = typeof bin === 'string' ? bin : bin.webpack;
-            let dir = path.join('webpack', binFile);
-            let resolveFile = require.resolve(dir);
-            cmd = webpackRenner.cmd = 'node ' + resolveFile;
-        } catch (e) {
-            cmd = webpackRenner.cmd = 'webpack';
-        }
-    }
-
-    //cmd = 'export DEPLOY=1 && ' + cmd; // TODO Windows 兼容
-
-    return new Promise((resolve, reject) => {
-        childProcess.exec(cmd + ' ' + cliOptions, {
-            cwd: cwd
-        }, (errors, stdout, stderr) => {
-            if (errors) {
-                reject(errors);
-            } else {
-                let data = stdout;
-                let log;
-                let match = data.match(/([\w\W]*?\n)?(\{\n[\w\W]*?\n\})\n?$/);
-
-                if (match) {
-                    log = match[1];
-                    data = match[2];
-                }
-
-                if (log) {
-                    console.log(log);
-                }
-
-                if (stderr) {
-                    console.error(stderr);
-                }
-
-                try {
-                    data = JSON.parse(data);
-                    resolve(data);
-                } catch (e) {
-                    reject(e);
-                }
-            }
-        });
-    });
-}
