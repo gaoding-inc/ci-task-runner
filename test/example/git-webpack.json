@@ -1,6 +1,6 @@
 {
     "modules": ["git-webpack-module-example"],
-    "assets": "dist/assets.json",
+    "assets": "dist/webpack-assets.json",
     "dependencies": ["package.json"],
     "parallel": 2
 }

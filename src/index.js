@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 const gulp = require('gulp');
+const rename = require('gulp-rename');
 const fsp = require('fs-promise');
 const numCPUs = require('os').cpus().length;
 const defaultsDeep = require('lodash.defaultsdeep');
@@ -55,12 +56,13 @@ module.exports = function ({
 
         // 创建文件索引表
         () => {
-            if (assets) {
-                return access(ASSETS_DEFAULT_PATH).catch(() => {
-                    // 使用 gulp 创建文件可避免目录不存在的问题
-                    gulp.src(ASSETS_DEFAULT_PATH).pipe(gulp.dest(path.dirname(assets)));
-                });
-            }
+            return assets ? access(assets).catch((error) => {
+                let basename = path.basename(assets);
+                // 使用 gulp 创建文件可避免目录不存在的问题
+                gulp.src(ASSETS_DEFAULT_PATH)
+                    .pipe(rename(basename))
+                    .pipe(gulp.dest(path.dirname(assets)));
+            }) : null;
         },
 
 

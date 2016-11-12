@@ -28,6 +28,7 @@
     "commander": "^2.9.0",
     "fs-promise": "^1.0.0",
     "gulp": "^3.9.1",
+    "gulp-rename": "^1.2.2",
     "lodash.defaultsdeep": "^4.6.0"
   },
   "devDependencies": {
