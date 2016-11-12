@@ -1,0 +1,16 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "git-webpack": "^0.0.1",
+    "webpack": "^1.13.3"
+  },
+  "main": "js/index.js",
+  "scripts": {
+    "build": "git-webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
