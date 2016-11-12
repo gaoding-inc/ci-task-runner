@@ -65,6 +65,8 @@ module.exports = function ({
                 dependencies
             }, context);
 
+
+
             let dirtyList = list.filter(mod => force || debug || mod.dirty);
             let tasks = list.map(({name, version}) => {
                 return () => {
@@ -73,40 +75,48 @@ module.exports = function ({
                     let webpackConfigPath = path.join(modulePath, WEBPACK_CONFIG_NAME);
 
                     // 多进程运行 webpack，加速编译
-                    return webpackRenner(webpackConfigPath).then(stats => {
-                        let hash = stats.hash;
-                        let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
-                        let relative = file => {
-                            if (assets) {
-                                file = path.join(output, file);
-                                file = path.relative(path.dirname(assets), file);
-                            }
-                            return file;
-                        };
-                        let mod = {
-                            modified: (new Date()).toISOString(),
-                            version: version,
-                            chunks: {},
-                            assets: []
-                        };
-
-                        Object.keys(stats.assetsByChunkName).forEach(chunkName => {
-                            let file = stats.assetsByChunkName[chunkName];
-
-                            // 如果开启 devtool 后，可能输出 source-map 文件
-                            file = Array.isArray(file) ? file[0] : file;
-                            mod.chunks[chunkName] = relative(file);
-                        });
-
-                        mod.assets = stats.assets.map(asset => {
-                            let file = asset.name;
-                            return relative(file);
-                        });
-
-                        resources.modules[name] = mod;
-                    });
+                    return webpackRenner(webpackConfigPath)
+                        .then(stats => parseAssets({ name, version, stats }));
                 };
             });
+
+
+
+            // 解析 Webpack Stats
+            function parseAssets({name, version, stats}) {
+                let hash = stats.hash;
+                let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
+                
+                let relative = file => {
+                    if (assets) {
+                        file = path.join(output, file);
+                        file = path.relative(path.dirname(assets), file);
+                    }
+                    return file;
+                };
+
+                let mod = {
+                    modified: (new Date()).toISOString(),
+                    version: version,
+                    chunks: {},
+                    assets: []
+                };
+
+                Object.keys(stats.assetsByChunkName).forEach(chunkName => {
+                    let file = stats.assetsByChunkName[chunkName];
+
+                    // 如果开启 devtool 后，可能输出 source-map 文件
+                    file = Array.isArray(file) ? file[0] : file;
+                    mod.chunks[chunkName] = relative(file);
+                });
+
+                mod.assets = stats.assets.map(asset => {
+                    let file = asset.name;
+                    return relative(file);
+                });
+
+                resources.modules[name] = mod;
+            }
 
 
             // 并发运行 webpack 任务
