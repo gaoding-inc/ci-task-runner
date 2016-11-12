@@ -9,7 +9,7 @@ const fsp = require('fs-promise');
 const numCPUs = require('os').cpus().length;
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('./lib/promise-task');
-const webpackRenner = require('./webpack-worker');
+const webpackWorker = require('./webpack-worker');
 const dirtyChecking = require('./dirty-checking');
 const getBuildVersion = require('./get-build-version');
 const promiseify = require('./lib/promiseify');
@@ -82,7 +82,7 @@ module.exports = function ({
                     let webpackConfigPath = path.join(modulePath, WEBPACK_CONFIG_NAME);
 
                     // 多进程运行 webpack，加速编译
-                    return webpackRenner(webpackConfigPath)
+                    return webpackWorker(webpackConfigPath)
                         .then(stats => parseAssets({ name, version, stats }));
                 };
             });
