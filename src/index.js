@@ -3,23 +3,22 @@
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
+const gulp = require('gulp');
 const fsp = require('fs-promise');
-const childProcess = require('child_process');
+const numCPUs = require('os').cpus().length;
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('./lib/promise-task');
 const webpackRenner = require('./webpack-worker');
 const dirtyChecking = require('./dirty-checking');
 const getBuildVersion = require('./get-build-version');
-
+const promiseify = require('./lib/promiseify');
 
 const WEBPACK_CONFIG_NAME = 'webpack.config.js';
-const GIT_WEBPACK_DEFAULT = require('./defaults.json');
-
-const ASSETS_DEFAULT = {
-    "modified": null,
-    "version": null,
-    "modules": {}
-};
+const ASSETS_DEFAULT_NAME = './config/assets.default.json';
+const ASSETS_DEFAULT_PATH = path.join(__dirname, ASSETS_DEFAULT_NAME);
+const GIT_WEBPACK_DEFAULT = require('./config/git-webpack.default.json');
+const ASSETS_DEFAULT = require(ASSETS_DEFAULT_NAME);
+const access = promiseify(fs.access, fs);
 
 /**
  * @param   {Object[]|string[]} modules         模块目录列表
@@ -47,26 +46,32 @@ module.exports = function ({
         assets = path.join(context, assets);
     }
 
+    if (parallel) {
+        parallel = Math.max(parallel, numCPUs);
+    }
+
     return promiseTask.serial([
 
 
-        // 读取上一次编译结果
+        // 创建文件索引表
         () => {
-            return assets ? fsp.readFile(assets, 'utf8')
-                .then(JSON.parse)
-                .catch(() => ASSETS_DEFAULT) : ASSETS_DEFAULT;
+            if (assets) {
+                return access(ASSETS_DEFAULT_PATH).catch(() => {
+                    // 使用 gulp 创建文件可避免目录不存在的问题
+                    gulp.src(ASSETS_DEFAULT_PATH).pipe(gulp.dest(path.dirname(assets)));
+                });
+            }
         },
 
 
         // 运行 Webpack 任务
-        resources => {
+        () => {
             let list = dirtyChecking({
                 modules,
                 dependencies
             }, context);
 
-
-
+            let resources = defaultsDeep({}, ASSETS_DEFAULT);
             let dirtyList = list.filter(mod => force || debug || mod.dirty);
             let tasks = list.map(({name, version}) => {
                 return () => {
@@ -86,7 +91,7 @@ module.exports = function ({
             function parseAssets({name, version, stats}) {
                 let hash = stats.hash;
                 let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
-                
+
                 let relative = file => {
                     if (assets) {
                         file = path.join(output, file);
@@ -130,12 +135,15 @@ module.exports = function ({
 
         // 保存当前编译结果
         resources => {
-
-            // TODO 创建上级目录
-            // TODO 如果存在多个 git-webpack 进程运行，配置文件可能会错乱
             if (assets) {
-                let data = JSON.stringify(resources, null, 2);
-                return fsp.writeFile(assets, data, 'utf8').then(() => resources);
+                // 重新读取文件，避免因为多实例运行 git-webpack 导致配置意外覆盖的情况
+                return fsp.readFile(assets, 'utf8')
+                    .then(jsonText => {
+                        let oldJson = JSON.parse(jsonText);
+                        let newJson = defaultsDeep(resources, oldJson);
+                        let newJsonText = JSON.stringify(resources, null, 2);
+                        return fsp.writeFile(assets, newJsonText, 'utf8').then(() => newJson);
+                    });
             } else {
                 return resources;
             }
@@ -145,10 +153,14 @@ module.exports = function ({
 
         // 显示日志
         resources => {
-            console.log(util.inspect(resources, {
-                colors: true,
-                depth: null
-            }));
+            if (process.stdout.isTTY) {
+                console.log(util.inspect(resources, {
+                    colors: true,
+                    depth: null
+                }));
+            } else {
+                console.log(resources);
+            }
         }
 
     ]).catch(errors => process.nextTick(() => {

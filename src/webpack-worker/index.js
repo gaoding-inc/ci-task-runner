@@ -9,11 +9,10 @@ const workerFile = path.join(__dirname, 'worker.js');
 /**
  * Webpack 运行器 - 使用子进程启动 Webpack CLI
  * @param   {string}  configPath    配置文件路径
- * @param   {string}  cliOptions    命令行启动参数
+ * @param   {number}  timeout       超时
  * @return  {Promise}
  */
-module.exports = (configPath, cliOptions) => {
-    const TIMEOUT = 1000 * 60;
+module.exports = (configPath, timeout = 1000 * 60) => {
     return new Promise((resolve, reject) => {
 
         let pending = true;
@@ -69,7 +68,7 @@ module.exports = (configPath, cliOptions) => {
             timer = setTimeout(() => {
                 // TODO 显示日志
                 worker.kill();
-            }, TIMEOUT);
+            }, timeout);
         });
 
         worker.on('disconnect', () => {
