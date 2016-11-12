@@ -1,5 +1,10 @@
 # git-webpack
 
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
+[![Node.js Version][node-version-image]][node-version-url]
+[![Build Status][travis-ci-image]][travis-ci-url]
+
 基于 git 的 webpack 多进程调度器，加速现有构建流程。
 
 * 基于 `·git commit` 按需进行构建任务调度
@@ -78,3 +83,13 @@ npm install --save-dev git-webpack
 * gitlab: gitlab-ci
 * github: travis
 
+
+
+[npm-image]: https://img.shields.io/npm/v/git-webpack.svg
+[npm-url]: https://npmjs.org/package/git-webpack
+[node-version-image]: https://img.shields.io/node/v/git-webpack.svg
+[node-version-url]: http://nodejs.org/download/
+[downloads-image]: https://img.shields.io/npm/dm/git-webpack.svg
+[downloads-url]: https://npmjs.org/package/git-webpack
+[travis-ci-image]: https://travis-ci.org/aui/git-webpack.svg?branch=master
+[travis-ci-url]: https://travis-ci.org/aui/git-webpack
