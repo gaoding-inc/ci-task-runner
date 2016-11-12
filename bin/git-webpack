@@ -18,7 +18,8 @@ program
     .version(require('../package.json').version)
     .usage('[options]')
     .option('--modules <dir>...', '模块列表', list)
-    .option('--assets [file]', '资源描述文件输出路径')
+    .option('--assets [file]', '文件索引表输出路径')
+    .option('--no-assets', '不输出文件索引表')
     .option('--dependencies [dir]...', '依赖的文件与目录列表（它的变更会引起模块重新编译）', list)
     .option('--parallel [number]', 'Webpack 进程最大并发数', parseInt)
     .option('--config [path]', '配置文件路径')
@@ -39,6 +40,27 @@ if (program.init) {
     return;
 }
 
+let configFile;
+if (program.config) {
+    configFile = path.join(process.cwd(), program.config);
+    defaultsDeep(options, require(configFile));
+} else {
+    // 尝试加载目录默认的配置文件
+    try {
+        let file = path.join(process.cwd(), CONFIG_PATH_NAME);
+        defaultsDeep(options, require(configFile));
+        configFile = file;
+    } catch (e) { }
+}
+
+
+if (configFile) {
+    // 使用配置文件的目录作为基准
+    options.context = path.dirname(configFile);
+} else {
+    options.context = process.cwd();
+}
+
 
 defaultsDeep(options, {
     modules: program.modules,
@@ -47,24 +69,16 @@ defaultsDeep(options, {
     parallel: program.parallel,
     //webpackCliArgs: program.webpackCliArgs,
     debug: program.debug
-});
-
-try {
-    if (program.config) {
-        defaultsDeep(options, require(program.config));
-    } else {
-        defaultsDeep(options, require(path.join(process.cwd(), CONFIG_PATH_NAME)));
-    }
-} catch (e) {
-    if (!options.modules || !options.modules.length) {
-        program.help();
-        process.exit(1);
-    }
-}
+}, options);
 
 
 function list(val) {
     return val.split(',');
 }
 
-gitWebpack(options);
+if (options.modules.length) {
+    gitWebpack(options);
+} else {
+    program.help();
+}
+
