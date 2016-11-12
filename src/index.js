@@ -28,16 +28,20 @@ module.exports = function ({
     debug = false
 } = {}) {
 
-    assets = path.join(context, assets);
+    if (assets) {
+        assets = path.join(context, assets);
+    }
 
     return promiseTask.serial([
 
+
         // 读取上一次编译结果
         () => {
-            return fsp.readFile(assets, 'utf8')
+            return assets ? fsp.readFile(assets, 'utf8')
                 .then(JSON.parse)
-                .catch(() => ASSETS_DEFAULT);
+                .catch(() => ASSETS_DEFAULT) : () => { };
         },
+
 
         // 运行 Webpack 任务
         resources => {
@@ -62,6 +66,7 @@ module.exports = function ({
 
                     // 多进程运行 webpack，加速编译
                     return webpackRenner(webpackConfigPath, webpackCliArgs).then(data => {
+
                         let mod = {
                             modified: (new Date()).toISOString(),
                             version: version,
@@ -97,18 +102,26 @@ module.exports = function ({
             });
         },
 
+
         // 保存当前编译结果
         resources => {
-            let data = JSON.stringify(resources, null, 2);
+
             // TODO 创建上级目录
             // TODO 如果存在多个 git-webpack 进程运行，配置文件可能会错乱
-            return fsp.writeFile(assets, data, 'utf8').then(() => {
-                console.log(util.inspect(resources, {
-                    colors: true,
-                    depth: null
-                }));
-                return resources;
-            });
+            if (assets) {
+                let data = JSON.stringify(resources, null, 2);
+                return fsp.writeFile(assets, data, 'utf8').then(() => resources);
+            }
+
+        },
+
+
+        // 显示日志
+        resources => {
+            console.log(util.inspect(resources, {
+                colors: true,
+                depth: null
+            }));
         }
 
     ]).catch(errors => process.nextTick(() => {
