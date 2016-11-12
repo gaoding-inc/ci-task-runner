@@ -1,0 +1,6 @@
+{
+    "modules": [],
+    "assets": "dist/assets.json",
+    "dependencies": ["package.json"],
+    "parallel": 2
+}
