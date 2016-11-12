@@ -54,7 +54,7 @@ describe('lib', function () {
             });
         });
 
-        it('error', function () {
+        it('Promise reject', function () {
             return promiseTask.serial([
                 () => 0,
                 () => 1,
@@ -62,6 +62,19 @@ describe('lib', function () {
                 () => 3
             ]).catch(function (error) {
                 assert.deepEqual(2, error)
+            });
+        });
+
+        it('Function error', function () {
+            return promiseTask.serial([
+                () => 0,
+                () => 1,
+                () => {
+                    throw Error('Function error');
+                },
+                () => 3
+            ]).catch(function (error) {
+                assert.deepEqual('Function error', error.message)
             });
         });
 
@@ -101,7 +114,7 @@ describe('lib', function () {
             });
         });
 
-        it('error', function () {
+        it('Promise reject', function () {
             return promiseTask.parallel([
                 () => 0,
                 () => 1,
@@ -109,6 +122,20 @@ describe('lib', function () {
                 () => 3
             ], limit).catch(function (error) {
                 assert.deepEqual(2, error)
+            });
+        });
+
+
+        it('Function error', function () {
+            return promiseTask.parallel([
+                () => 0,
+                () => 1,
+                () => {
+                    throw Error('Function error');
+                },
+                () => 3
+            ], limit).catch(function (error) {
+                assert.deepEqual('Function error', error.message)
             });
         });
 
