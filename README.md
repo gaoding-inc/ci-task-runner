@@ -23,7 +23,7 @@ git-webpack --init
 
 运行上述命令后，会生成模块演示目录以及配置文件 git-webpack.json：
 
-```json
+```javascript
 {   
     // 要编译的模块目录列表。如果发生修改则会运行目录中的 webpack.config.js
     "modules": ["git-webpack-module-example"],
@@ -42,7 +42,7 @@ git-webpack --init
 
 编辑 package.json，添加 npm scripts
 
-```
+```javascript
   "scripts": {
     "build": "git-webpack",
     "deploy": "npm run build && npm run cdn",
