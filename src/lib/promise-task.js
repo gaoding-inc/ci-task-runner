@@ -1,21 +1,29 @@
+'use strict';
+
 /**
  * 串行执行任务
  * @param  {function[]}     tasks 任务列表，任务函数返回 Promise
- * @return {Promise}
+ * @return {Promise}              .then(results => {})
  */
 function serial(tasks) {
     let p = Promise.resolve();
+    let results = [];
+
     tasks.forEach(fn => {
-        p = p.then(fn);
+        p = p.then(fn).then(result => {
+            results.push(result);
+            return result;
+        });
     });
-    return p;
+
+    return p.then(() => results);
 }
 
 /**
  * 并行执行任务
  * @param   {function[]}     tasks 任务列表，任务函数返回 Promise
- * @param   {number}        limit 最大并发数
- * @return  {Promise}
+ * @param   {number}         limit 最大并发数
+ * @return  {Promise}              .then(results => {})
  */
 function parallel(tasks, limit = tasks.length) {
     if (limit === tasks.length) {
@@ -34,7 +42,8 @@ function parallel(tasks, limit = tasks.length) {
             chunks.push(tasks.slice(i, i + limit));
         }
 
-        return serial(chunks.map(chunk => () => parallel(chunk)));
+        return serial(chunks.map(chunk => () => parallel(chunk)))
+            .then((results) => [].concat(...results));
     }
 }
 
