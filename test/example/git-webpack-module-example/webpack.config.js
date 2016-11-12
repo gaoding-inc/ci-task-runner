@@ -5,7 +5,7 @@ module.exports = {
         'index': './js/index.js'
     },
     output: {
-        path: path.join(__dirname, '../dist/[hash]'),
+        path: path.join(__dirname, '../dist/git-webpack-module-example'),
         filename: '[name].js'
     },
     devtool: 'source-map',
