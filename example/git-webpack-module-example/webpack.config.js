@@ -1,25 +1,30 @@
-var path = require('path');
-module.exports = {
+'use strict';
+const path = require('path');
+const moduleName = __dirname.replace(/.*?([^\/\\]*)$/, '$1');
+const dist = path.join(__dirname, '../dist', moduleName);
+const GIT_WEBPACK = process.env.GIT_WEBPACK;
+
+const webpackConfig = {
     context: __dirname,
     entry: {
         'index': './js/index.js'
     },
     output: {
-        path: path.join(__dirname, '../dist/git-webpack-module-example'),
-        filename: '[name].js'
-    },
-    devtool: 'source-map',
-    module: {
-        loaders: [
-            // {
-            //     test: /\.css$/,
-            //     loader: 'style!css'
-            // }
-        ]
+        path: dist,
+        filename: '[name].[chunkhash].js'
     },
     plugins: [function () {
         this.plugin('done', function (stats) {
-            // console.log('done');
+            if (!GIT_WEBPACK) {
+                console.log(moduleName, 'done');
+            }
         });
     }]
 };
+
+// 继承公共配置
+// const defaultsDeep = require('lodash.defaultsdeep');
+// const commonConfig = require('../webpack.common');
+// defaultsDeep(webpackConfig, commonConfig);
+
+module.exports = webpackConfig;

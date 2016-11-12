@@ -20,13 +20,25 @@ npm install git-webpack -g
 
 ## 使用
 
-使用 cd 命令切换到项目目录，运行：
+1\. 切换到 git 项目目录
 
+```bash
+cd you-project
 ```
+
+2\. 创建配置
+
+```bash
 git-webpack --init
 ```
 
-运行上述命令后，会生成模块演示目录以及配置文件 git-webpack.json：
+3\. 运行 git-webpack
+
+```bash
+git-webpack
+```
+
+## 配置
 
 ```javascript
 {   

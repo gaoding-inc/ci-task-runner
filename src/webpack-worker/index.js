@@ -20,6 +20,7 @@ module.exports = (configPath, timeout = 1000 * 60) => {
 
         const worker = childProcess.fork(workerFile, {
             env: {
+                GIT_WEBPACK: 1,
                 WEBPACK_CONFIG: configPath,
                 WEBPACK_CONTEXT: path.dirname(configPath)
             }
@@ -28,7 +29,6 @@ module.exports = (configPath, timeout = 1000 * 60) => {
         worker.on('message', message => {
             //console.log(message);
             switch (message.cmd) {
-
                 case TYPE.WEBPACK_RESULT:
                     pending = false;
                     if (message.errors) {
@@ -37,14 +37,6 @@ module.exports = (configPath, timeout = 1000 * 60) => {
                         resolve(message.data);
                     }
                     break;
-
-                // case TYPE.CONSOLE_LOG:
-                //     console.log(...message.data);
-                //     break;
-
-                // case TYPE.CONSOLE_ERROR:
-                //     console.error(...message.data);
-                //     break;
             }
         });
 

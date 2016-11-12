@@ -8,6 +8,7 @@
   },
   "main": "git-webpack-module-example/index.js",
   "scripts": {
+    "dev": "webpack --config git-webpack-module-example/webpack.config.js",
     "build": "git-webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
