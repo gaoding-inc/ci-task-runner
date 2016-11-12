@@ -7,7 +7,7 @@ const fsp = require('fs-promise');
 const childProcess = require('child_process');
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('./lib/promise-task');
-const webpackRenner = require('./webpack-runner');
+const webpackRenner = require('./webpack-worker');
 const dirtyChecking = require('./dirty-checking');
 const getBuildVersion = require('./get-build-version');
 
@@ -21,15 +21,26 @@ const ASSETS_DEFAULT = {
     "modules": {}
 };
 
+/**
+ * @param   {Object[]|string[]} modules         模块目录列表
+ * @param   {Object}            modules.name           模块名
+ * @param   {string[]}          modules.dependencies   模块依赖
+ * @param   {string[]}          dependencies           模块组公共依赖
+ * @param   {string}            assets          构建后文件索引表输出路径
+ * @param   {string[]}          dependencies    模块依赖
+ * @param   {number}            parallel        最大 Webpack 进程数
+ * @param   {boolean}           force           是否强制全量编译
+ * @param   {boolean}           debug           调试模式
+ * @param   {string}            context         工作目录（绝对路径）
+ */
 module.exports = function ({
     modules = GIT_WEBPACK_DEFAULT.modules,
     assets = GIT_WEBPACK_DEFAULT.assets,
     dependencies = GIT_WEBPACK_DEFAULT.dependencies,
     parallel = GIT_WEBPACK_DEFAULT.parallel,
     force = false,
-    webpackCliArgs = '',
-    context = process.cwd(),
-    debug = false
+    debug = false,
+    context = process.cwd()
 } = {}) {
 
     if (assets) {
@@ -58,12 +69,13 @@ module.exports = function ({
             let tasks = list.map(({name, version}) => {
                 return () => {
 
-                    let basic = path.join(context, name);
-                    let webpackConfigPath = path.join(basic, WEBPACK_CONFIG_NAME);
+                    let modulePath = path.join(context, name);
+                    let webpackConfigPath = path.join(modulePath, WEBPACK_CONFIG_NAME);
 
                     // 多进程运行 webpack，加速编译
-                    return webpackRenner(webpackConfigPath, webpackCliArgs).then(data => {
-
+                    return webpackRenner(webpackConfigPath).then(stats => {
+                        let hash = stats.hash;
+                        let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
                         let mod = {
                             modified: (new Date()).toISOString(),
                             version: version,
@@ -71,16 +83,16 @@ module.exports = function ({
                             assets: []
                         };
 
-                        Object.keys(data.assetsByChunkName).forEach(name => {
-                            let file = data.assetsByChunkName[name];
+                        Object.keys(stats.assetsByChunkName).forEach(chunkName => {
+                            let file = stats.assetsByChunkName[chunkName];
 
                             // 如果开启 devtool 后，可能输出 source-map 文件
                             file = Array.isArray(file) ? file[0] : file;
 
-                            mod.chunks[name] = file;
+                            mod.chunks[chunkName] = file;
                         });
 
-                        mod.assets = data.assets.map(asset => {
+                        mod.assets = stats.assets.map(asset => {
                             let file = asset.name;
                             return file;
                         });

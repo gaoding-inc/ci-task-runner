@@ -23,8 +23,6 @@ program
     .option('--dependencies [dir]...', '依赖的文件与目录列表（它的变更会引起模块重新编译）', list)
     .option('--parallel [number]', 'Webpack 进程最大并发数', parseInt)
     .option('--config [path]', '配置文件路径')
-    // commander BUG
-    //.option('--webpack-cli-args [options]', 'Webpack 命令行启动参数')
     .option('--init', '初始化项目，生成配置文件')
     .option('--debug', '开启调试模式')
     .parse(process.argv);
@@ -67,7 +65,6 @@ defaultsDeep(options, {
     assets: program.assets,
     dependencies: program.dependencies,
     parallel: program.parallel,
-    //webpackCliArgs: program.webpackCliArgs,
     debug: program.debug
 }, options);
 

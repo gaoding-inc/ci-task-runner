@@ -1,9 +1,11 @@
+var path = require('path');
 module.exports = {
+    context: __dirname,
     entry: {
         'index': './js/index.js'
     },
     output: {
-        path: '../dist/git-webpack-module-example',
+        path: path.join(__dirname, '../dist/git-webpack-module-example'),
         filename: '[name].js'
     },
     devtool: 'source-map',
