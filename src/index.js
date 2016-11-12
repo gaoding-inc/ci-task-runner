@@ -64,7 +64,7 @@ module.exports = function ({
                 modules,
                 dependencies
             }, context);
-            
+
             let dirtyList = list.filter(mod => force || debug || mod.dirty);
             let tasks = list.map(({name, version}) => {
                 return () => {
@@ -76,6 +76,13 @@ module.exports = function ({
                     return webpackRenner(webpackConfigPath).then(stats => {
                         let hash = stats.hash;
                         let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
+                        let relative = file => {
+                            if (assets) {
+                                file = path.join(output, file);
+                                file = path.relative(path.dirname(assets), file);
+                            }
+                            return file;
+                        };
                         let mod = {
                             modified: (new Date()).toISOString(),
                             version: version,
@@ -88,13 +95,12 @@ module.exports = function ({
 
                             // 如果开启 devtool 后，可能输出 source-map 文件
                             file = Array.isArray(file) ? file[0] : file;
-
-                            mod.chunks[chunkName] = file;
+                            mod.chunks[chunkName] = relative(file);
                         });
 
                         mod.assets = stats.assets.map(asset => {
                             let file = asset.name;
-                            return file;
+                            return relative(file);
                         });
 
                         resources.modules[name] = mod;
