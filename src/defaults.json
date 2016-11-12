@@ -1,7 +1,7 @@
 {
     "modules": [],
     "assets": "dist/assets.json",
-    "dependencies": [],
+    "dependencies": ["package.json"],
     "parallel": 2,
     "webpack-cli-args": "--optimize-minimize"
 }
