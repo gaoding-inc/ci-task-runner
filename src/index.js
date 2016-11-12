@@ -8,7 +8,10 @@ const childProcess = require('child_process');
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('./lib/promise-task');
 const webpackRenner = require('./webpack-runner');
+const dirtyChecking = require('./dirty-checking');
 const getBuildVersion = require('./get-build-version');
+
+
 const WEBPACK_CONFIG_NAME = 'webpack.config.js';
 const GIT_WEBPACK_DEFAULT = require('./defaults.json');
 
@@ -40,34 +43,23 @@ module.exports = function ({
         () => {
             return assets ? fsp.readFile(assets, 'utf8')
                 .then(JSON.parse)
-                .catch(() => ASSETS_DEFAULT) : () => { };
+                .catch(() => ASSETS_DEFAULT) : ASSETS_DEFAULT;
         },
 
 
         // 运行 Webpack 任务
         resources => {
+            let list = dirtyChecking({
+                modules,
+                dependencies
+            }, context);
+            
+            let dirtyList = list.filter(mod => force || debug || mod.dirty);
+            let tasks = list.map(({name, version}) => {
+                return () => {
 
-            let tasks = [];
-            let mainVersion = getBuildVersion(context, context);
-            let modifies = dependencies.map(f => getBuildVersion(f, context) !== mainVersion);
-
-            // 所有模块的公共依赖是否有修改
-            let dependenciesModified = modifies.includes(true);
-
-            modules.forEach(mod => {
-
-                let name = mod;
-                let basic = path.join(context, name);
-                let webpackConfigPath = path.join(basic, WEBPACK_CONFIG_NAME);
-                let version = getBuildVersion(basic, basic);
-
-                // 如果模块目录没有修改，则忽略编译
-                // 如果模块目录外的依赖有修改，则强制编译
-                if (!debug && !force && !dependenciesModified && version === mainVersion) {
-                    return;
-                }
-
-                tasks.push(() => {
+                    let basic = path.join(context, name);
+                    let webpackConfigPath = path.join(basic, WEBPACK_CONFIG_NAME);
 
                     // 多进程运行 webpack，加速编译
                     return webpackRenner(webpackConfigPath, webpackCliArgs).then(data => {
@@ -95,14 +87,14 @@ module.exports = function ({
 
                         resources.modules[name] = mod;
                     });
-                });
+                };
             });
 
 
             // 并发运行 webpack 任务
             return promiseTask.parallel(tasks, parallel).then(() => {
                 resources.modified = (new Date()).toISOString();
-                resources.version = getBuildVersion(context, context);
+                resources.version = getBuildVersion(context);
                 return resources;
             });
         },

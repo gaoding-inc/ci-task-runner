@@ -9,24 +9,22 @@ const childProcess = require('child_process');
  * @param   {string}  cliOptions    命令行启动参数
  * @return  {Promise}
  */
-module.exports = function webpackRenner(configPath, cliOptions) {
+module.exports = (configPath, cliOptions) => {
 
     cliOptions += ' --config ' + configPath;
     cliOptions += ' --json';
 
-    let cmd = webpackRenner.cmd;
+    let cmd;
     let cwd = path.dirname(configPath);
 
-    if (!cmd) {
-        try {
-            let bin = require('webpack/package.json').bin;
-            let binFile = typeof bin === 'string' ? bin : bin.webpack;
-            let dir = path.join('webpack', binFile);
-            let resolveFile = require.resolve(dir);
-            cmd = webpackRenner.cmd = 'node ' + resolveFile;
-        } catch (e) {
-            cmd = webpackRenner.cmd = 'webpack';
-        }
+    try {
+        let bin = require('webpack/package.json').bin;
+        let binFile = typeof bin === 'string' ? bin : bin.webpack;
+        let dir = path.join('webpack', binFile);
+        let resolveFile = require.resolve(dir);
+        cmd = 'node ' + resolveFile;
+    } catch (e) {
+        cmd = 'webpack';
     }
 
     //cmd = 'export DEPLOY=1 && ' + cmd; // TODO Windows 兼容
