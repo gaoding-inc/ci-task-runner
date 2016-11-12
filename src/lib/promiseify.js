@@ -7,11 +7,11 @@
  * @return  {Promise}
  */
 function promisify(fn, receiver) {
-    return function(...args) {
+    return (...args) => {
         return new Promise((resolve, reject) => {
-            fn.apply(receiver, [].concat(args, [(err, res) => {
+            fn.apply(receiver, [...args, (err, res) => {
                 return err ? reject(err) : resolve(res);
-            }]));
+            }]);
         });
     };
 }
