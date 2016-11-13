@@ -1,8 +1,8 @@
 {
-  "modules": ["git-webpack-module-example"],
+  "modules": ["mod1", "mod2", "mod3", "mod4", "mod5", "mod6", "mod7", "mod8"],
   "dependencies": ["package.json"],
   "assets": "dist/assets.json",
-  "parallel": 2,
+  "parallel": 1,
   "build": {
     "force": false,
     "timeout": 60000,

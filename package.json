@@ -32,6 +32,7 @@
     "lodash.defaultsdeep": "^4.6.0"
   },
   "devDependencies": {
+    "jquery": "^3.1.1",
     "mocha": "^3.1.2",
     "webpack": "^1.13.3"
   }
