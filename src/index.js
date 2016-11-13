@@ -12,7 +12,6 @@ const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('./lib/promise-task');
 const webpackWorker = require('./webpack-worker');
 const dirtyChecking = require('./dirty-checking');
-const getBuildVersion = require('./get-build-version');
 const promiseify = require('./lib/promiseify');
 
 const WEBPACK_CONFIG_NAME = 'webpack.config.js';
@@ -31,13 +30,14 @@ const access = promiseify(fs.access, fs);
  * @param   {string[]}          dependencies           模块组公共依赖（相对）
  * @param   {string}            assets          构建后文件索引表输出路径（相对）
  * @param   {string[]}          dependencies    模块依赖（相对）
- * @param   {number}            parallel        最大 Webpack 进程数
- * @param   {number}            timeout         单个任务超时
- * @param   {string[]}          argv            设置启动执行 webpack.config.js 的命令行参数
- * @param   {Object}            evn             设置环境变量
+ * @param   {number}            parallel        Webpack: 最大进程数
+ * @param   {number}            timeout         Webpack: 单个任务超时
+ * @param   {string}            cwd             Webpack: 工作目录
+ * @param   {string[]}          argv            Webpack: 设置启动执行 webpack.config.js 的命令行参数
+ * @param   {Object}            evn             Webpack: 设置环境变量
+ * @param   {string}            launch          Webpack: 启动文件
  * @param   {boolean}           force           是否强制全量编译
- * @param   {boolean}           debug           调试模式
- * @param   {string}            context         工作目录（绝对路径）
+ * @param   {string}            context         git-webpack 工作目录（绝对路径）
  */
 module.exports = function({
     modules = GIT_WEBPACK_DEFAULT.modules,
@@ -45,10 +45,11 @@ module.exports = function({
     dependencies = GIT_WEBPACK_DEFAULT.dependencies,
     parallel = GIT_WEBPACK_DEFAULT.parallel,
     timeout = GIT_WEBPACK_DEFAULT.timeout,
+    cwd = GIT_WEBPACK_DEFAULT.cwd,
     argv = GIT_WEBPACK_DEFAULT.argv,
     env = GIT_WEBPACK_DEFAULT.evn,
+    launch = GIT_WEBPACK_DEFAULT.launch,
     force = false,
-    debug = false,
     context = process.cwd()
 } = {}) {
 
@@ -88,17 +89,20 @@ module.exports = function({
 
             let tasks = dirtyList.map(({name, version}) => () => {
 
-                let modulePath = path.join(context, name);
-                let webpackConfigPath = path.join(modulePath, WEBPACK_CONFIG_NAME);
+                let NAME_REG = /(\${moduleName})/g;
+                let webpackLaunch = launch.replace(NAME_REG, name);
+                let webpackConfigPath = path.join(context, webpackLaunch);
                 let webpackContext = path.dirname(webpackConfigPath);
+                let webpackCwd = path.join(context, cwd.replace(NAME_REG, name));
                 let CMD = `node --print "require.resolve('webpack')"`;
                 let webpackPath = childProcess.execSync(CMD, { cwd: webpackContext }).toString().trim();
 
                 // 多进程运行 webpack，加速编译
                 return webpackWorker({
-                    webpackPath: webpackPath,
+                    webpackPath,
                     webpackConfigPath,
                     webpackContext,
+                    cwd: webpackCwd,
                     env,
                     argv,
                     timeout
@@ -176,7 +180,7 @@ module.exports = function({
                     depth: null
                 }));
             } else {
-                console.log(resources);
+                console.log(JSON.stringify(resources, null, 2));
             }
         }
 

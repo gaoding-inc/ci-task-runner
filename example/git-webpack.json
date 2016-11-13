@@ -1,11 +1,13 @@
 {
   "modules": ["git-webpack-module-example"],
-  "assets": "dist/assets.json",
   "dependencies": ["package.json"],
+  "assets": "dist/assets.json",
   "parallel": 2,
   "timeout": 60000,
+  "cwd": "${moduleName}",
   "argv": [],
   "env": {
     "GIT_WEBPACK": "1"
-  }
+  },
+  "launch": "${moduleName}/webpack.config.js"
 }

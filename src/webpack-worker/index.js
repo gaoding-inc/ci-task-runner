@@ -9,20 +9,29 @@ const workerFile = path.join(__dirname, 'worker.js');
 
 /**
  * Webpack 运行器 - 使用子进程启动 Webpack
- * @param   {string}   webpackPath       Webpack 路径
- * @param   {string}   webpackConfigPath Webpack 配置文件路径
- * @param   {string[]} argv              命令行参数
- * @param   {Object}   env               环境变量
- * @param   {number}   timeout           超时
+ * @param   {string}    webpackPath       Webpack 路径
+ * @param   {string}    webpackConfigPath Webpack 配置文件路径
+ * @param   {string}    cwd               工作目录
+ * @param   {string[]}  argv              命令行参数
+ * @param   {Object}    env               环境变量
+ * @param   {number}    timeout           超时
  * @return  {Promise}
  */
-module.exports = ({webpackPath, webpackConfigPath, env = {}, argv = [], timeout = 1000 * 60}) => {
+module.exports = ({
+    webpackPath,
+    webpackConfigPath,
+    cwd = process.cwd(),
+    env = {},
+    argv = [],
+    timeout = 1000 * 60
+}) => {
     return new Promise((resolve, reject) => {
 
         let pending = true;
         let timer = null;
 
         const worker = childProcess.fork(workerFile, {
+            cwd: cwd,
             execArgv: argv,
             env: defaultsDeep({
                 [TYPE.WEBPACK_PATH]: webpackPath,
@@ -56,7 +65,9 @@ module.exports = ({webpackPath, webpackConfigPath, env = {}, argv = [], timeout 
         });
 
         worker.on('error', (errors) => {
-            throw errors;
+            if (pending) { 
+                reject(errors);
+            }
         });
 
         worker.on('listening', () => {

@@ -10,7 +10,7 @@ const gulp = require('gulp');
 const gitWebpack = require('../');
 const options = { modules: [] };
 const CONFIG_PATH_NAME = 'git-webpack.json';
-const CONTEXT = process.cwd();
+let CONTEXT = process.cwd();
 
 program
     .version(require('../package.json').version)
@@ -21,12 +21,12 @@ program
     .option('--dependencies [dir]...', '依赖的文件与目录列表（它的变更会引起模块重新编译）', list)
     .option('--parallel [number]', 'Webpack 进程最大并发数', parseInt)
     .option('--timeout [number]', '设置单个 Webpack 构建运行超时限制', parseInt)
+    .option('--cwd [dir]', '设置工作目录')
     .option('--env [map]', '设置环境变量，例如 GIT_WEBPACK=1&DEPLOY=1', map)
     .option('--argv [list]', '设置启动执行 webpack.config.js 的命令行参数', list)
     .option('--force', '强制编译所有的模块目录')
     .option('--config [path]', '外部配置文件路径')
     .option('--init', '初始化项目，生成配置文件')
-    .option('--debug', '开启调试模式')
     .parse(process.argv);
 
 
@@ -47,6 +47,7 @@ if (program.init) {
 if (program.config) {
     let configFile = path.join(CONTEXT, program.config);
     defaultsDeep(options, require(configFile));
+    CONTEXT = path.resolve(configFile, '../');
 } else {
     try {
         // 尝试加载目录默认的配置文件
@@ -61,9 +62,9 @@ defaultsDeep(options, {
     assets: program.assets,
     dependencies: program.dependencies,
     parallel: program.parallel,
+    cwd: program.cwd,
     env: program.env,
     force: program.force,
-    debug: program.debug,
     context: CONTEXT
 }, options);
 
