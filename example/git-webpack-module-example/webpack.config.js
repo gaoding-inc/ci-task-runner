@@ -1,6 +1,6 @@
 'use strict';
 const path = require('path');
-const moduleName = __dirname.replace(/.*?([^\/\\]*)$/, '$1');
+const moduleName = path.basename(__dirname);
 const dist = path.join(__dirname, '../dist', moduleName);
 const GIT_WEBPACK = process.env.GIT_WEBPACK;
 

@@ -1,9 +1,11 @@
 {
-    "modules": ["git-webpack-module-example"],
-    "assets": "dist/assets.json",
-    "dependencies": ["package.json"],
-    "parallel": 2,
-    "env": {
-        "GIT_WEBPACK": "1"
-    }
+  "modules": ["git-webpack-module-example"],
+  "assets": "dist/assets.json",
+  "dependencies": ["package.json"],
+  "parallel": 2,
+  "timeout": 60000,
+  "argv": [],
+  "env": {
+    "GIT_WEBPACK": "1"
+  }
 }
