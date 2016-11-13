@@ -50,7 +50,7 @@ module.exports = function(options = {}, context = process.cwd()) {
     }
 
     if (parallel) {
-        parallel = Math.max(parallel, numCPUs);
+        parallel = Math.min(parallel, numCPUs);
     }
 
     return promiseTask.serial([

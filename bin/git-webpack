@@ -16,7 +16,7 @@ program
     .usage('[options]')
     .option('--modules <dir>...', '模块目录名列表', list)
     .option('--assets [file]', '文件索引表输出路径')
-    .option('--no-assets', '不输出文件索引表')
+    //.option('--no-assets', '不输出文件索引表')
     .option('--dependencies [dir]...', '依赖的文件与目录列表（它的变更会引起模块重新编译）', list)
     .option('--parallel [number]', 'Webpack 进程最大并发数', parseInt)
     .option('--build-timeout [number]', '设置单个 Webpack 构建运行超时限制', parseInt)
@@ -50,21 +50,7 @@ function map(val) {
 
 
 function config(file) {
-    const options = { modules: [] };
-
-    if (file) {
-        let configFile = path.join(CONTEXT, file);
-        defaultsDeep(options, require(configFile));
-        CONTEXT = path.resolve(configFile, '../');
-    } else {
-        try {
-            // 尝试加载目录默认的配置文件
-            let file = path.join(CONTEXT, CONFIG_PATH_NAME);
-            defaultsDeep(options, require(file));
-        } catch (e) { }
-    }
-
-    defaultsDeep(options, {
+    const options = {
         modules: program.modules,
         dependencies: program.dependencies,
         assets: program.assets,
@@ -79,7 +65,19 @@ function config(file) {
             });
             return map;
         })()
-    });
+    };
+
+    if (file) {
+        let configFile = path.join(CONTEXT, file);
+        defaultsDeep(options, require(configFile));
+        CONTEXT = path.resolve(configFile, '../');
+    } else {
+        try {
+            // 尝试加载目录默认的配置文件
+            let file = path.join(CONTEXT, CONFIG_PATH_NAME);
+            defaultsDeep(options, require(file));
+        } catch (e) { }
+    }
 
     return options;
 }
@@ -102,5 +100,6 @@ function init() {
 if (program.init) {
     init();
 } else {
-    gitWebpack(config(program.config), CONTEXT);
+    let options = config(program.config);
+    gitWebpack(options, CONTEXT);
 }
