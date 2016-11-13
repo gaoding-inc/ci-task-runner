@@ -40,6 +40,8 @@ git-webpack
 
 ## 配置
 
+git-webpack.json
+
 ```javascript
 {   
     "modules": ["git-webpack-module-example"],
