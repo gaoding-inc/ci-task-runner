@@ -60,17 +60,15 @@ git-webpack.json
 
 设置要编译的模块目录列表。如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持字符串于对象形式：
 
-```javascript
-{   
-    "modules": [
-        "mod1",
-        "mod2",
-        {
-            "name": "mod3",
-            "dependencies": ["common/v1"]
-        }
-    ]
-}
+```javascript 
+"modules": [
+    "mod1",
+    "mod2",
+    {
+        "name": "mod3",
+        "dependencies": ["common/v1"]
+    }
+]
 ```
 
 ### `assets`
@@ -112,11 +110,11 @@ git-webpack 可以多进程调度 Webpack，这里可以设置进程并行数。
 编辑 package.json，添加 npm scripts
 
 ```javascript
-  "scripts": {
-    "build": "git-webpack --parallel 4",
-    "deploy": "npm run build && npm run cdn",
-    "cdn": "echo 'publish...'"
-  }
+"scripts": {
+  "build": "git-webpack --parallel 4",
+  "deploy": "npm run build && npm run cdn",
+  "cdn": "echo 'publish...'"
+}
 ```
 
 使用 npm run 启动 git-webpack

@@ -24,7 +24,7 @@ program
     .option('--parallel [number]', 'Webpack 进程最大并发数', parseInt)
     .option('--env [map]', '设置环境变量，例如 GIT_WEBPACK=1&DEPLOY=1', map)
     .option('--force', '强制编译所有的模块目录')
-    .option('--config [path]', '配置文件路径')
+    .option('--config [path]', '外部配置文件路径')
     .option('--init', '初始化项目，生成配置文件')
     .option('--debug', '开启调试模式')
     .parse(process.argv);

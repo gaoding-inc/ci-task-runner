@@ -73,61 +73,70 @@ module.exports = function({
 
         // 运行 Webpack 任务
         () => {
-            let list = dirtyChecking({
+            let dirtyList = dirtyChecking({
                 modules,
                 dependencies
             }, context);
 
-            let resources = defaultsDeep({}, ASSETS_DEFAULT);
-            let dirtyList = list.filter(mod => force || debug || mod.dirty);
-            let tasks = list.map(({name, version}) => () => {
+            let tasks = dirtyList.map(({name, version}) => () => {
 
                 let modulePath = path.join(context, name);
                 let webpackConfigPath = path.join(modulePath, WEBPACK_CONFIG_NAME);
 
                 // 多进程运行 webpack，加速编译
-                return webpackWorker(webpackConfigPath, env)
-                    .then(stats => parseAssets({ name, version, stats }));
+                return webpackWorker(webpackConfigPath, env).then(stats => {
+                    stats.$name = name;
+                    stats.$version = version;
+                    stats.$modified = (new Date()).toISOString();
+                    return stats;
+                });
             });
-
-
-
-            // 解析 Webpack Stats
-            function parseAssets({name, version, stats}) {
-                let hash = stats.hash;
-                let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
-                let relative = file => assets ? path.relative(path.dirname(assets), path.join(output, file)) : file;
-
-                let mod = {
-                    modified: (new Date()).toISOString(),
-                    version: version,
-                    chunks: {},
-                    assets: []
-                };
-
-                Object.keys(stats.assetsByChunkName).forEach(chunkName => {
-                    let file = stats.assetsByChunkName[chunkName];
-
-                    // 如果开启 devtool 后，可能输出 source-map 文件
-                    file = Array.isArray(file) ? file[0] : file;
-                    mod.chunks[chunkName] = relative(file);
-                });
-
-                mod.assets = stats.assets.map(asset => {
-                    let file = asset.name;
-                    return relative(file);
-                });
-
-                resources.modules[name] = mod;
-            }
-
 
             // 并发运行 webpack 任务
-            return promiseTask.parallel(tasks, parallel).then(() => {
-                resources.modified = (new Date()).toISOString();
-                resources.version = getBuildVersion(context);
-                return resources;
+            return promiseTask.parallel(tasks, parallel);
+        },
+
+
+        // 解析 Webpack Stats
+        (results) => results.map(stats => {
+            let name = stats.$name;
+            let version = stats.$version;
+            var modified = stats.$modified;
+            let hash = stats.hash;
+            let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
+            let relative = file => assets ? path.relative(path.dirname(assets), path.join(output, file)) : file;
+
+            let mod = {
+                modified: modified,
+                version: version,
+                chunks: {},
+                assets: []
+            };
+
+            Object.keys(stats.assetsByChunkName).forEach(chunkName => {
+                let file = stats.assetsByChunkName[chunkName];
+
+                // 如果开启 devtool 后，可能输出 source-map 文件
+                file = Array.isArray(file) ? file[0] : file;
+                mod.chunks[chunkName] = relative(file);
             });
+
+            mod.assets = stats.assets.map(asset => {
+                let file = asset.name;
+                return relative(file);
+            });
+
+            return mod;
+        }),
+
+
+        // 包装数据
+        (modules) => {
+            let resources = defaultsDeep({}, ASSETS_DEFAULT);
+            resources.modified = (new Date()).toISOString();
+            resources.version = getBuildVersion(context);
+            resources.modules = modules;
+            return resources;
         },
 
 
