@@ -6,7 +6,7 @@ const promiseTask = require('../src/lib/promise-task');
 describe('lib', function () {
 
     const delay = (fuc, time) => {
-        return new Promise((results, reject) => {
+        return new Promise(results => {
             setTimeout(() => {
                 results(fuc());
             }, time);

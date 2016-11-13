@@ -1,8 +1,6 @@
 'use strict';
 
 const path = require('path');
-const childProcess = require('child_process');
-const defaultsDeep = require('lodash.defaultsdeep');
 const getBuildVersion = require('./get-build-version');
 
 /**
@@ -73,6 +71,3 @@ module.exports = (
 
     });
 };
-
-
-

@@ -69,6 +69,4 @@ module.exports = (configPath, env, timeout = 1000 * 60) => {
 
     });
 
-
-
-}
+};
