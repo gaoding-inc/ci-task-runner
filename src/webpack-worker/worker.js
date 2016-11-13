@@ -1,6 +1,5 @@
 'use strict';
 
-const childProcess = require('child_process');
 const TYPE = require('./type');
 
 process.on('error', errors => {
@@ -8,14 +7,13 @@ process.on('error', errors => {
     process.exit(1);
 });
 
-const WEBPACK_CONFIG = process.env.WEBPACK_CONFIG;
-const WEBPACK_CONTEXT = process.env.WEBPACK_CONTEXT;
-const CMD = `node --print "require.resolve('webpack')"`;
-const webpackPath = childProcess.execSync(CMD, { cwd: WEBPACK_CONTEXT }).toString().trim();
+const WEBPACK_PATH = process.env[TYPE.WEBPACK_PATH];
+const WEBPACK_CONFIG_PATH = process.env[TYPE.WEBPACK_CONFIG_PATH];
+const WEBPACK_CONTEXT = process.env[TYPE.WEBPACK_CONTEXT];
 
 
-const webpack = require(webpackPath);
-const options = require(WEBPACK_CONFIG);
+const webpack = require(WEBPACK_PATH);
+const options = require(WEBPACK_CONFIG_PATH);
 
 
 Object.assign(options, { context: WEBPACK_CONTEXT });

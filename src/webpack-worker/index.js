@@ -8,21 +8,26 @@ const workerFile = path.join(__dirname, 'worker.js');
 
 
 /**
- * Webpack 运行器 - 使用子进程启动 Webpack CLI
- * @param   {string}  configPath    配置文件路径
- * @param   {number}  timeout       超时
+ * Webpack 运行器 - 使用子进程启动 Webpack
+ * @param   {string}   webpackPath       Webpack 路径
+ * @param   {string}   webpackConfigPath Webpack 配置文件路径
+ * @param   {string[]} argv              命令行参数
+ * @param   {Object}   env               环境变量
+ * @param   {number}   timeout           超时
  * @return  {Promise}
  */
-module.exports = (configPath, env, timeout = 1000 * 60) => {
+module.exports = ({webpackPath, webpackConfigPath, env = {}, argv = [], timeout = 1000 * 60}) => {
     return new Promise((resolve, reject) => {
 
         let pending = true;
         let timer = null;
 
         const worker = childProcess.fork(workerFile, {
+            execArgv: argv,
             env: defaultsDeep({
-                WEBPACK_CONFIG: configPath,
-                WEBPACK_CONTEXT: path.dirname(configPath)
+                [TYPE.WEBPACK_PATH]: webpackPath,
+                [TYPE.WEBPACK_CONFIG_PATH]: webpackConfigPath,
+                [TYPE.WEBPACK_CONTEXT]: path.dirname(webpackConfigPath)
             }, env)
         });
 
@@ -54,7 +59,7 @@ module.exports = (configPath, env, timeout = 1000 * 60) => {
             throw errors;
         });
 
-        worker.on('listening', (address) => {
+        worker.on('listening', () => {
             worker.send('shutdown');
             worker.disconnect();
             timer = setTimeout(() => {
