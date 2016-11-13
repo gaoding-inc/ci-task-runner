@@ -14,12 +14,12 @@ const webpackWorker = require('./webpack-worker');
 const dirtyChecking = require('./dirty-checking');
 const promiseify = require('./lib/promiseify');
 
-const WEBPACK_CONFIG_NAME = 'webpack.config.js';
 const ASSETS_DEFAULT_NAME = './config/assets.default.json';
 const ASSETS_DEFAULT_PATH = path.join(__dirname, ASSETS_DEFAULT_NAME);
 const GIT_WEBPACK_DEFAULT = require('./config/git-webpack.default.json');
 const ASSETS_DEFAULT = require(ASSETS_DEFAULT_NAME);
 const access = promiseify(fs.access, fs);
+const MODULE_NAME_REG = /(\${moduleName})/g;
 
 
 
@@ -39,19 +39,12 @@ const access = promiseify(fs.access, fs);
  * @param   {boolean}           force           是否强制全量编译
  * @param   {string}            context         git-webpack 工作目录（绝对路径）
  */
-module.exports = function({
-    modules = GIT_WEBPACK_DEFAULT.modules,
-    assets = GIT_WEBPACK_DEFAULT.assets,
-    dependencies = GIT_WEBPACK_DEFAULT.dependencies,
-    parallel = GIT_WEBPACK_DEFAULT.parallel,
-    timeout = GIT_WEBPACK_DEFAULT.timeout,
-    cwd = GIT_WEBPACK_DEFAULT.cwd,
-    argv = GIT_WEBPACK_DEFAULT.argv,
-    env = GIT_WEBPACK_DEFAULT.evn,
-    launch = GIT_WEBPACK_DEFAULT.launch,
-    force = false,
-    context = process.cwd()
-} = {}) {
+module.exports = function(options = {}, context = process.cwd()) {
+
+    options = defaultsDeep({}, options, GIT_WEBPACK_DEFAULT);
+
+    let {modules, dependencies, assets, parallel} = options;
+    let {force, timeout, cwd, env, argv, launch} = options.build;
 
     if (assets) {
         assets = path.join(context, assets);
@@ -89,11 +82,10 @@ module.exports = function({
 
             let tasks = dirtyList.map(({name, version}) => () => {
 
-                let NAME_REG = /(\${moduleName})/g;
-                let webpackLaunch = launch.replace(NAME_REG, name);
+                let webpackLaunch = launch.replace(MODULE_NAME_REG, name);
                 let webpackConfigPath = path.join(context, webpackLaunch);
                 let webpackContext = path.dirname(webpackConfigPath);
-                let webpackCwd = path.join(context, cwd.replace(NAME_REG, name));
+                let webpackCwd = path.join(context, cwd.replace(MODULE_NAME_REG, name));
                 let CMD = `node --print "require.resolve('webpack')"`;
                 let webpackPath = childProcess.execSync(CMD, { cwd: webpackContext }).toString().trim();
 

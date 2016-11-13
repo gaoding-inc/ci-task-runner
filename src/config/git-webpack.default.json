@@ -3,11 +3,14 @@
   "dependencies": ["package.json"],
   "assets": "dist/assets.json",
   "parallel": 2,
-  "timeout": 60000,
-  "cwd": "${moduleName}",
-  "argv": [],
-  "env": {
-    "GIT_WEBPACK": "1"
-  },
-  "launch": "${moduleName}/webpack.config.js"
+  "build": {
+    "force": false,
+    "timeout": 60000,
+    "cwd": "${moduleName}",
+    "env": {
+      "GIT_WEBPACK": "1"
+    },
+    "argv": [],
+    "launch": "${moduleName}/webpack.config.js"
+  }
 }
