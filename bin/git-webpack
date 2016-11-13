@@ -11,7 +11,7 @@ const gulp = require('gulp');
 
 
 const gitWebpack = require('../');
-const options = {modules:[]};
+const options = { modules: [] };
 const CONFIG_PATH_NAME = 'git-webpack.json';
 
 program
@@ -22,6 +22,8 @@ program
     .option('--no-assets', '不输出文件索引表')
     .option('--dependencies [dir]...', '依赖的文件与目录列表（它的变更会引起模块重新编译）', list)
     .option('--parallel [number]', 'Webpack 进程最大并发数', parseInt)
+    .option('--env [map]', '设置环境变量，例如 GIT_WEBPACK=1&DEPLOY=1', map)
+    .option('--force', '强制编译所有的模块目录')
     .option('--config [path]', '配置文件路径')
     .option('--init', '初始化项目，生成配置文件')
     .option('--debug', '开启调试模式')
@@ -52,7 +54,7 @@ if (program.config) {
         let file = path.join(process.cwd(), CONFIG_PATH_NAME);
         defaultsDeep(options, require(file));
         configFile = file;
-    } catch (e) {}
+    } catch (e) { }
 }
 
 
@@ -75,6 +77,17 @@ defaultsDeep(options, {
 
 function list(val) {
     return val.split(',');
+}
+
+function map(val) {
+    let ret = {};
+    let reg = /([^?&=]+)=([^?&=]*)/g;
+    val.replace(reg, function (rs, key, value) {
+        value = String(value);
+        ret[key] = value;
+        return rs;
+    });
+    return ret;
 }
 
 if (options.modules.length) {

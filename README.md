@@ -42,16 +42,48 @@ git-webpack
 
 ```javascript
 {   
-    // 要编译的模块目录列表。如果发生修改则会运行目录中的 webpack.config.js
     "modules": ["git-webpack-module-example"],
-    // 构建后文件索引表输出路径
     "assets": "dist/assets.json",
-    // 模块依赖的公共模块目录或文件，如果发生变更将会强制编译所有 `modules`
     "dependencies": ["package.json"],
-    // 最大 Webpack 进程限制
-    "parallel": 2
+    "parallel": 2,
+    "env": {
+        "GIT_WEBPACK": "1"
+    }
 }
 ```
+
+### modules
+
+要编译的模块目录列表。如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持两种形式：
+
+```javascript
+{   
+    "modules": [
+        "mod1",
+        "mod2",
+        {
+            "name": "mod3",
+            "dependencies": ["common/v1"]
+        }
+    ]
+}
+```
+
+### assets
+
+构建后文件索引表输出路径。设置 `null` 则不输出。
+
+### dependencies
+
+无论模块目录是否有变更，`dependencies` 都会触发所属模块强制编译；顶层 `dependencies` 变更会触发所有模块编译。
+
+### parallel
+
+git-webpack 可以多进程调度 Webpack，这里可以设置进程并行数。
+
+### env
+
+设置环境变量。
 
 ## 最佳实践
 

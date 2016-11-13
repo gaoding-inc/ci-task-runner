@@ -2,6 +2,7 @@
 
 const path = require('path');
 const childProcess = require('child_process');
+const defaultsDeep = require('lodash.defaultsdeep');
 const TYPE = require('./type');
 const workerFile = path.join(__dirname, 'worker.js');
 
@@ -12,18 +13,17 @@ const workerFile = path.join(__dirname, 'worker.js');
  * @param   {number}  timeout       超时
  * @return  {Promise}
  */
-module.exports = (configPath, timeout = 1000 * 60) => {
+module.exports = (configPath, env, timeout = 1000 * 60) => {
     return new Promise((resolve, reject) => {
 
         let pending = true;
         let timer = null;
 
         const worker = childProcess.fork(workerFile, {
-            env: {
-                GIT_WEBPACK: 1,
+            env: defaultsDeep({
                 WEBPACK_CONFIG: configPath,
                 WEBPACK_CONTEXT: path.dirname(configPath)
-            }
+            }, env)
         });
 
         worker.on('message', message => {

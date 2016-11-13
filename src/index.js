@@ -31,6 +31,7 @@ const access = promiseify(fs.access, fs);
  * @param   {string}            assets          构建后文件索引表输出路径
  * @param   {string[]}          dependencies    模块依赖
  * @param   {number}            parallel        最大 Webpack 进程数
+ * @param   {Object}            evn             设置环境变量
  * @param   {boolean}           force           是否强制全量编译
  * @param   {boolean}           debug           调试模式
  * @param   {string}            context         工作目录（绝对路径）
@@ -40,6 +41,7 @@ module.exports = function({
     assets = GIT_WEBPACK_DEFAULT.assets,
     dependencies = GIT_WEBPACK_DEFAULT.dependencies,
     parallel = GIT_WEBPACK_DEFAULT.parallel,
+    env = GIT_WEBPACK_DEFAULT.evn,
     force = false,
     debug = false,
     context = process.cwd()
@@ -84,7 +86,7 @@ module.exports = function({
                 let webpackConfigPath = path.join(modulePath, WEBPACK_CONFIG_NAME);
 
                 // 多进程运行 webpack，加速编译
-                return webpackWorker(webpackConfigPath)
+                return webpackWorker(webpackConfigPath, env)
                     .then(stats => parseAssets({ name, version, stats }));
             });
 

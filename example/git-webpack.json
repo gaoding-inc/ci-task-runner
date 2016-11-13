@@ -2,5 +2,8 @@
     "modules": ["git-webpack-module-example"],
     "assets": "dist/assets.json",
     "dependencies": ["package.json"],
-    "parallel": 2
+    "parallel": 2,
+    "env": {
+        "GIT_WEBPACK": "1"
+    }
 }
