@@ -8,7 +8,6 @@ const defaultsDeep = require('lodash.defaultsdeep');
 const gulp = require('gulp');
 
 const gitWebpack = require('../');
-const options = { modules: [] };
 const CONFIG_PATH_NAME = 'git-webpack.json';
 let CONTEXT = process.cwd();
 
@@ -32,7 +31,61 @@ program
     .parse(process.argv);
 
 
-if (program.init) {
+
+function list(val) {
+    return val.split(',');
+}
+
+
+function map(val) {
+    let ret = {};
+    let reg = /([^?&=]+)=([^?&=]*)/g;
+    val.replace(reg, function(rs, key, value) {
+        value = String(value);
+        ret[key] = value;
+        return rs;
+    });
+    return ret;
+}
+
+
+function config(file) {
+    const options = { modules: [] };
+
+    if (file) {
+        let configFile = path.join(CONTEXT, file);
+        defaultsDeep(options, require(configFile));
+        CONTEXT = path.resolve(configFile, '../');
+    } else {
+        try {
+            // 尝试加载目录默认的配置文件
+            let file = path.join(CONTEXT, CONFIG_PATH_NAME);
+            defaultsDeep(options, require(file));
+        } catch (e) { }
+    }
+
+    defaultsDeep(options, {
+        modules: program.modules,
+        dependencies: program.dependencies,
+        assets: program.assets,
+        parallel: program.parallel,
+        build: (() => {
+            let map = {};
+            var reg = /^build[A-Z]/;
+            Object.keys(program).forEach((key) => {
+                if (reg.test(key)) {
+                    map[key] = program[key];
+                }
+            });
+            return map;
+        })()
+    });
+
+    return options;
+}
+
+
+function init() {
     fs.access(path.join(CONTEXT, CONFIG_PATH_NAME), errors => {
         if (errors) {
             let example = path.join(__dirname, '..', 'example');
@@ -43,54 +96,11 @@ if (program.init) {
             console.log(`"${CONFIG_PATH_NAME}" has been created.`);
         }
     });
-    process.exit(1);
 }
 
-if (program.config) {
-    let configFile = path.join(CONTEXT, program.config);
-    defaultsDeep(options, require(configFile));
-    CONTEXT = path.resolve(configFile, '../');
+
+if (program.init) {
+    init();
 } else {
-    try {
-        // 尝试加载目录默认的配置文件
-        let file = path.join(CONTEXT, CONFIG_PATH_NAME);
-        defaultsDeep(options, require(file));
-    } catch (e) { }
+    gitWebpack(config(program.config), CONTEXT);
 }
-
-
-defaultsDeep(options, {
-    modules: program.modules,
-    dependencies: program.dependencies,
-    assets: program.assets,
-    parallel: program.parallel,
-    build: (() => {
-        let map = {};
-        var reg = /^build[A-Z]/;
-        Object.keys(program).forEach((key) => {
-            if (reg.test(key)) {
-                map[key] = program[key];
-            }
-        });
-        return map;
-    })()
-}, options);
-
-
-function list(val) {
-    return val.split(',');
-}
-
-function map(val) {
-    let ret = {};
-    let reg = /([^?&=]+)=([^?&=]*)/g;
-    val.replace(reg, function (rs, key, value) {
-        value = String(value);
-        ret[key] = value;
-        return rs;
-    });
-    return ret;
-}
-
-gitWebpack(options, CONTEXT);
-
