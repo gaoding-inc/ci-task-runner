@@ -151,7 +151,6 @@ module.exports = function({
         (modules) => {
             let resources = defaultsDeep({}, ASSETS_DEFAULT);
             resources.modified = (new Date()).toISOString();
-            resources.version = getBuildVersion(context);
             resources.modules = modules;
             return resources;
         },
@@ -162,8 +161,9 @@ module.exports = function({
         resources => assets ? fsp.readFile(assets, 'utf8')
             .then(jsonText => {
                 let oldJson = JSON.parse(jsonText);
-                let newJson = defaultsDeep(resources, oldJson);
-                let newJsonText = JSON.stringify(resources, null, 2);
+                let version = (Number(oldJson.version) || 0) + 1;
+                let newJson = defaultsDeep({version}, resources, oldJson);
+                let newJsonText = JSON.stringify(newJson, null, 2);
                 return fsp.writeFile(assets, newJsonText, 'utf8').then(() => newJson);
             }) : resources,
 
