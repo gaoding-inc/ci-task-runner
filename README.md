@@ -5,7 +5,7 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-基于 git 的 Webpack 多进程调度器，利用多核 CPU 加速现有构建流程。
+基于 git 的 Webpack 多进程调度器，充分利用多核 CPU 加速现有构建流程。
 
 * 基于 `·git commit` 按需进行构建任务调度
 * 支持按模块目录、多 Webpack 实例进行构建
@@ -58,7 +58,7 @@ git-webpack.json
 
 ### `modules`
 
-设置要编译的模块目录列表。如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持两种形式：
+设置要编译的模块目录列表。如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持字符串于对象形式：
 
 ```javascript
 {   
@@ -79,7 +79,7 @@ git-webpack.json
 
 ### `dependencies`
 
-无论模块目录是否有变更，`dependencies` 都会触发所属模块强制编译；顶层 `dependencies` 变更会触发所有模块编译。
+设置公共依赖的目录或文件。无论模块目录是否有变更，`dependencies` 都会触发所属模块强制编译；顶层 `dependencies` 变更会触发所有模块编译。
 
 ### `parallel`
 
@@ -91,13 +91,29 @@ git-webpack 可以多进程调度 Webpack，这里可以设置进程并行数。
 
 ## 最佳实践
 
+### 持续集成
+
+使用 CI 工具来在服务器上运行 git-webpack，前端构建、发布都将无须人工干预。
+
+* 分支推送即自动触发构建
+* 异步构建，不打断工作流
+* 确保构建后的版本稳定
+* 更好的权限控制
+
+相关工具：
+
+* gitlab: gitlab-ci
+* github: travis
+
+如果没有条件采用服务器构建，可以考虑本地 git hooks 来运行 git-webpack。
+
 ### 使用 npm scripts
 
 编辑 package.json，添加 npm scripts
 
 ```javascript
   "scripts": {
-    "build": "git-webpack",
+    "build": "git-webpack --parallel 4",
     "deploy": "npm run build && npm run cdn",
     "cdn": "echo 'publish...'"
   }
@@ -116,20 +132,6 @@ npm install --save-dev git-webpack
 ```
 
 `npm run` 会优先使用本地模块，这样无须全局安装命令行工具。
-
-### 前端持续集成
-
-使用 CI 工具来运行 git-webpack，优点：
-
-* 代码提交可以自动进行构建
-* 异步构建，不打断工作流
-* 确保构建后的版本稳定
-* 更好的权限控制
-
-相关工具：
-
-* gitlab: gitlab-ci
-* github: travis
 
 
 
