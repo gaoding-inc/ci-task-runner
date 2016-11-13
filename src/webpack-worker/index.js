@@ -26,7 +26,7 @@ module.exports = (webpackPath, build) => {
         });
 
         worker.on('message', message => {
-            //console.log(message);
+            console.log(message);
             switch (message.cmd) {
                 case TYPE.WEBPACK_RESULT:
                     pending = false;
