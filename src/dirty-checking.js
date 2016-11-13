@@ -5,13 +5,13 @@ const getBuildVersion = require('./get-build-version');
 
 /**
  * 模块脏检查
- * @param   {Object}           options                        配置
- * @param   {Object[]|string}  options.modules                模块组
- * @param   {Object}           options.modules.name           模块名
- * @param   {string[]}         options.modules.dependencies   模块依赖
- * @param   {string[]}         options.dependencies           模块组公共依赖
- * @param   {string}           cwd                            git 运行的工作目录
- * @return  {Object[]}                                        模块编译版本号与变更状态
+ * @param   {Object[]|string}  modules                模块组
+ * @param   {Object}           modules.name           模块名
+ * @param   {string[]}         modules.dependencies   模块依赖
+ * @param   {string[]}         dependencies           模块组公共依赖
+ * @param   {boolean}          force                  强制变脏
+ * @param   {string}           context                基准目录
+ * @return  {Object[]}                                模块编译版本号与变更状态
  * @example
  * dirty({
  *   "modules": [
@@ -26,23 +26,29 @@ const getBuildVersion = require('./get-build-version');
  *   ],
  *   "dependencies": [
  *       "package.json"
- *   ]
+ *   ],
+ *   "force": false,
  * })
  */
-module.exports = (
-    options = {},
-    cwd = process.cwd()
-) => {
+module.exports = ({
+    modules = [],
+    dependencies = [],
+    force = false,
+    context = process.cwd()
+}) => {
 
-    // 主版本号
-    let mainVersion = getBuildVersion(cwd);
+    let diffVersion = target => {
+        let version = getBuildVersion(target);
+        let dirty = version !== getBuildVersion(path.join(target, '..'));
+        return { dirty, version };
+    };
 
-    // 全局依赖是否有变更
-    let mainModified = (options.dependencies || [])
-        .map(d => getBuildVersion(path.resolve(cwd, d)) !== mainVersion)
-        .includes(true);
+    // 对比全局依赖
+    let modified = force || dependencies.map(target => {
+        return diffVersion(path.join(context, target)).dirty
+    }).includes(true);
 
-    return (options.modules || []).map((mod) => {
+    return modules.map((mod) => {
 
         if (typeof mod === 'string') {
             mod = {
@@ -51,21 +57,23 @@ module.exports = (
             }
         }
 
-        const version = getBuildVersion(path.resolve(cwd, mod.name));
+        // 对比当前模块
+        let diff = diffVersion(path.join(context, mod.name));
 
-        if (mainModified || version !== mainVersion || (mod.dependencies || [])
-            .map(d => getBuildVersion(path.resolve(cwd, d)) !== mainVersion)
-            .includes(true)) {
+        if (modified || diff.dirty || (mod.dependencies || []).map(target => {
+            // 对比当前模块的依赖
+            return path.join(context, target);
+        }).includes(true)) {
             return {
                 name: mod.name,
-                version,
-                dirty: true
+                dirty: true,
+                version: diff.version
             };
         } else {
             return {
                 name: mod.name,
-                version,
-                dirty: false
+                dirty: false,
+                version: diff.version
             };
         }
 

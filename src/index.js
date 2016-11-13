@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
+const childProcess = require('child_process');
 const gulp = require('gulp');
 const rename = require('gulp-rename');
 const fsp = require('fs-promise');
@@ -25,12 +26,14 @@ const access = promiseify(fs.access, fs);
 
 /**
  * @param   {Object[]|string[]} modules         模块目录列表
- * @param   {Object}            modules.name           模块名
- * @param   {string[]}          modules.dependencies   模块依赖
- * @param   {string[]}          dependencies           模块组公共依赖
- * @param   {string}            assets          构建后文件索引表输出路径
- * @param   {string[]}          dependencies    模块依赖
+ * @param   {Object}            modules.name           模块目录名（相对）
+ * @param   {string[]}          modules.dependencies   模块依赖目录（相对）
+ * @param   {string[]}          dependencies           模块组公共依赖（相对）
+ * @param   {string}            assets          构建后文件索引表输出路径（相对）
+ * @param   {string[]}          dependencies    模块依赖（相对）
  * @param   {number}            parallel        最大 Webpack 进程数
+ * @param   {number}            timeout         单个任务超时
+ * @param   {string[]}          argv            设置启动执行 webpack.config.js 的命令行参数
  * @param   {Object}            evn             设置环境变量
  * @param   {boolean}           force           是否强制全量编译
  * @param   {boolean}           debug           调试模式
@@ -41,6 +44,8 @@ module.exports = function({
     assets = GIT_WEBPACK_DEFAULT.assets,
     dependencies = GIT_WEBPACK_DEFAULT.dependencies,
     parallel = GIT_WEBPACK_DEFAULT.parallel,
+    timeout = GIT_WEBPACK_DEFAULT.timeout,
+    argv = GIT_WEBPACK_DEFAULT.argv,
     env = GIT_WEBPACK_DEFAULT.evn,
     force = false,
     debug = false,
@@ -75,16 +80,29 @@ module.exports = function({
         () => {
             let dirtyList = dirtyChecking({
                 modules,
-                dependencies
-            }, context);
+                dependencies,
+                force,
+                context
+            });
+
 
             let tasks = dirtyList.map(({name, version}) => () => {
 
                 let modulePath = path.join(context, name);
                 let webpackConfigPath = path.join(modulePath, WEBPACK_CONFIG_NAME);
+                let webpackContext = path.dirname(webpackConfigPath);
+                let CMD = `node --print "require.resolve('webpack')"`;
+                let webpackPath = childProcess.execSync(CMD, { cwd: webpackContext }).toString().trim();
 
                 // 多进程运行 webpack，加速编译
-                return webpackWorker(webpackConfigPath, env).then(stats => {
+                return webpackWorker({
+                    webpackPath: webpackPath,
+                    webpackConfigPath,
+                    webpackContext,
+                    env,
+                    argv,
+                    timeout
+                }).then(stats => {
                     stats.$name = name;
                     stats.$version = version;
                     stats.$modified = (new Date()).toISOString();
@@ -99,7 +117,6 @@ module.exports = function({
 
         // 解析 Webpack Stats
         (results) => results.map(stats => {
-            let name = stats.$name;
             let version = stats.$version;
             var modified = stats.$modified;
             let hash = stats.hash;
