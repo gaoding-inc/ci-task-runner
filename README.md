@@ -26,7 +26,7 @@ npm install git-webpack -g
 cd you-project
 ```
 
-2\. 创建配置
+2\. 生成配置
 
 ```bash
 git-webpack --init
@@ -54,9 +54,11 @@ git-webpack.json
 }
 ```
 
-### modules
+路径相对于 git-webpack.json 文件。
 
-要编译的模块目录列表。如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持两种形式：
+### `modules`
+
+设置要编译的模块目录列表。如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持两种形式：
 
 ```javascript
 {   
@@ -71,19 +73,19 @@ git-webpack.json
 }
 ```
 
-### assets
+### `assets`
 
-构建后文件索引表输出路径。设置 `null` 则不输出。
+设置构建后文件索引表输出路径。设置 `null` 则不输出。
 
-### dependencies
+### `dependencies`
 
 无论模块目录是否有变更，`dependencies` 都会触发所属模块强制编译；顶层 `dependencies` 变更会触发所有模块编译。
 
-### parallel
+### `parallel`
 
 git-webpack 可以多进程调度 Webpack，这里可以设置进程并行数。
 
-### env
+### `env`
 
 设置环境变量。
 
