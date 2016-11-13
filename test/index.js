@@ -140,6 +140,20 @@ describe('lib', function () {
         });
 
 
+        it('Function error', function () {
+            return promiseTask.parallel([
+                null,
+                undefined,
+                {},
+                []
+            ], limit).then(function () {
+                throw new Error('error');
+            }).catch(function(errors) {
+                assert.deepEqual('object', typeof errors)
+            });
+        });
+
+
     });
 
 });

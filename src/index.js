@@ -43,8 +43,7 @@ module.exports = function(options = {}, context = process.cwd()) {
 
     options = defaultsDeep({}, options, GIT_WEBPACK_DEFAULT);
 
-    let {modules, dependencies, assets, parallel} = options;
-    let {force, timeout, cwd, env, argv, launch} = options.build;
+    let {modules, assets, parallel} = options;
 
     if (assets) {
         assets = path.join(context, assets);
@@ -72,35 +71,30 @@ module.exports = function(options = {}, context = process.cwd()) {
 
         // 运行 Webpack 任务
         () => {
-            let dirtyList = dirtyChecking({
-                modules,
-                dependencies,
-                force,
-                context
-            });
 
+            let tasks = Object.keys(modules).map(key => {
+                let module = modules[key];
+                if (typeof module === 'string') {
+                    module = { name: module, dependencies: [], build: [] };
+                }
 
-            let tasks = dirtyList.map(({name, version}) => () => {
+                // 模块继承父设置
+                defaultsDeep(module.dependencies, options.dependencies);
+                defaultsDeep(module.build, options.build);
 
-                let webpackLaunch = launch.replace(MODULE_NAME_REG, name);
-                let webpackConfigPath = path.join(context, webpackLaunch);
-                let webpackContext = path.dirname(webpackConfigPath);
-                let webpackCwd = path.join(context, cwd.replace(MODULE_NAME_REG, name));
+                module = dirtyChecking(module, context);
+                let build = module.build;
                 let CMD = `node --print "require.resolve('webpack')"`;
-                let webpackPath = childProcess.execSync(CMD, { cwd: webpackContext }).toString().trim();
+
+                build.launch = path.join(context, build.launch.replace(MODULE_NAME_REG, module.name));
+                build.cwd = path.join(context, build.cwd.replace(MODULE_NAME_REG, module.name));
+
+                let webpackPath = childProcess.execSync(CMD, { cwd: path.dirname(build.cwd) }).toString().trim();
 
                 // 多进程运行 webpack，加速编译
-                return webpackWorker({
-                    webpackPath,
-                    webpackConfigPath,
-                    webpackContext,
-                    cwd: webpackCwd,
-                    env,
-                    argv,
-                    timeout
-                }).then(stats => {
-                    stats.$name = name;
-                    stats.$version = version;
+                return () => webpackWorker(webpackPath, build).then(stats => {
+                    stats.$name = module.name;
+                    stats.$version = module.$version;
                     stats.$modified = (new Date()).toISOString();
                     return stats;
                 });
@@ -158,7 +152,7 @@ module.exports = function(options = {}, context = process.cwd()) {
             .then(jsonText => {
                 let oldJson = JSON.parse(jsonText);
                 let version = (Number(oldJson.version) || 0) + 1;
-                let newJson = defaultsDeep({version}, resources, oldJson);
+                let newJson = defaultsDeep({ version }, resources, oldJson);
                 let newJsonText = JSON.stringify(newJson, null, 2);
                 return fsp.writeFile(assets, newJsonText, 'utf8').then(() => newJson);
             }) : resources,

@@ -9,35 +9,20 @@ const workerFile = path.join(__dirname, 'worker.js');
 
 /**
  * Webpack 运行器 - 使用子进程启动 Webpack
- * @param   {string}    webpackPath       Webpack 路径
- * @param   {string}    webpackConfigPath Webpack 配置文件路径
- * @param   {string}    cwd               工作目录
- * @param   {string[]}  argv              命令行参数
- * @param   {Object}    env               环境变量
- * @param   {number}    timeout           超时
- * @return  {Promise}
  */
-module.exports = ({
-    webpackPath,
-    webpackConfigPath,
-    cwd = process.cwd(),
-    env = {},
-    argv = [],
-    timeout = 1000 * 60
-}) => {
+module.exports = (webpackPath, build) => {
     return new Promise((resolve, reject) => {
 
         let pending = true;
         let timer = null;
 
         const worker = childProcess.fork(workerFile, {
-            cwd: cwd,
-            execArgv: argv,
+            cwd: build.cwd,
+            execArgv: build.argv,
             env: defaultsDeep({
                 [TYPE.WEBPACK_PATH]: webpackPath,
-                [TYPE.WEBPACK_CONFIG_PATH]: webpackConfigPath,
-                [TYPE.WEBPACK_CONTEXT]: path.dirname(webpackConfigPath)
-            }, env)
+                [TYPE.WEBPACK_CONFIG_PATH]: build.launch
+            }, build.env)
         });
 
         worker.on('message', message => {
@@ -65,7 +50,7 @@ module.exports = ({
         });
 
         worker.on('error', (errors) => {
-            if (pending) { 
+            if (pending) {
                 reject(errors);
             }
         });
@@ -76,7 +61,7 @@ module.exports = ({
             timer = setTimeout(() => {
                 // TODO 显示日志
                 worker.kill();
-            }, timeout);
+            }, build.timeout);
         });
 
         worker.on('disconnect', () => {
