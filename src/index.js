@@ -9,7 +9,9 @@ const numCPUs = require('os').cpus().length;
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('./lib/promise-task');
 const getNodeModulePath = require('./lib/get-node-module-path');
-const dirtyChecking = require('./dirty-checking');
+const gitCommitId = require('./lib/get-commit-id');
+const getChanged = require('./lib/get-changed');
+const VError = require('verror');
 
 const ASSETS_DEFAULT_NAME = './config/assets.default.json';
 const ASSETS_DEFAULT_PATH = path.join(__dirname, ASSETS_DEFAULT_NAME);
@@ -20,24 +22,33 @@ const MODULE_NAME_REG = /(\${moduleName})/g;
 
 
 /**
- * @param   {Object[]|string[]} modules         模块目录列表
- * @param   {Object}            modules.name           模块目录名（相对）
- * @param   {string[]}          modules.watch   模块依赖目录（相对）
- * @param   {string[]}          watch           模块组公共依赖（相对）
- * @param   {string}            assets          构建后文件索引表输出路径（相对）
- * @param   {string[]}          watch    模块依赖（相对）
- * @param   {number}            parallel        Webpack: 最大进程数
- * @param   {number}            timeout         Webpack: 单个任务超时
- * @param   {string}            cwd             Webpack: 工作目录
- * @param   {string[]}          argv            Webpack: 设置启动执行 webpack.config.js 的命令行参数
- * @param   {Object}            evn             Webpack: 设置环境变量
- * @param   {string}            launch          Webpack: 启动文件
- * @param   {boolean}           force           是否强制全量编译
- * @param   {string}            context         git-webpack 工作目录（绝对路径）
+ * 多进程构建任务管理器
+ * @param   {Object}            options
+ * @param   {Object[]|string[]} options.modules         模块目录列表
+ * @param   {Object}            options.modules.name    模块目录名（相对）
+ * @param   {string[]}          options.modules.watch   模块依赖目录（相对），继承 options.watch
+ * @param   {Object}            options.modules.build   模块编译器设置，继承 options.build
+ * @param   {string[]}          options.watch           模块组公共依赖（相对）
+ * @param   {string}            options.assets          构建后文件索引表输出路径（相对）
+ * @param   {number}            options.parallel        最大进程数
+ * @param   {Object}            options.build           编译器设置
+ * @param   {number}            options.build.timeout
+ * @param   {boolean}           options.build.force
+ * @param   {string}            options.build.launch                   
+ * @param   {string}            options.build.cwd                   
+ * @param   {Object}            options.build.env                   
+ * @param   {string}            options.build.execPath                   
+ * @param   {string}            options.build.execArgv                   
+ * @param   {string}            options.build.silent             
+ * @param   {string[]|number[]} options.build.stdio           
+ * @param   {Object}            options.build.uid         
+ * @param   {string}            options.build.gid         
+ * @param   {string}            context                 工作目录（绝对路径）
  */
-module.exports = function (options = {}, context = process.cwd()) {
+module.exports = (options = {}, context = process.cwd()) => {
 
     options = defaultsDeep({}, options, GIT_WEBPACK_DEFAULT);
+    Object.freeze(options);
 
     let {assets, parallel} = options;
 
@@ -45,8 +56,8 @@ module.exports = function (options = {}, context = process.cwd()) {
         assets = path.join(context, assets);
     }
 
-    if (parallel) {
-        parallel = Math.min(parallel, numCPUs);
+    if (parallel > numCPUs) {
+        console.warn(`当前计算机 CPU 核心数为 ${numCPUs} 个，parallel 设置为 ${parallel}`);
     }
 
     return promiseTask.serial([
@@ -59,7 +70,7 @@ module.exports = function (options = {}, context = process.cwd()) {
 
                 // 转换字符串形式的格式
                 if (typeof module === 'string') {
-                    module = { name: module, watch: [], build: [] };
+                    module = { name: module, watch: [], build: {} };
                 }
 
                 // 模块继承父设置
@@ -77,13 +88,38 @@ module.exports = function (options = {}, context = process.cwd()) {
         },
 
 
-        // 过滤未变更的模块目录
+        // 对比版本的修改
         modules => {
+
+            let isChanged = (target) => {
+                let changed;
+                let errorMessage = `无法获取变更记录，因为目标不在 git 仓库中 "${target}"`;
+
+                try {
+                    changed = getChanged(target);
+                } catch (e) {
+                    throw new VError(e, errorMessage);
+                }
+
+                if (!changed) {
+                    throw new VError(errorMessage);
+                }
+
+                return changed;
+            };
+
+            let watchChanged = options.watch
+                .filter(target => isChanged(path.join(context, target))).length;
+
             return modules.filter((module) => {
-                let diff = dirtyChecking(module, context);
-                module.build.$dirty = diff.dirty;
-                module.build.$version = diff.version;
-                return diff.dirty;
+                let modulePath = path.join(context, module.name);
+
+                if (watchChanged || isChanged(modulePath)) {
+                    Object.freeze(module);
+                    return true;
+                } else {
+                    return false;
+                }
             });
         },
 
@@ -105,16 +141,24 @@ module.exports = function (options = {}, context = process.cwd()) {
         },
 
 
-        // 包装数据
+        // 创建资源索引
         moduleAssets => {
+            let modules = {};
             let assetsContent = defaultsDeep({}, ASSETS_DEFAULT);
+
+            moduleAssets.forEach(module => {
+                module.commit = gitCommitId(path.join(context, module.name));
+                modules[module.name] = module;
+                delete modules[module.name].name;
+            });
+
             assetsContent.modified = (new Date()).toISOString();
-            assetsContent.modules = moduleAssets;
+            assetsContent.modules = modules;
             return assetsContent;
         },
 
 
-        // 保存当前编译结果（TIPS: 要注意多个实例并行的时候配置错乱问题）
+        // 保存资源索引文件（TIPS: 为了保证有效性，要第一时间读取最新描述文件再写入）
         assetsContent => {
             return assets ? fsp.readFile(assets, 'utf8')
                 .catch(() => {
@@ -125,20 +169,36 @@ module.exports = function (options = {}, context = process.cwd()) {
                         gulp.src(ASSETS_DEFAULT_PATH)
                             .pipe(rename(basename))
                             .pipe(gulp.dest(path.dirname(assets)))
-                            .on('end', errors => errors ? reject(errors) : resolve());
+                            .on('end', errors => {
+                                if (errors) {
+                                    reject(errors);
+                                } else {
+                                    resolve(ASSETS_DEFAULT);
+                                }
+                            });
                     });
                 })
                 .then(jsonText => {
 
                     let modules = assetsContent.modules;
                     let relative = (file) => path.relative(path.dirname(assets), file);
+                    let oldAssetsContent = JSON.parse(jsonText);
 
-                    // 将绝对路径转换为相对与资源描述文件的路径
                     Object.keys(modules).forEach(name => {
+
+                        let oldModule = oldAssetsContent.modules[name];
                         let module = modules[name];
                         let chunks = module.chunks;
                         let assets = module.assets;
 
+
+                        // 自动递增模块的编译版本号
+                        if (oldModule) {
+                            module.version = oldModule.version + 1;
+                        }
+
+
+                        // 将绝对路径转换为相对与资源描述文件的路径
                         Object.keys(chunks).forEach(name => {
                             let file = chunks[name];
                             chunks[name] = relative(file);
@@ -149,12 +209,12 @@ module.exports = function (options = {}, context = process.cwd()) {
                         });
                     });
 
-                    let oldJson = JSON.parse(jsonText);
-                    let version = (Number(oldJson.version) || 0) + 1;
-                    let newJson = defaultsDeep({ version }, assetsContent, oldJson);
-                    let newJsonText = JSON.stringify(newJson, null, 2);
 
-                    return fsp.writeFile(assets, newJsonText, 'utf8').then(() => newJson);
+                    let version = (Number(oldAssetsContent.version) || 0) + 1;
+                    let newAssetsContent = defaultsDeep({ version }, assetsContent, oldAssetsContent);
+                    let newAssetsContentText = JSON.stringify(newAssetsContent, null, 2);
+
+                    return fsp.writeFile(assets, newAssetsContentText, 'utf8').then(() => newAssetsContent);
                 }) : assetsContent
         },
 

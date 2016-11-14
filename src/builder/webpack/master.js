@@ -16,13 +16,14 @@ module.exports = ({build}) => {
 
         let pending = true;
         let timer = null;
-
-        const worker = childProcess.fork(workerFile, defaultsDeep({
+        let options = defaultsDeep({}, {
             env: {
                 [TYPE.WEBPACK_PATH]: build.$builderPath,
                 [TYPE.WEBPACK_CONFIG_PATH]: build.launch
             }
-        }, build));
+        }, build);
+
+        const worker = childProcess.fork(workerFile, options);
 
         worker.on('message', message => {
             if (message && message.cmd === TYPE.WEBPACK_RESULT) {

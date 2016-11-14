@@ -10,7 +10,7 @@
             "name": "bin",
             "program": "${workspaceRoot}/bin/git-webpack",
             "cwd": "${workspaceRoot}",
-            "args": ["--config", "test/example/git-webpack.json", "--build-force"]
+            "args": ["--config", "test/example/git-webpack.json"]
         },
         {
             "type": "node",

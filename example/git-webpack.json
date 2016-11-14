@@ -2,7 +2,7 @@
   "modules": ["git-webpack-module-example"],
   "watch": ["package.json"],
   "assets": "dist/assets.json",
-  "parallel": 2,
+  "parallel": 3,
   "build": {
     "force": false,
     "timeout": 60000,
