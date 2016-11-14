@@ -51,6 +51,7 @@ module.exports = (options = {}, context = process.cwd()) => {
     Object.freeze(options);
 
     let {assets, parallel} = options;
+    let changedLength = 0;
 
     if (assets) {
         assets = path.join(context, assets);
@@ -91,21 +92,18 @@ module.exports = (options = {}, context = process.cwd()) => {
         // 对比版本的修改
         modules => {
 
-            let isChanged = (target) => {
-                let changed;
-                let errorMessage = `无法获取变更记录，因为目标不在 git 仓库中 "${target}"`;
+            if (options.build.force) {
+                changedLength = modules.length;
+                return modules;
+            }
 
+            let isChanged = target => {
+                let errorMessage = `无法获取变更记录，因为目标不在 git 仓库中 "${target}"`;
                 try {
-                    changed = getChanged(target);
+                    return getChanged(target);
                 } catch (e) {
                     throw new VError(e, errorMessage);
                 }
-
-                if (!changed) {
-                    throw new VError(errorMessage);
-                }
-
-                return changed;
             };
 
             let watchChanged = options.watch
@@ -114,8 +112,9 @@ module.exports = (options = {}, context = process.cwd()) => {
             return modules.filter((module) => {
                 let modulePath = path.join(context, module.name);
 
-                if (watchChanged || isChanged(modulePath)) {
+                if (module.build.force || watchChanged || isChanged(modulePath)) {
                     Object.freeze(module);
+                    changedLength ++;
                     return true;
                 } else {
                     return false;
@@ -143,17 +142,17 @@ module.exports = (options = {}, context = process.cwd()) => {
 
         // 创建资源索引
         moduleAssets => {
-            let modules = {};
+            let modulesMap = {};
             let assetsContent = defaultsDeep({}, ASSETS_DEFAULT);
 
             moduleAssets.forEach(module => {
                 module.commit = gitCommitId(path.join(context, module.name));
-                modules[module.name] = module;
-                delete modules[module.name].name;
+                modulesMap[module.name] = module;
+                delete modulesMap[module.name].name;
             });
 
             assetsContent.modified = (new Date()).toISOString();
-            assetsContent.modules = modules;
+            assetsContent.modules = modulesMap;
             return assetsContent;
         },
 
@@ -173,28 +172,29 @@ module.exports = (options = {}, context = process.cwd()) => {
                                 if (errors) {
                                     reject(errors);
                                 } else {
-                                    resolve(ASSETS_DEFAULT);
+                                    resolve(JSON.stringify(ASSETS_DEFAULT));
                                 }
                             });
                     });
                 })
                 .then(jsonText => {
 
-                    let modules = assetsContent.modules;
-                    let relative = (file) => path.relative(path.dirname(assets), file);
+                    let modulesMap = assetsContent.modules;
+
+                    let relative = file => path.relative(path.dirname(assets), file);
                     let oldAssetsContent = JSON.parse(jsonText);
 
-                    Object.keys(modules).forEach(name => {
+                    Object.keys(modulesMap).forEach(name => {
 
-                        let oldModule = oldAssetsContent.modules[name];
-                        let module = modules[name];
+                        let oldModuleMap = oldAssetsContent.modules[name];
+                        let module = modulesMap[name];
                         let chunks = module.chunks;
                         let assets = module.assets;
 
 
                         // 自动递增模块的编译版本号
-                        if (oldModule) {
-                            module.version = oldModule.version + 1;
+                        if (oldModuleMap) {
+                            module.version = oldModuleMap.version + 1;
                         }
 
 
@@ -210,11 +210,16 @@ module.exports = (options = {}, context = process.cwd()) => {
                     });
 
 
-                    let version = (Number(oldAssetsContent.version) || 0) + 1;
-                    let newAssetsContent = defaultsDeep({ version }, assetsContent, oldAssetsContent);
-                    let newAssetsContentText = JSON.stringify(newAssetsContent, null, 2);
+                    if (changedLength) {
+                        let version = (Number(oldAssetsContent.version) || 0) + 1;
+                        let newAssetsContent = defaultsDeep({ version }, assetsContent, oldAssetsContent);
+                        let newAssetsContentText = JSON.stringify(newAssetsContent, null, 2);
 
-                    return fsp.writeFile(assets, newAssetsContentText, 'utf8').then(() => newAssetsContent);
+                        return fsp.writeFile(assets, newAssetsContentText, 'utf8').then(() => newAssetsContent);
+                    } else {
+                        return oldAssetsContent;
+                    }
+
                 }) : assetsContent
         },
 

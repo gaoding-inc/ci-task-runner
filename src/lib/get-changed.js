@@ -12,11 +12,12 @@ module.exports = target => {
     let cwd = path.dirname(target);
     let basename = path.basename(target);
 
-    let cmd = `git log --name-only --pretty=format:"" -1 ${basename}`;
+    let cmd = `git log --name-only --pretty=format:"" -1 ${cwd}`;
     let log = childProcess.execSync(cmd, {
         cwd: cwd
     }).toString().trim();
-    let changed = !!log.length;
+    let fileList = log.split(/\n/);
+    let changed = fileList.includes(basename);
 
     return changed;
 };
