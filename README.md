@@ -12,6 +12,10 @@
 * 支持多线程调度 Webpack 实例
 * 无需修改现有 Webpack 构建配置
 
+## 性能
+
+在 2012 款 Macbook Pro 15 寸基本款中运行 Webpack 冷构建测试用例，默认情况下耗时 21260.747ms，设置多进程后（`parallel:5`）Webpack 在 7098.425ms 完成，接近三倍速度提升。
+
 ## 安装
 
 ```bash
@@ -67,7 +71,7 @@ git-webpack.json
 
 ### `modules`
 
-设置要编译的模块目录列表。如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持字符串于对象形式：
+设置要编译的模块目录列表。如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持字符串与对象形式：
 
 ```javascript 
 "modules": [
@@ -81,6 +85,8 @@ git-webpack.json
 ]
 ```
 
+如果是对象的描述， `watch` 与 `build` 会继承顶层的配置。
+
 ### `assets`
 
 设置构建后文件索引表输出路径。设置 `null` 则不输出。
@@ -89,7 +95,7 @@ git-webpack.json
 
 `modules` 中的目录会自动进行变更监控，如果它依赖外部了文件则可以指定 `watch`,无论模块目录是否有变更，`watch` 都会触发所属模块强制编译；顶层 `watch` 变更会触发所有模块编译。
 
-## build
+## `build`
 
 构建器配置（文档尚未完善，采用默认配置可运行）。
 

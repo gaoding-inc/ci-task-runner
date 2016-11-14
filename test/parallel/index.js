@@ -1,6 +1,6 @@
 const child_process = require('child_process');
 
-console.time('「「parallel:1」」');
+console.time('「parallel:1」');
 console.log(child_process.execSync('git-webpack --parallel=1', {
     cwd: __dirname
 }).toString());
