@@ -39,12 +39,15 @@ module.exports = (webpackPath, build) => {
         });
 
         worker.on('exit', (code, signal) => {
-            if (pending) {
-                if (signal) {
-                    reject(`worker was killed by signal: ${signal}`);
-                } else if (code !== 0) {
-                    reject(`worker exited with error code: ${code}`);
-                }
+            if (!pending) {
+                return;
+            }
+            if (signal) {
+                reject(`worker was killed by signal: ${signal}`);
+            } else if (code !== 0) {
+                reject(`worker exited with error code: ${code}`);
+            } else {
+                reject(`worker exited`);
             }
         });
 

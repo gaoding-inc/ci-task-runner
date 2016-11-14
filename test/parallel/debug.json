@@ -1,17 +1,16 @@
 {
-  "modules": [],
+  "modules": ["mod1"],
   "dependencies": ["package.json"],
   "assets": "dist/assets.json",
   "parallel": 2,
   "build": {
-    "force": false,
+    "force": true,
     "timeout": 60000,
     "cwd": "${moduleName}",
     "env": {
       "GIT_WEBPACK": "1"
     },
     "argv": [],
-    "builder": "webpack",
     "launch": "${moduleName}/webpack.config.js"
   }
 }

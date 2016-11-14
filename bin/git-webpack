@@ -69,13 +69,15 @@ function config(file) {
 
     if (file) {
         let configFile = path.join(CONTEXT, file);
-        defaultsDeep(options, require(configFile));
+        let config = require(configFile);
+        defaultsDeep(options, config);
         CONTEXT = path.resolve(configFile, '../');
     } else {
         try {
             // 尝试加载目录默认的配置文件
-            let file = path.join(CONTEXT, CONFIG_PATH_NAME);
-            defaultsDeep(options, require(file));
+            let configFile = path.join(CONTEXT, CONFIG_PATH_NAME);
+            let config = require(configFile);
+            defaultsDeep(options, config);
         } catch (e) { }
     }
 

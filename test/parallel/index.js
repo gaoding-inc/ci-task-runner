@@ -12,6 +12,12 @@ console.log(child_process.execSync('git-webpack --parallel=2', {
 }).toString());
 console.timeEnd('parallel:2');
 
+console.time('parallel:3');
+console.log(child_process.execSync('git-webpack --parallel=3', {
+    cwd: __dirname
+}).toString());
+console.timeEnd('parallel:3');
+
 console.time('parallel:4');
 console.log(child_process.execSync('git-webpack --parallel=4', {
     cwd: __dirname

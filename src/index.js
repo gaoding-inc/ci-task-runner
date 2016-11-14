@@ -68,12 +68,11 @@ module.exports = function(options = {}, context = process.cwd()) {
 
         })) : null,
 
-
-        // 运行 Webpack 任务
+        // 标准化 modules
         () => {
-
-            let tasks = Object.keys(modules).map(key => {
+            return Object.keys(modules).map(key => {
                 let module = modules[key];
+
                 if (typeof module === 'string') {
                     module = { name: module, dependencies: [], build: [] };
                 }
@@ -82,22 +81,35 @@ module.exports = function(options = {}, context = process.cwd()) {
                 defaultsDeep(module.dependencies, options.dependencies);
                 defaultsDeep(module.build, options.build);
 
-                module = dirtyChecking(module, context);
                 let build = module.build;
-                let CMD = `node --print "require.resolve('webpack')"`;
+                let cmd = `node --print "require.resolve('${build.builder}')"`;
 
+                // 转成绝对路径
                 build.launch = path.join(context, build.launch.replace(MODULE_NAME_REG, module.name));
                 build.cwd = path.join(context, build.cwd.replace(MODULE_NAME_REG, module.name));
 
-                let webpackPath = childProcess.execSync(CMD, { cwd: path.dirname(build.cwd) }).toString().trim();
+                build.$builderPath = childProcess.execSync(cmd, { cwd: build.cwd }).toString().trim();
+                build.$dirty = false;
+                build.$version = null;
 
+                module = dirtyChecking(module, context);
+                return module;
+            });
+        },
+
+        // 运行 Webpack 任务
+        (modules) => {
+
+            let tasks = modules.filter(module => module.$dirty).map((module) => {
                 // 多进程运行 webpack，加速编译
-                return () => webpackWorker(webpackPath, build).then(stats => {
-                    stats.$name = module.name;
-                    stats.$version = module.$version;
-                    stats.$modified = (new Date()).toISOString();
-                    return stats;
-                });
+                return () => {
+                    return webpackWorker(module.build.$builderPath, module.build).then(stats => {
+                        stats.$name = module.name;
+                        stats.$version = module.$version;
+                        stats.$modified = (new Date()).toISOString();
+                        return stats;
+                    });
+                };
             });
 
             // 并发运行 webpack 任务
