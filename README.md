@@ -47,7 +47,7 @@ git-webpack.json
   "modules": [],
   "watch": ["package.json"],
   "assets": "dist/assets.json",
-  "parallel": 2,
+  "parallel": 3,
   "build": {
     "force": false,
     "timeout": 60000,
@@ -55,8 +55,8 @@ git-webpack.json
     "env": {
       "GIT_WEBPACK": "1"
     },
-    "argv": [],
-    "log": false,
+    "execArgv": [],
+    "silent": true,
     "builder": "webpack",
     "launch": "${moduleName}/webpack.config.js"
   }
