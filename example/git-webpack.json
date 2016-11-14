@@ -10,7 +10,9 @@
     "env": {
       "GIT_WEBPACK": "1"
     },
-    "argv": [],
+    "execArgv": [],
+    "silent": true,
+    "builder": "webpack",
     "launch": "${moduleName}/webpack.config.js"
   }
 }
