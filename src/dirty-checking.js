@@ -10,7 +10,7 @@ const VError = require('verror');
  * @param   {string}      context  基准目录
  * @return  {Object[]}             模块编译版本号与变更状态
  */
-module.exports = ({name, dependencies}, context = process.cwd()) => {
+module.exports = ({name, watch}, context = process.cwd()) => {
 
     let diffVersion = target => {
         let version;
@@ -32,7 +32,7 @@ module.exports = ({name, dependencies}, context = process.cwd()) => {
 
     let diff = diffVersion(path.join(context, name));
     let version = diff.version;
-    let dirty = diff.dirty || dependencies.map(target => {
+    let dirty = diff.dirty || watch.map(target => {
         return diffVersion(path.join(context, target)).dirty
     }).includes(true);
 

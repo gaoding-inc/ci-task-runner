@@ -1,6 +1,6 @@
 {
   "modules": [],
-  "dependencies": ["package.json"],
+  "watch": ["package.json"],
   "assets": "dist/assets.json",
   "parallel": 2,
   "build": {
@@ -10,8 +10,8 @@
     "env": {
       "GIT_WEBPACK": "1"
     },
-    "argv": [],
-    "log": false,
+    "execArgv": [],
+    "silent": false,
     "builder": "webpack",
     "launch": "${moduleName}/webpack.config.js"
   }

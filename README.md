@@ -45,7 +45,7 @@ git-webpack.json
 ```javascript
 {
   "modules": [],
-  "dependencies": ["package.json"],
+  "watch": ["package.json"],
   "assets": "dist/assets.json",
   "parallel": 2,
   "build": {
@@ -75,7 +75,7 @@ git-webpack.json
     "mod2",
     {
         "name": "mod3",
-        "dependencies": ["common/v1"],
+        "watch": ["common/v1"],
         "build": {}
     }
 ]
@@ -85,9 +85,9 @@ git-webpack.json
 
 设置构建后文件索引表输出路径。设置 `null` 则不输出。
 
-### `dependencies`
+### `watch`
 
-设置公共依赖的目录或文件。无论模块目录是否有变更，`dependencies` 都会触发所属模块强制编译；顶层 `dependencies` 变更会触发所有模块编译。
+`modules` 中的目录会自动进行变更监控，如果它依赖外部了文件则可以指定 `watch`,无论模块目录是否有变更，`watch` 都会触发所属模块强制编译；顶层 `watch` 变更会触发所有模块编译。
 
 ## build
 
@@ -113,6 +113,10 @@ git-webpack.json
 
 ### 使用 npm scripts
 
+* 集中管理项目所有脚本
+* 管道式命令，支持串行与并行
+* 智能路径，使得很多命令行工具无需全局安装
+
 编辑 package.json，添加 npm scripts
 
 ```javascript
@@ -134,9 +138,6 @@ npm run build
 ```bash
 npm install --save-dev git-webpack
 ```
-
-`npm run` 会优先使用本地模块，这样无须全局安装命令行工具。
-
 
 
 [npm-image]: https://img.shields.io/npm/v/git-webpack.svg

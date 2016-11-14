@@ -14,20 +14,23 @@ let CONTEXT = process.cwd();
 program
     .version(require('../package.json').version)
     .usage('[options]')
-    .option('--modules <dir>...', '模块目录名列表', list)
-    .option('--assets [file]', '文件索引表输出路径')
-    //.option('--no-assets', '不输出文件索引表')
-    .option('--dependencies [dir]...', '依赖的文件与目录列表（它的变更会引起模块重新编译）', list)
-    .option('--parallel [number]', 'Webpack 进程最大并发数', parseInt)
-    .option('--build-timeout [number]', '设置单个 Webpack 构建运行超时限制', parseInt)
-    .option('--build-force', '强制编译所有的模块目录')
-    .option('--build-timeout [number]', '超时设置', parseInt)
-    .option('--build-cwd [dir]', '设置工作目录')
-    .option('--build-env [query]', '设置环境变量，例如 GIT_WEBPACK=1&DEPLOY=1', map)
-    .option('--build-argv [list]', '设置启动执行 webpack.config.js 的命令行参数', list)
-    .option('--build-launch [file]', '设置 webpack 启动文件地址')
-    .option('--config [path]', '外部配置文件路径')
+    .option('--modules <string>...', '模块目录名列表', list)
+    .option('--assets [string]', '文件索引表输出路径')
+    .option('--watch [string]...', '依赖的文件与目录列表（它的变更会引起模块重新编译）', list)
+    .option('--parallel [number]', '进程最大并发数', parseInt)
+    .option('--config [string]', '外部配置文件路径')
     .option('--init', '初始化项目，生成配置文件')
+    .option('--build-timeout [number]', null, parseInt)
+    .option('--build-force', null)
+    .option('--build-launch [string]')
+    .option('--build-cwd [string]')
+    .option('--build-env [list]', null, query)
+    .option('--build-exec-path [string]')
+    .option('--build-exec-argv [list]', null, list)
+    .option('--no-build-silent')
+    .option('--build-stdio [list]', null, list)
+    .option('--build-uid [number]', null, parseInt)
+    .option('--build-gid [number]', null, parseInt)
     .parse(process.argv);
 
 
@@ -37,10 +40,10 @@ function list(val) {
 }
 
 
-function map(val) {
+function query(val) {
     let ret = {};
-    let reg = /([^?&=]+)=([^?&=]*)/g;
-    val.replace(reg, function(rs, key, value) {
+    let reg = /([^,=]+)=([^,=]*)/g;
+    val.replace(reg, function (rs, key, value) {
         value = String(value);
         ret[key] = value;
         return rs;
@@ -52,18 +55,22 @@ function map(val) {
 function config(file) {
     const options = {
         modules: program.modules,
-        dependencies: program.dependencies,
+        watch: program.watch,
         assets: program.assets,
         parallel: program.parallel,
         build: (() => {
-            let map = {};
-            var reg = /^build[A-Z]/;
+            let build = {};
+            var reg = /^build(\w)/;
+
             Object.keys(program).forEach((key) => {
                 if (reg.test(key)) {
-                    map[key] = program[key];
+                    build[key.replace(reg, ($0, $1) => {
+                        return $1.toLowerCase();
+                    })] = program[key];
                 }
             });
-            return map;
+
+            return build;
         })()
     };
 

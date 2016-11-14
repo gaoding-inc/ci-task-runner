@@ -22,10 +22,10 @@ const MODULE_NAME_REG = /(\${moduleName})/g;
 /**
  * @param   {Object[]|string[]} modules         模块目录列表
  * @param   {Object}            modules.name           模块目录名（相对）
- * @param   {string[]}          modules.dependencies   模块依赖目录（相对）
- * @param   {string[]}          dependencies           模块组公共依赖（相对）
+ * @param   {string[]}          modules.watch   模块依赖目录（相对）
+ * @param   {string[]}          watch           模块组公共依赖（相对）
  * @param   {string}            assets          构建后文件索引表输出路径（相对）
- * @param   {string[]}          dependencies    模块依赖（相对）
+ * @param   {string[]}          watch    模块依赖（相对）
  * @param   {number}            parallel        Webpack: 最大进程数
  * @param   {number}            timeout         Webpack: 单个任务超时
  * @param   {string}            cwd             Webpack: 工作目录
@@ -59,11 +59,11 @@ module.exports = function (options = {}, context = process.cwd()) {
 
                 // 转换字符串形式的格式
                 if (typeof module === 'string') {
-                    module = { name: module, dependencies: [], build: [] };
+                    module = { name: module, watch: [], build: [] };
                 }
 
                 // 模块继承父设置
-                defaultsDeep(module.dependencies, options.dependencies);
+                defaultsDeep(module.watch, options.watch);
                 defaultsDeep(module.build, options.build);
 
                 let build = module.build;
