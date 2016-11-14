@@ -5,7 +5,7 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-与 git 绑定的 Webpack 多进程调度器，充分利用 git 与多核 CPU 加速冷编译。
+与 git 绑定的 Webpack 多进程调度器，充分利用 git 进行增量编译与多核 CPU 编译。
 
 * 基于 `·git commit` 按需进行构建任务调度
 * 支持按模块目录、多 Webpack 实例进行构建
@@ -67,11 +67,11 @@ git-webpack.json
 }
 ```
 
-路径相对于 git-webpack.json 文件。
+> 所有路径相对于 git-webpack.json 文件，路径支持 `${moduleName}` 变量，它映射到构建中的模块名。
 
 ### `modules`
 
-设置要编译的模块目录列表。如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持字符串与对象形式：
+设置要编译的模块目录列表。git-webpack 支持多个目录、项目进行集中编译，`module name` 则是目录名，如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持字符串与对象形式：
 
 ```javascript 
 "modules": [
