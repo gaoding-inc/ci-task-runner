@@ -43,14 +43,23 @@ git-webpack
 git-webpack.json
 
 ```javascript
-{   
-    "modules": ["git-webpack-module-example"],
-    "assets": "dist/assets.json",
-    "dependencies": ["package.json"],
-    "parallel": 2,
+{
+  "modules": [],
+  "dependencies": ["package.json"],
+  "assets": "dist/assets.json",
+  "parallel": 2,
+  "build": {
+    "force": false,
+    "timeout": 60000,
+    "cwd": "${moduleName}",
     "env": {
-        "GIT_WEBPACK": "1"
-    }
+      "GIT_WEBPACK": "1"
+    },
+    "argv": [],
+    "log": false,
+    "builder": "webpack",
+    "launch": "${moduleName}/webpack.config.js"
+  }
 }
 ```
 
@@ -66,7 +75,8 @@ git-webpack.json
     "mod2",
     {
         "name": "mod3",
-        "dependencies": ["common/v1"]
+        "dependencies": ["common/v1"],
+        "build": {}
     }
 ]
 ```
@@ -79,13 +89,9 @@ git-webpack.json
 
 设置公共依赖的目录或文件。无论模块目录是否有变更，`dependencies` 都会触发所属模块强制编译；顶层 `dependencies` 变更会触发所有模块编译。
 
-### `parallel`
+## build
 
-git-webpack 可以多进程调度 Webpack，这里可以设置进程并行数。
-
-### `env`
-
-设置环境变量。
+构建器配置（文档尚未完善，采用默认配置可运行）。
 
 ## 最佳实践
 
