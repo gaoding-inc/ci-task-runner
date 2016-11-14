@@ -4,7 +4,7 @@ const path = require('path');
 const master = require('./master');
 
 
-module.exports = (module, assets) => {
+module.exports = (module) => {
 
     // 运行 Webpack 并处理返回结果
     return master(module).then(stats => {

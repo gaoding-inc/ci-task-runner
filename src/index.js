@@ -1,24 +1,20 @@
 'use strict';
 
-const fs = require('fs');
 const path = require('path');
 const util = require('util');
 const gulp = require('gulp');
 const rename = require('gulp-rename');
 const fsp = require('fs-promise');
-const VError = require('verror');
 const numCPUs = require('os').cpus().length;
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('./lib/promise-task');
 const getNodeModulePath = require('./lib/get-node-module-path');
-const promiseify = require('./lib/promiseify');
 const dirtyChecking = require('./dirty-checking');
 
 const ASSETS_DEFAULT_NAME = './config/assets.default.json';
 const ASSETS_DEFAULT_PATH = path.join(__dirname, ASSETS_DEFAULT_NAME);
 const GIT_WEBPACK_DEFAULT = require('./config/git-webpack.default.json');
 const ASSETS_DEFAULT = require(ASSETS_DEFAULT_NAME);
-const access = promiseify(fs.access, fs);
 const MODULE_NAME_REG = /(\${moduleName})/g;
 
 
@@ -101,7 +97,7 @@ module.exports = function (options = {}, context = process.cwd()) {
 
                 return () => {
                     let builder = require(`./builder/${module.build.builder}`);
-                    return builder(module, assets);
+                    return builder(module);
                 };
             });
 
