@@ -11,6 +11,7 @@
       "GIT_WEBPACK": "1"
     },
     "argv": [],
+    "log": false,
     "builder": "webpack",
     "launch": "${moduleName}/webpack.config.js"
   }

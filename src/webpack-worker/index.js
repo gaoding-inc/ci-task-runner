@@ -26,15 +26,16 @@ module.exports = (webpackPath, build) => {
         });
 
         worker.on('message', message => {
-            switch (message.cmd) {
-                case TYPE.WEBPACK_RESULT:
-                    pending = false;
-                    if (message.errors) {
-                        reject(message.errors);
-                    } else {
-                        resolve(message.data);
-                    }
-                    break;
+            if (message && message.cmd === TYPE.WEBPACK_RESULT) {
+                pending = false;
+
+                if (message.errors) {
+                    reject(message.errors);
+                } else {
+                    resolve(message.data);
+                }
+                
+                worker.kill();
             }
         });
 

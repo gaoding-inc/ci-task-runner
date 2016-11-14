@@ -1,7 +1,6 @@
 'use strict';
 
 const TYPE = require('./type');
-
 process.on('error', errors => {
     console.error(errors);
     process.exit(1);
@@ -17,7 +16,7 @@ const options = require(WEBPACK_CONFIG_PATH);
 
 
 Object.assign(options, { context: WEBPACK_CONTEXT });
-let webpackCliConfig = options.entry && options.output;
+let webpackCliConfig = options.entry && options.output && typeof options.run !== 'function';
 let compiler = webpackCliConfig ? webpack(options) : options;
 
 
@@ -28,7 +27,6 @@ compiler.run(function (errors, stats) {
             errors: errors.toString(),
             data: null
         });
-        process.exit(1);
     } else {
         process.send({
             cmd: TYPE.WEBPACK_RESULT,
@@ -39,6 +37,5 @@ compiler.run(function (errors, stats) {
                 }
             })
         });
-        process.exit(0);
     }
 });

@@ -24,11 +24,23 @@ console.log(child_process.execSync('git-webpack --parallel=4', {
 }).toString());
 console.timeEnd('parallel:4');
 
+console.time('parallel:5');
+console.log(child_process.execSync('git-webpack --parallel=5', {
+    cwd: __dirname
+}).toString());
+console.timeEnd('parallel:5');
+
 console.time('parallel:6');
 console.log(child_process.execSync('git-webpack --parallel=6', {
     cwd: __dirname
 }).toString());
 console.timeEnd('parallel:6');
+
+console.time('parallel:7');
+console.log(child_process.execSync('git-webpack --parallel=7', {
+    cwd: __dirname
+}).toString());
+console.timeEnd('parallel:7');
 
 console.time('parallel:8');
 console.log(child_process.execSync('git-webpack --parallel=8', {
