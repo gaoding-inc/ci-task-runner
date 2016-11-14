@@ -50,18 +50,25 @@ module.exports = (options = {}, context = process.cwd()) => {
     options = defaultsDeep({}, options, GIT_WEBPACK_DEFAULT);
     Object.freeze(options);
 
-    let {assets, parallel} = options;
-    let changedLength = 0;
-
-    if (assets) {
-        assets = path.join(context, assets);
-    }
+    let {assets, parallel, force} = options;
+    let modulesChanged = false;
+    let assetsPath = assets ? path.join(context, assets) : null;
 
     if (parallel > numCPUs) {
         console.warn(`当前计算机 CPU 核心数为 ${numCPUs} 个，parallel 设置为 ${parallel}`);
     }
 
     return promiseTask.serial([
+
+
+        // 第一次运行需要强制编译
+        () => {
+            if (assetsPath) {
+                return fsp.access(assetsPath).catch(() => {
+                    force = true;
+                });
+            }
+        },
 
 
         // 转换 modules
@@ -92,8 +99,8 @@ module.exports = (options = {}, context = process.cwd()) => {
         // 对比版本的修改
         modules => {
 
-            if (options.build.force) {
-                changedLength = modules.length;
+            if (force) {
+                modulesChanged = true;
                 return modules;
             }
 
@@ -114,7 +121,7 @@ module.exports = (options = {}, context = process.cwd()) => {
 
                 if (module.build.force || watchChanged || isChanged(modulePath)) {
                     Object.freeze(module);
-                    changedLength ++;
+                    modulesChanged = true;
                     return true;
                 } else {
                     return false;
@@ -159,15 +166,15 @@ module.exports = (options = {}, context = process.cwd()) => {
 
         // 保存资源索引文件（TIPS: 为了保证有效性，要第一时间读取最新描述文件再写入）
         assetsContent => {
-            return assets ? fsp.readFile(assets, 'utf8')
+            return assetsPath ? fsp.readFile(assetsPath, 'utf8')
                 .catch(() => {
                     return new Promise((resolve, reject) => {
-                        let basename = path.basename(assets);
+                        let basename = path.basename(assetsPath);
 
                         // 使用 gulp 创建文件可避免目录不存在的问题
                         gulp.src(ASSETS_DEFAULT_PATH)
                             .pipe(rename(basename))
-                            .pipe(gulp.dest(path.dirname(assets)))
+                            .pipe(gulp.dest(path.dirname(assetsPath)))
                             .on('end', errors => {
                                 if (errors) {
                                     reject(errors);
@@ -181,7 +188,7 @@ module.exports = (options = {}, context = process.cwd()) => {
 
                     let modulesMap = assetsContent.modules;
 
-                    let relative = file => path.relative(path.dirname(assets), file);
+                    let relative = file => path.relative(path.dirname(assetsPath), file);
                     let oldAssetsContent = JSON.parse(jsonText);
 
                     Object.keys(modulesMap).forEach(name => {
@@ -209,13 +216,12 @@ module.exports = (options = {}, context = process.cwd()) => {
                         });
                     });
 
-
-                    if (changedLength) {
+                    if (modulesChanged) {
                         let version = (Number(oldAssetsContent.version) || 0) + 1;
                         let newAssetsContent = defaultsDeep({ version }, assetsContent, oldAssetsContent);
                         let newAssetsContentText = JSON.stringify(newAssetsContent, null, 2);
 
-                        return fsp.writeFile(assets, newAssetsContentText, 'utf8').then(() => newAssetsContent);
+                        return fsp.writeFile(assetsPath, newAssetsContentText, 'utf8').then(() => newAssetsContent);
                     } else {
                         return oldAssetsContent;
                     }
