@@ -3,16 +3,16 @@
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
-const childProcess = require('child_process');
 const gulp = require('gulp');
 const rename = require('gulp-rename');
 const fsp = require('fs-promise');
+const VError = require('verror');
 const numCPUs = require('os').cpus().length;
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('./lib/promise-task');
-const webpackWorker = require('./webpack-worker');
-const dirtyChecking = require('./dirty-checking');
+const getNodeModulePath = require('./lib/get-node-module-path');
 const promiseify = require('./lib/promiseify');
+const dirtyChecking = require('./dirty-checking');
 
 const ASSETS_DEFAULT_NAME = './config/assets.default.json';
 const ASSETS_DEFAULT_PATH = path.join(__dirname, ASSETS_DEFAULT_NAME);
@@ -39,11 +39,11 @@ const MODULE_NAME_REG = /(\${moduleName})/g;
  * @param   {boolean}           force           是否强制全量编译
  * @param   {string}            context         git-webpack 工作目录（绝对路径）
  */
-module.exports = function(options = {}, context = process.cwd()) {
+module.exports = function (options = {}, context = process.cwd()) {
 
     options = defaultsDeep({}, options, GIT_WEBPACK_DEFAULT);
 
-    let {modules, assets, parallel} = options;
+    let {assets, parallel} = options;
 
     if (assets) {
         assets = path.join(context, assets);
@@ -56,23 +56,12 @@ module.exports = function(options = {}, context = process.cwd()) {
     return promiseTask.serial([
 
 
-        // 创建文件索引表
-        () => assets ? access(assets).catch(() => new Promise((resolve, reject) => {
-            let basename = path.basename(assets);
-
-            // 使用 gulp 创建文件可避免目录不存在的问题
-            gulp.src(ASSETS_DEFAULT_PATH)
-                .pipe(rename(basename))
-                .pipe(gulp.dest(path.dirname(assets)))
-                .on('end', errors => errors ? reject(errors) : resolve());
-
-        })) : null,
-
-        // 标准化 modules
+        // 转换 modules
         () => {
-            return Object.keys(modules).map(key => {
-                let module = modules[key];
+            return Object.keys(options.modules).map(key => {
+                let module = options.modules[key];
 
+                // 转换字符串形式的格式
                 if (typeof module === 'string') {
                     module = { name: module, dependencies: [], build: [] };
                 }
@@ -82,103 +71,107 @@ module.exports = function(options = {}, context = process.cwd()) {
                 defaultsDeep(module.build, options.build);
 
                 let build = module.build;
-                let cmd = `node --print "require.resolve('${build.builder}')"`;
 
                 // 转成绝对路径
                 build.launch = path.join(context, build.launch.replace(MODULE_NAME_REG, module.name));
                 build.cwd = path.join(context, build.cwd.replace(MODULE_NAME_REG, module.name));
 
-                build.$builderPath = childProcess.execSync(cmd, { cwd: build.cwd }).toString().trim();
-                build.$dirty = false;
-                build.$version = null;
-
-                module = dirtyChecking(module, context);
                 return module;
             });
         },
 
-        // 运行 Webpack 任务
-        (modules) => {
 
-            let tasks = modules.filter(module => module.$dirty).map((module) => {
-                // 多进程运行 webpack，加速编译
+        // 过滤未变更的模块目录
+        modules => {
+            return modules.filter((module) => {
+                let diff = dirtyChecking(module, context);
+                module.build.$dirty = diff.dirty;
+                module.build.$version = diff.version;
+                return diff.dirty;
+            });
+        },
+
+
+        // 运行构建器
+        modules => {
+
+            let tasks = defaultsDeep(modules).map((module) => {
+                let build = module.build;
+                build.$builderPath = getNodeModulePath(build.builder, build.cwd);
+
                 return () => {
-                    return webpackWorker(module.build.$builderPath, module.build).then(stats => {
-                        stats.$name = module.name;
-                        stats.$version = module.$version;
-                        stats.$modified = (new Date()).toISOString();
-                        return stats;
-                    });
+                    let builder = require(`./builder/${module.build.builder}`);
+                    return builder(module, assets);
                 };
             });
 
-            // 并发运行 webpack 任务
             return promiseTask.parallel(tasks, parallel);
         },
 
 
-        // 解析 Webpack Stats
-        (results) => results.map(stats => {
-            let version = stats.$version;
-            var modified = stats.$modified;
-            let hash = stats.hash;
-            let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
-            let relative = file => assets ? path.relative(path.dirname(assets), path.join(output, file)) : file;
-
-            let mod = {
-                modified: modified,
-                version: version,
-                chunks: {},
-                assets: []
-            };
-
-            Object.keys(stats.assetsByChunkName).forEach(chunkName => {
-                let file = stats.assetsByChunkName[chunkName];
-
-                // 如果开启 devtool 后，可能输出 source-map 文件
-                file = Array.isArray(file) ? file[0] : file;
-                mod.chunks[chunkName] = relative(file);
-            });
-
-            mod.assets = stats.assets.map(asset => {
-                let file = asset.name;
-                return relative(file);
-            });
-
-            return mod;
-        }),
-
-
         // 包装数据
-        (modules) => {
-            let resources = defaultsDeep({}, ASSETS_DEFAULT);
-            resources.modified = (new Date()).toISOString();
-            resources.modules = modules;
-            return resources;
+        moduleAssets => {
+            let assetsContent = defaultsDeep({}, ASSETS_DEFAULT);
+            assetsContent.modified = (new Date()).toISOString();
+            assetsContent.modules = moduleAssets;
+            return assetsContent;
         },
 
 
-        // 保存当前编译结果
-        // 重新读取文件，避免因为多实例运行 git-webpack 导致配置意外覆盖的情况
-        resources => assets ? fsp.readFile(assets, 'utf8')
-            .then(jsonText => {
-                let oldJson = JSON.parse(jsonText);
-                let version = (Number(oldJson.version) || 0) + 1;
-                let newJson = defaultsDeep({ version }, resources, oldJson);
-                let newJsonText = JSON.stringify(newJson, null, 2);
-                return fsp.writeFile(assets, newJsonText, 'utf8').then(() => newJson);
-            }) : resources,
+        // 保存当前编译结果（TIPS: 要注意多个实例并行的时候配置错乱问题）
+        assetsContent => {
+            return assets ? fsp.readFile(assets, 'utf8')
+                .catch(() => {
+                    return new Promise((resolve, reject) => {
+                        let basename = path.basename(assets);
+
+                        // 使用 gulp 创建文件可避免目录不存在的问题
+                        gulp.src(ASSETS_DEFAULT_PATH)
+                            .pipe(rename(basename))
+                            .pipe(gulp.dest(path.dirname(assets)))
+                            .on('end', errors => errors ? reject(errors) : resolve());
+                    });
+                })
+                .then(jsonText => {
+
+                    let modules = assetsContent.modules;
+                    let relative = (file) => path.relative(path.dirname(assets), file);
+
+                    // 将绝对路径转换为相对与资源描述文件的路径
+                    Object.keys(modules).forEach(name => {
+                        let module = modules[name];
+                        let chunks = module.chunks;
+                        let assets = module.assets;
+
+                        Object.keys(chunks).forEach(name => {
+                            let file = chunks[name];
+                            chunks[name] = relative(file);
+                        });
+
+                        assets.forEach((file, index) => {
+                            assets[index] = relative(file);
+                        });
+                    });
+
+                    let oldJson = JSON.parse(jsonText);
+                    let version = (Number(oldJson.version) || 0) + 1;
+                    let newJson = defaultsDeep({ version }, assetsContent, oldJson);
+                    let newJsonText = JSON.stringify(newJson, null, 2);
+
+                    return fsp.writeFile(assets, newJsonText, 'utf8').then(() => newJson);
+                }) : assetsContent
+        },
 
 
         // 显示日志
-        resources => {
+        assetsContent => {
             if (process.stdout.isTTY) {
-                console.log(util.inspect(resources, {
+                console.log(util.inspect(assetsContent, {
                     colors: true,
                     depth: null
                 }));
             } else {
-                console.log(JSON.stringify(resources, null, 2));
+                console.log(JSON.stringify(assetsContent, null, 2));
             }
         }
 

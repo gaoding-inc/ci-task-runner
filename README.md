@@ -5,7 +5,7 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-与 git 绑定的 Webpack 多进程调度器，充分利用 git 与多核 CPU 加速现有构建流程。
+与 git 绑定的 Webpack 多进程调度器，充分利用 git 与多核 CPU 加速冷编译。
 
 * 基于 `·git commit` 按需进行构建任务调度
 * 支持按模块目录、多 Webpack 实例进行构建

@@ -30,7 +30,8 @@
     "fs-promise": "^1.0.0",
     "gulp": "^3.9.1",
     "gulp-rename": "^1.2.2",
-    "lodash.defaultsdeep": "^4.6.0"
+    "lodash.defaultsdeep": "^4.6.0",
+    "verror": "^1.8.1"
   },
   "devDependencies": {
     "jquery": "^3.1.1",
