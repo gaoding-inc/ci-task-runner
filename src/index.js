@@ -26,9 +26,9 @@ const MODULE_NAME_REG = /(\${moduleName})/g;
  * @param   {Object}            options
  * @param   {Object[]|string[]} options.modules         模块目录列表
  * @param   {Object}            options.modules.name    模块目录名（相对）
- * @param   {string[]}          options.modules.watch   模块依赖目录（相对），继承 options.watch
+ * @param   {string[]}          options.modules.librarys   模块依赖目录（相对），继承 options.librarys
  * @param   {Object}            options.modules.builder   模块编译器设置，继承 options.builder
- * @param   {string[]}          options.watch           模块组公共依赖（相对）
+ * @param   {string[]}          options.librarys           模块组公共依赖（相对）
  * @param   {string}            options.assets          构建后文件索引表输出路径（相对）
  * @param   {number}            options.parallel        最大进程数
  * @param   {Object}            options.builder           编译器设置
@@ -78,11 +78,11 @@ module.exports = (options = {}, context = process.cwd()) => {
 
                 // 转换字符串形式的格式
                 if (typeof module === 'string') {
-                    module = { name: module, watch: [], builder: {} };
+                    module = { name: module, librarys: [], builder: {} };
                 }
 
                 // 模块继承父设置
-                defaultsDeep(module.watch, options.watch);
+                defaultsDeep(module.librarys, options.librarys);
                 defaultsDeep(module.builder, options.builder);
 
                 let builder = module.builder;
@@ -113,13 +113,13 @@ module.exports = (options = {}, context = process.cwd()) => {
                 }
             };
 
-            let watchChanged = options.watch
+            let librarysChanged = options.librarys
                 .filter(target => isChanged(path.join(context, target))).length;
 
             return modules.filter((module) => {
                 let modulePath = path.join(context, module.name);
 
-                if (module.builder.force || watchChanged || isChanged(modulePath)) {
+                if (module.builder.force || librarysChanged || isChanged(modulePath)) {
                     Object.freeze(module);
                     modulesChanged = true;
                     return true;
@@ -140,7 +140,6 @@ module.exports = (options = {}, context = process.cwd()) => {
 
                 return () => {
                     let builder = require(`./builder/${module.builder.name}`);
-                    console.log(`\n[task:start] name: ${module.name}\n`);
                     return builder(module).then(moduleAsset => {
                         console.log(`\n[task:end] name: ${module.name}\n`);
                         return moduleAsset;

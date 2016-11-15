@@ -1,6 +1,6 @@
 {
   "modules": ["mod1"],
-  "watch": ["package.json"],
+  "librarys": ["package.json"],
   "assets": "dist/assets.json",
   "parallel": 3,
   "builder": {

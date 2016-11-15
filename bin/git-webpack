@@ -16,7 +16,7 @@ program
     .usage('[options]')
     .option('--modules <string>...', '模块目录名列表', list)
     .option('--assets [string]', '文件索引表输出路径')
-    .option('--watch [string]...', '依赖的文件与目录列表（它的变更会引起模块重新编译）', list)
+    .option('--librarys [string]...', '依赖的文件与目录列表（它的变更会引起模块重新编译）', list)
     .option('--parallel [number]', '进程最大并发数', parseInt)
     .option('--config [string]', '外部配置文件路径')
     .option('--init', '初始化项目，生成配置文件')
@@ -56,7 +56,7 @@ function query(val) {
 function config(file) {
     const options = {
         modules: program.modules,
-        watch: program.watch,
+        librarys: program.librarys,
         assets: program.assets,
         parallel: program.parallel,
         builder: (() => {

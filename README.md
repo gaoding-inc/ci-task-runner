@@ -49,7 +49,7 @@ git-webpack.json
 ```javascript
 {
   "modules": [],
-  "watch": ["package.json"],
+  "librarys": ["package.json"],
   "assets": "dist/assets.json",
   "parallel": 3,
   "builder": {
@@ -79,13 +79,13 @@ git-webpack.json
     "mod2",
     {
         "name": "mod3",
-        "watch": ["common/v1"],
+        "librarys": ["common/v1"],
         "builder": {}
     }
 ]
 ```
 
-`watch` 与 `builder` 会继承顶层的配置。
+`librarys` 与 `builder` 会继承顶层的配置。
 
 ### `assets`
 
@@ -123,11 +123,11 @@ git-webpack.json
 }
 ```
 
-### `watch`
+### `librarys`
 
 如果模块目录依赖了目录外的库，可以在此手动指定依赖，这样外部库更新也可以触发模块编译。
 
-`watch` 使用 Git 来实现变更检测，所以其路径必须已经受 Git 管理。如果想监控 node_modules 的变更，可以指定：`"watch": ["package.json"]`。
+`librarys` 使用 Git 来实现变更检测，所以其路径必须已经受 Git 管理。如果想监控 node_modules 的变更，可以指定：`"librarys": ["package.json"]`。
 
 ## `builder`
 

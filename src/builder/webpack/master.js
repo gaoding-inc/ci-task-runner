@@ -34,7 +34,7 @@ module.exports = ({builder}) => {
                 } else {
                     resolve(message.data);
                 }
-                
+
                 worker.kill();
             }
         });
