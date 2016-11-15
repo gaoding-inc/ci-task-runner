@@ -9,7 +9,7 @@
 
 * 基于 `·git commit` 按需进行构建任务调度
 * 支持按模块目录、多 Webpack 实例进行构建
-* 支持多线程调度 Webpack 实例
+* 支持多进程调度 Webpack 实例
 * 无需修改现有 Webpack 构建配置
 
 ## 性能
