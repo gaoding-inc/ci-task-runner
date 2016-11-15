@@ -95,14 +95,23 @@ function config(file) {
 
 function init() {
     fs.access(path.join(CONTEXT, CONFIG_PATH_NAME), errors => {
-        if (errors) {
-            let example = path.join(__dirname, '..', 'example');
-            gulp.src([
-                path.join(example, 'git-webpack-module-example', '**/*'),
-                path.join(example, 'git-webpack.json')
-            ]).pipe(gulp.dest('./'));
-            console.log(`"${CONFIG_PATH_NAME}" has been created.`);
+
+        if (!errors) {
+            return;
         }
+
+        let example = path.join(__dirname, '..', 'example');
+        
+        gulp.src([
+            path.join(example, '**/*'),
+            '!' + path.join(example, 'package.json')
+        ]).pipe(gulp.dest('./')).on('end', function (errors) {
+            if (errors) {
+                throw errors;
+            }
+            console.log(`"${CONFIG_PATH_NAME}" has been created.`);
+        });
+
     });
 }
 
