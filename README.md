@@ -60,7 +60,7 @@ git-webpack.json
       "GIT_WEBPACK": "1"
     },
     "execArgv": [],
-    "silent": true,
+    "silent": false,
     "name": "webpack",
     "launch": "${moduleName}/webpack.config.js"
   }
@@ -89,7 +89,39 @@ git-webpack.json
 
 ### `assets`
 
-设置构建后文件索引表输出路径。
+设置构建后文件索引表输出路径。编译任务结束后，它会保存编译结果：
+
+```
+{
+  "version": 24,
+  "modified": "2016-11-15T04:02:02.167Z",
+  "modules": {
+    "mod1": {
+      "version": 24,
+      "commit": "266df42",
+      "modified": "2016-11-15T04:01:59.116Z",
+      "chunks": {
+        "index": "mod1/index.789328ce6d25911c4f8e.js"
+      },
+      "assets": [
+        "mod1/index.789328ce6d25911c4f8e.js",
+        "mod1/demo.234328ce6d25911c4f5e.png"
+      ]
+    },
+    "mod2": {
+      "version": 4,
+      "commit": "266df42",
+      "modified": "2016-11-15T04:01:59.155Z",
+      "chunks": {
+        "index": "mod2/index.e5045985933eeedd4f64.js"
+      },
+      "assets": [
+        "mod2/index.e5045985933eeedd4f64.js"
+      ]
+    }
+  }
+}
+```
 
 ### `watch`
 

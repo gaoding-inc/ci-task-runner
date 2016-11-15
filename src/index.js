@@ -47,7 +47,6 @@ const MODULE_NAME_REG = /(\${moduleName})/g;
  * @param   {string}            context                 工作目录（绝对路径）
  */
 module.exports = (options = {}, context = process.cwd()) => {
-
     options = defaultsDeep({}, options, GIT_WEBPACK_DEFAULT);
     Object.freeze(options);
 
@@ -125,6 +124,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                     modulesChanged = true;
                     return true;
                 } else {
+                    console.log(`\n[task:ignore] name: ${module.name}\n`);
                     return false;
                 }
             });
@@ -140,7 +140,11 @@ module.exports = (options = {}, context = process.cwd()) => {
 
                 return () => {
                     let builder = require(`./builder/${module.builder.name}`);
-                    return builder(module);
+                    console.log(`\n[task:start] name: ${module.name}\n`);
+                    return builder(module).then(moduleAsset => {
+                        console.log(`\n[task:end] name: ${module.name}\n`);
+                        return moduleAsset;
+                    });
                 };
             });
 
@@ -233,14 +237,15 @@ module.exports = (options = {}, context = process.cwd()) => {
 
         // 显示日志
         assetsContent => {
-            if (process.stdout.isTTY) {
-                console.log(util.inspect(assetsContent, {
-                    colors: true,
-                    depth: null
-                }));
-            } else {
-                console.log(JSON.stringify(assetsContent, null, 2));
-            }
+            // silent
+            // if (process.stdout.isTTY) {
+            //     console.log(util.inspect(assetsContent, {
+            //         colors: true,
+            //         depth: null
+            //     }));
+            // } else {
+            //     console.log(JSON.stringify(assetsContent, null, 2));
+            // }
         }
 
     ]).catch(errors => process.nextTick(() => {

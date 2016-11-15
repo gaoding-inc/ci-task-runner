@@ -16,8 +16,8 @@ const options = require(WEBPACK_CONFIG_PATH);
 
 
 Object.assign(options, { context: WEBPACK_CONTEXT });
-let webpackCliConfig = options.entry && options.output && typeof options.run !== 'function';
-let compiler = webpackCliConfig ? webpack(options) : options;
+let isWebpackCliConfig = options.entry && options.output && typeof options.run !== 'function';
+let compiler = isWebpackCliConfig ? webpack(options) : options;
 
 
 compiler.run(function (errors, stats) {
@@ -28,6 +28,14 @@ compiler.run(function (errors, stats) {
             data: null
         });
     } else {
+
+        if (isWebpackCliConfig) {
+            console.log('[webpack:build]', stats.toString({
+                chunks: false,
+                colors: true
+            }));
+        }
+
         process.send({
             cmd: TYPE.WEBPACK_RESULT,
             errors: null,

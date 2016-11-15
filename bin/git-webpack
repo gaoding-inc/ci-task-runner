@@ -28,7 +28,7 @@ program
     .option('--builder-env [list]', null, query)
     .option('--builder-exec-path [string]')
     .option('--builder-exec-argv [list]', null, list)
-    .option('--no-builder-silent')
+    .option('--builder-silent')
     .option('--builder-stdio [list]', null, list)
     .option('--builder-uid [number]', null, parseInt)
     .option('--builder-gid [number]', null, parseInt)

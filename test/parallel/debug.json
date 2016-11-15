@@ -11,7 +11,7 @@
       "GIT_WEBPACK": "1"
     },
     "execArgv": [],
-    "silent": true,
+    "silent": false,
     "name": "webpack",
     "launch": "${moduleName}/webpack.config.js"
   }

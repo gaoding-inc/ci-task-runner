@@ -59,7 +59,6 @@ module.exports = ({builder}) => {
         });
 
         worker.on('listening', () => {
-            worker.send('shutdown');
             worker.disconnect();
             timer = setTimeout(() => {
                 // TODO 显示日志
