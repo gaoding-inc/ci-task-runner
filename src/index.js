@@ -27,22 +27,23 @@ const MODULE_NAME_REG = /(\${moduleName})/g;
  * @param   {Object[]|string[]} options.modules         模块目录列表
  * @param   {Object}            options.modules.name    模块目录名（相对）
  * @param   {string[]}          options.modules.watch   模块依赖目录（相对），继承 options.watch
- * @param   {Object}            options.modules.build   模块编译器设置，继承 options.build
+ * @param   {Object}            options.modules.builder   模块编译器设置，继承 options.builder
  * @param   {string[]}          options.watch           模块组公共依赖（相对）
  * @param   {string}            options.assets          构建后文件索引表输出路径（相对）
  * @param   {number}            options.parallel        最大进程数
- * @param   {Object}            options.build           编译器设置
- * @param   {number}            options.build.timeout
- * @param   {boolean}           options.build.force
- * @param   {string}            options.build.launch                   
- * @param   {string}            options.build.cwd                   
- * @param   {Object}            options.build.env                   
- * @param   {string}            options.build.execPath                   
- * @param   {string}            options.build.execArgv                   
- * @param   {string}            options.build.silent             
- * @param   {string[]|number[]} options.build.stdio           
- * @param   {Object}            options.build.uid         
- * @param   {string}            options.build.gid         
+ * @param   {Object}            options.builder           编译器设置
+ * @param   {string}            options.builder.name
+ * @param   {boolean}           options.builder.force
+ * @param   {number}            options.builder.timeout
+ * @param   {string}            options.builder.launch                   
+ * @param   {string}            options.builder.cwd                   
+ * @param   {Object}            options.builder.env                   
+ * @param   {string}            options.builder.execPath                   
+ * @param   {string}            options.builder.execArgv                   
+ * @param   {string}            options.builder.silent             
+ * @param   {string[]|number[]} options.builder.stdio           
+ * @param   {Object}            options.builder.uid         
+ * @param   {string}            options.builder.gid         
  * @param   {string}            context                 工作目录（绝对路径）
  */
 module.exports = (options = {}, context = process.cwd()) => {
@@ -55,7 +56,7 @@ module.exports = (options = {}, context = process.cwd()) => {
     let assetsPath = assets ? path.join(context, assets) : null;
 
     if (parallel > numCPUs) {
-        console.warn(`当前计算机 CPU 核心数为 ${numCPUs} 个，parallel 设置为 ${parallel}`);
+        console.warn(`[warn] 当前计算机 CPU 核心数为 ${numCPUs} 个，parallel 设置为 ${parallel}`);
     }
 
     return promiseTask.serial([
@@ -78,18 +79,18 @@ module.exports = (options = {}, context = process.cwd()) => {
 
                 // 转换字符串形式的格式
                 if (typeof module === 'string') {
-                    module = { name: module, watch: [], build: {} };
+                    module = { name: module, watch: [], builder: {} };
                 }
 
                 // 模块继承父设置
                 defaultsDeep(module.watch, options.watch);
-                defaultsDeep(module.build, options.build);
+                defaultsDeep(module.builder, options.builder);
 
-                let build = module.build;
+                let builder = module.builder;
 
                 // 转成绝对路径
-                build.launch = path.join(context, build.launch.replace(MODULE_NAME_REG, module.name));
-                build.cwd = path.join(context, build.cwd.replace(MODULE_NAME_REG, module.name));
+                builder.launch = path.join(context, builder.launch.replace(MODULE_NAME_REG, module.name));
+                builder.cwd = path.join(context, builder.cwd.replace(MODULE_NAME_REG, module.name));
 
                 return module;
             });
@@ -119,7 +120,7 @@ module.exports = (options = {}, context = process.cwd()) => {
             return modules.filter((module) => {
                 let modulePath = path.join(context, module.name);
 
-                if (module.build.force || watchChanged || isChanged(modulePath)) {
+                if (module.builder.force || watchChanged || isChanged(modulePath)) {
                     Object.freeze(module);
                     modulesChanged = true;
                     return true;
@@ -134,11 +135,11 @@ module.exports = (options = {}, context = process.cwd()) => {
         modules => {
 
             let tasks = defaultsDeep(modules).map((module) => {
-                let build = module.build;
-                build.$builderPath = getNodeModulePath(build.builder, build.cwd);
+                let builder = module.builder;
+                builder.$builderPath = getNodeModulePath(builder.name, builder.cwd);
 
                 return () => {
-                    let builder = require(`./builder/${module.build.builder}`);
+                    let builder = require(`./builder/${module.builder.name}`);
                     return builder(module);
                 };
             });

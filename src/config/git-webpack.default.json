@@ -3,7 +3,8 @@
   "watch": ["package.json"],
   "assets": "dist/assets.json",
   "parallel": 3,
-  "build": {
+  "builder": {
+    "name": "webpack",
     "force": false,
     "timeout": 60000,
     "cwd": "${moduleName}",
@@ -12,7 +13,6 @@
     },
     "execArgv": [],
     "silent": true,
-    "builder": "webpack",
     "launch": "${moduleName}/webpack.config.js"
   }
 }

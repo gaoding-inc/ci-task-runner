@@ -20,17 +20,18 @@ program
     .option('--parallel [number]', '进程最大并发数', parseInt)
     .option('--config [string]', '外部配置文件路径')
     .option('--init', '初始化项目，生成配置文件')
-    .option('--build-timeout [number]', null, parseInt)
-    .option('--build-force', null)
-    .option('--build-launch [string]')
-    .option('--build-cwd [string]')
-    .option('--build-env [list]', null, query)
-    .option('--build-exec-path [string]')
-    .option('--build-exec-argv [list]', null, list)
-    .option('--no-build-silent')
-    .option('--build-stdio [list]', null, list)
-    .option('--build-uid [number]', null, parseInt)
-    .option('--build-gid [number]', null, parseInt)
+    .option('--builder-name [string]')
+    .option('--builder-force', null)
+    .option('--builder-timeout [number]', null, parseInt)
+    .option('--builder-launch [string]')
+    .option('--builder-cwd [string]')
+    .option('--builder-env [list]', null, query)
+    .option('--builder-exec-path [string]')
+    .option('--builder-exec-argv [list]', null, list)
+    .option('--no-builder-silent')
+    .option('--builder-stdio [list]', null, list)
+    .option('--builder-uid [number]', null, parseInt)
+    .option('--builder-gid [number]', null, parseInt)
     .parse(process.argv);
 
 
@@ -58,19 +59,19 @@ function config(file) {
         watch: program.watch,
         assets: program.assets,
         parallel: program.parallel,
-        build: (() => {
-            let build = {};
-            var reg = /^build(\w)/;
+        builder: (() => {
+            let builder = {};
+            var reg = /^builder(\w)/;
 
             Object.keys(program).forEach((key) => {
                 if (reg.test(key)) {
-                    build[key.replace(reg, ($0, $1) => {
+                    builder[key.replace(reg, ($0, $1) => {
                         return $1.toLowerCase();
                     })] = program[key];
                 }
             });
 
-            return build;
+            return builder;
         })()
     };
 

@@ -3,7 +3,7 @@
 /**
  * 将回调包装成 Promise
  * @param   {function}           回调函数
- * @param   {object|function}    上下文
+ * @param   {any}                上下文
  * @return  {Promise}
  */
 function promisify(fn, receiver) {

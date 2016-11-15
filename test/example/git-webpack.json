@@ -2,15 +2,17 @@
   "modules": ["git-webpack-module-example"],
   "watch": ["package.json"],
   "assets": "dist/assets.json",
-  "parallel": 2,
-  "build": {
+  "parallel": 3,
+  "builder": {
     "force": false,
     "timeout": 60000,
     "cwd": "${moduleName}",
     "env": {
       "GIT_WEBPACK": "1"
     },
-    "argv": [],
+    "execArgv": [],
+    "silent": true,
+    "name": "webpack",
     "launch": "${moduleName}/webpack.config.js"
   }
 }

@@ -11,17 +11,17 @@ const workerFile = path.join(__dirname, 'worker.js');
  * Webpack 运行器 - 使用子进程启动 Webpack
  * @param   {Object}    module  模块描述信息
  */
-module.exports = ({build}) => {
+module.exports = ({builder}) => {
     return new Promise((resolve, reject) => {
 
         let pending = true;
         let timer = null;
         let options = defaultsDeep({}, {
             env: {
-                [TYPE.WEBPACK_PATH]: build.$builderPath,
-                [TYPE.WEBPACK_CONFIG_PATH]: build.launch
+                [TYPE.WEBPACK_PATH]: builder.$builderPath,
+                [TYPE.WEBPACK_CONFIG_PATH]: builder.launch
             }
-        }, build);
+        }, builder);
 
         const worker = childProcess.fork(workerFile, options);
 
@@ -64,7 +64,7 @@ module.exports = ({build}) => {
             timer = setTimeout(() => {
                 // TODO 显示日志
                 worker.kill();
-            }, build.timeout);
+            }, builder.timeout);
         });
 
         worker.on('disconnect', () => {
