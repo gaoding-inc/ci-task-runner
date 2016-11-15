@@ -29,7 +29,7 @@ function parallel(tasks, limit = tasks.length) {
     if (limit === tasks.length) {
         return Promise.all(tasks.map(fn => {
             try {
-                return fn();
+                return typeof fn === 'function' ? fn() : fn;
             } catch (e) {
                 return Promise.reject(e);
             }
