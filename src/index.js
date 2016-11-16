@@ -90,11 +90,9 @@ module.exports = (options = {}, context = process.cwd()) => {
                     moduleName: module.name
                 };
 
-                // 设置变量并转成绝对路径
+                // 设置变量
                 builder.cwd = path.join(context, template(builder.cwd, data));
                 builder.launch = path.join(context, template(builder.launch, data));
-
-                // 设置变量
                 builder.execArgv = builder.execArgv.map(argv => template(argv, data));
                 Object.keys(builder.env).forEach(key => builder.env[key] = template(builder.env[key], data));
 

@@ -57,7 +57,7 @@ git-webpack.json
     "timeout": 60000,
     "cwd": "${moduleName}",
     "env": {
-      "GIT_WEBPACK": "1"
+      "MODULE_NAME": "${moduleName}"
     },
     "execArgv": [],
     "silent": false,
@@ -67,7 +67,8 @@ git-webpack.json
 }
 ```
 
-> 所有路径相对于 git-webpack.json 文件，路径支持 `${moduleName}` 变量，它映射到正在构建中的模块名。
+> 所有路径相对于 git-webpack.json 文件。
+> `builder.cwd`、`builder.launch`、`builder.execArgv`、`builder.env` 字段支持 `${moduleName}` 变量，它映射到正在构建中的模块名。
 
 ### `modules`
 
@@ -91,10 +92,13 @@ git-webpack.json
 
 设置构建后文件索引表输出路径。编译任务结束后，它会保存编译结果：
 
-```
+```json
 {
   "version": 24,
   "date": "2016-11-15T04:02:02.167Z",
+  "latest": [
+    "mod1"
+  ],
   "modules": {
     "mod1": {
       "version": 24,
@@ -111,7 +115,7 @@ git-webpack.json
     "mod2": {
       "version": 4,
       "commit": "266df42",
-      "date": "2016-11-15T04:01:59.155Z",
+      "date": "2016-11-10T04:01:59.155Z",
       "chunks": {
         "index": "mod2/index.e5045985933eeedd4f64.js"
       },
