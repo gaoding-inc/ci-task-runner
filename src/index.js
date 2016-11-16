@@ -8,6 +8,7 @@ const fsp = require('fs-promise');
 const numCPUs = require('os').cpus().length;
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('./lib/promise-task');
+const template = require('./lib/template');
 const getNodeModulePath = require('./lib/get-node-module-path');
 const gitCommitId = require('./lib/get-commit-id');
 const getChanged = require('./lib/get-changed');
@@ -17,7 +18,6 @@ const ASSETS_DEFAULT_NAME = './config/assets.default.json';
 const ASSETS_DEFAULT_PATH = path.join(__dirname, ASSETS_DEFAULT_NAME);
 const GIT_WEBPACK_DEFAULT = require('./config/git-webpack.default.json');
 const ASSETS_DEFAULT = require(ASSETS_DEFAULT_NAME);
-const MODULE_NAME_REG = /(\${moduleName})/g;
 
 
 
@@ -86,10 +86,17 @@ module.exports = (options = {}, context = process.cwd()) => {
                 defaultsDeep(module.builder, options.builder);
 
                 let builder = module.builder;
+                let data = {
+                    moduleName: module.name
+                };
 
-                // 转成绝对路径
-                builder.launch = path.join(context, builder.launch.replace(MODULE_NAME_REG, module.name));
-                builder.cwd = path.join(context, builder.cwd.replace(MODULE_NAME_REG, module.name));
+                // 设置变量并转成绝对路径
+                builder.cwd = path.join(context, template(builder.cwd, data));
+                builder.launch = path.join(context, template(builder.launch, data));
+
+                // 设置变量
+                builder.execArgv = builder.execArgv.map(argv => template(argv, data));
+                Object.keys(builder.env).forEach(key => builder.env[key] = template(builder.env[key], data));
 
                 return module;
             });
@@ -203,7 +210,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                         let module = modulesMap[name];
                         let chunks = module.chunks;
                         let assets = module.assets;
-                        
+
 
                         // 自动递增模块的编译版本号
                         if (oldModule) {
