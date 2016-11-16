@@ -10,14 +10,12 @@ const childProcess = require('child_process');
  */
 module.exports = target => {
     let cwd = path.dirname(target);
-    let basename = path.basename(target);
-
     let cmd = `git log --name-only --pretty=format:"" -1 ${cwd}`;
     let log = childProcess.execSync(cmd, {
         cwd: cwd
     }).toString().trim();
     let fileList = log.split(/\n/);
-    let changed = fileList.includes(basename);
+    let changed = fileList.filter(file => target.lastIndexOf(file) !== -1).length;
 
     return changed;
 };
