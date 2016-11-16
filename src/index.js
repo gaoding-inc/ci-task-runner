@@ -167,7 +167,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                 delete modulesMap[module.name].name;
             });
 
-            assetsContent.date = (new Date()).toISOString();
+            assetsContent.date = (new Date()).toLocaleString();
             assetsContent.modules = modulesMap;
             return assetsContent;
         },
