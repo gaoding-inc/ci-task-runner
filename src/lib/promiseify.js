@@ -6,7 +6,7 @@
  * @param   {any}                上下文
  * @return  {Promise}
  */
-function promisify(fn, receiver) {
+module.exports = (fn, receiver) => {
     return (...args) => {
         return new Promise((resolve, reject) => {
             fn.apply(receiver, [...args, (err, res) => {
@@ -14,6 +14,4 @@ function promisify(fn, receiver) {
             }]);
         });
     };
-}
-
-module.exports = promisify;
+};
