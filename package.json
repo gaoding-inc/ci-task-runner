@@ -1,6 +1,6 @@
 {
   "name": "git-webpack",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "基于 git 的 webpack 多进程调度器",
   "main": "src/index.js",
   "bin": "bin/git-webpack",
