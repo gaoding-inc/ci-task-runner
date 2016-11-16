@@ -162,7 +162,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                 delete modulesMap[module.name].name;
             });
 
-            assetsContent.modified = (new Date()).toISOString();
+            assetsContent.date = (new Date()).toISOString();
             assetsContent.modules = modulesMap;
             return assetsContent;
         },
@@ -191,21 +191,23 @@ module.exports = (options = {}, context = process.cwd()) => {
                 .then(jsonText => {
 
                     let modulesMap = assetsContent.modules;
-
                     let relative = file => path.relative(path.dirname(assetsPath), file);
                     let oldAssetsContent = JSON.parse(jsonText);
 
+                    assetsContent.latest = [];
                     Object.keys(modulesMap).forEach(name => {
 
-                        let oldModuleMap = oldAssetsContent.modules[name];
+                        assetsContent.latest.push(name);
+
+                        let oldModule = oldAssetsContent.modules[name];
                         let module = modulesMap[name];
                         let chunks = module.chunks;
                         let assets = module.assets;
-
+                        
 
                         // 自动递增模块的编译版本号
-                        if (oldModuleMap) {
-                            module.version = oldModuleMap.version + 1;
+                        if (oldModule) {
+                            module.version = oldModule.version + 1;
                         }
 
 

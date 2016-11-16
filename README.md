@@ -94,12 +94,12 @@ git-webpack.json
 ```
 {
   "version": 24,
-  "modified": "2016-11-15T04:02:02.167Z",
+  "date": "2016-11-15T04:02:02.167Z",
   "modules": {
     "mod1": {
       "version": 24,
       "commit": "266df42",
-      "modified": "2016-11-15T04:01:59.116Z",
+      "date": "2016-11-15T04:01:59.116Z",
       "chunks": {
         "index": "mod1/index.789328ce6d25911c4f8e.js"
       },
@@ -111,7 +111,7 @@ git-webpack.json
     "mod2": {
       "version": 4,
       "commit": "266df42",
-      "modified": "2016-11-15T04:01:59.155Z",
+      "date": "2016-11-15T04:01:59.155Z",
       "chunks": {
         "index": "mod2/index.e5045985933eeedd4f64.js"
       },
