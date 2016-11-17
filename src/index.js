@@ -4,6 +4,7 @@ const path = require('path');
 const gulp = require('gulp');
 const rename = require('gulp-rename');
 const fsp = require('fs-promise');
+const color = require('cli-color');
 const numCPUs = require('os').cpus().length;
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('./lib/promise-task');
@@ -55,7 +56,7 @@ module.exports = (options = {}, context = process.cwd()) => {
     let latestCommit = {};
 
     if (parallel > numCPUs) {
-        console.warn(`[warn] 当前计算机 CPU 核心数为 ${numCPUs} 个，parallel 设置为 ${parallel}`);
+        console.warn(color.yellow(`[warn] 当前计算机 CPU 核心数为 ${numCPUs} 个，parallel 设置为 ${parallel}`));
     }
 
     return promiseTask.serial([
@@ -142,7 +143,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                     modulesChanged = true;
                     return true;
                 } else {
-                    console.log(`\n[task:ignore] name: ${module.name}\n`);
+                    console.log(color.yellow(`\n[task:ignore] name: ${module.name}\n`));
                     return false;
                 }
             });
@@ -159,7 +160,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                 return () => {
                     let builder = require(`./builder/${module.builder.name}`);
                     return builder(module).then(moduleAsset => {
-                        console.log(`\n[task:end] name: ${module.name}\n`);
+                        console.log(`\n[task:end] ${color.green(module.name)}\n`);
                         return moduleAsset;
                     });
                 };
