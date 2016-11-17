@@ -7,15 +7,15 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "bin",
+            "name": "debug no-force",
             "program": "${workspaceRoot}/bin/git-webpack",
             "cwd": "${workspaceRoot}",
-            "args": ["--config", "test/example/git-webpack.json", "--builder-force"]
+            "args": ["--config", "test/example/git-webpack.json"]
         },
         {
             "type": "node",
             "request": "launch",
-            "name": "debug log",
+            "name": "debug force",
             "program": "${workspaceRoot}/bin/git-webpack",
             "cwd": "${workspaceRoot}",
             "args": ["--config", "test/parallel/debug.json", "--builder-force"]

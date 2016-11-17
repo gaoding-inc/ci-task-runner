@@ -64,7 +64,7 @@ module.exports = (options = {}, context = process.cwd()) => {
 
         // 读取上一次的编译记录
         () => {
-            fsp.readFile(assetsPath, 'utf8').catch(() => {
+            return fsp.readFile(assetsPath, 'utf8').catch(() => {
                 return new Promise((resolve, reject) => {
                     let basename = path.basename(assetsPath);
 
@@ -80,7 +80,9 @@ module.exports = (options = {}, context = process.cwd()) => {
                             }
                         });
                 });
-            }).then(({modules, librarys}) => {
+            }).then(assetsContent => {
+                assetsContent = JSON.parse(assetsContent);
+                let {modules, librarys} = assetsContent;
                 Object.keys(modules).forEach(name => preCommit[name] = modules[name].commit);
                 Object.keys(librarys).forEach(name => preCommit[name] = librarys[name].commit);
             });
@@ -126,7 +128,8 @@ module.exports = (options = {}, context = process.cwd()) => {
                 try {
                     let commit = latestCommit[name] ? latestCommit[name].commit : getCommitId(target);
                     latestCommit[name] = { commit };
-                    return commit !== preCommit[name];
+                    // 如果之前未构建，preCommit[name] 为 undefined
+                    return commit !== preCommit[name] || !preCommit[name];
                 } catch (e) {
                     throw new VError(e, `无法获取变更记录，因为目标不在 git 仓库中 "${target}"`);
                 }
