@@ -9,7 +9,7 @@ module.exports = module => {
     // 运行 Webpack 并处理返回结果
     return master(module).then(stats => {
 
-        var date = (new Date()).toLocaleString()();
+        var date = (new Date()).toLocaleString();
         let hash = stats.hash;
         let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
 
