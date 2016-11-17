@@ -194,49 +194,41 @@ module.exports = (options = {}, context = process.cwd()) => {
 
         // 保存资源索引文件（TIPS: 为了保证有效性，要第一时间读取最新描述文件再写入）
         assetsContent => {
-            return fsp.readFile(assetsPath, 'utf8').then(jsonText => {
+            return fsp.readFile(assetsPath, 'utf8').then(JSON.parse).then(preAssetsContent => {
 
                 let modulesMap = assetsContent.modules;
                 let relative = file => path.relative(path.dirname(assetsPath), file);
-                let oldAssetsContent = JSON.parse(jsonText);
+                let latest = []
 
-                assetsContent.latest = [];
                 Object.keys(modulesMap).forEach(name => {
 
-                    assetsContent.latest.push(name);
+                    latest.push(name);
 
-                    let oldModule = oldAssetsContent.modules[name];
+                    let oldModule = preAssetsContent.modules[name];
                     let module = modulesMap[name];
                     let chunks = module.chunks;
                     let assets = module.assets;
-
 
                     // 自动递增模块的编译版本号
                     if (oldModule) {
                         module.version = oldModule.version + 1;
                     }
 
-
                     // 将绝对路径转换为相对与资源描述文件的路径
-                    Object.keys(chunks).forEach(name => {
-                        let file = chunks[name];
-                        chunks[name] = relative(file);
-                    });
+                    Object.keys(chunks).forEach(name => chunks[name] = relative(chunks[name]));
+                    assets.forEach((file, index) => assets[index] = relative(file));
 
-                    assets.forEach((file, index) => {
-                        assets[index] = relative(file);
-                    });
                 });
 
-                if (modulesChanged) {
-                    let version = (Number(oldAssetsContent.version) || 0) + 1;
-                    let newAssetsContent = defaultsDeep({ version }, assetsContent, oldAssetsContent);
-                    let newAssetsContentText = JSON.stringify(newAssetsContent, null, 2);
+                Object.assign(preAssetsContent.modules, modulesMap);
+                Object.assign(preAssetsContent.librarys, module.librarys);
+                preAssetsContent.version = (Number(preAssetsContent.version) || 0) + 1;
+                preAssetsContent.latest = latest;
+                preAssetsContent.date = (new Date()).toLocaleString();
 
-                    return fsp.writeFile(assetsPath, newAssetsContentText, 'utf8').then(() => newAssetsContent);
-                } else {
-                    return oldAssetsContent;
-                }
+                let newAssetsContentText = JSON.stringify(preAssetsContent, null, 2);
+
+                return fsp.writeFile(assetsPath, newAssetsContentText, 'utf8').then(() => preAssetsContent);
 
             })
         },
