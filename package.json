@@ -1,6 +1,6 @@
 {
   "name": "git-webpack",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "基于 git 的 webpack 多进程调度器",
   "main": "src/index.js",
   "bin": "bin/git-webpack",
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/aui/git-webpack#readme",
   "dependencies": {
+    "cli-color": "^1.1.0",
     "commander": "^2.9.0",
     "fs-promise": "^1.0.0",
     "gulp": "^3.9.1",

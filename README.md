@@ -123,7 +123,8 @@ git-webpack.json
         "mod2/index.e5045985933eeedd4f64.js"
       ]
     }
-  }
+  },
+  "librarys": {}
 }
 ```
 
