@@ -130,7 +130,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                 let target = path.join(context, name);
                 try {
                     let commit = latestCommit[name] ? latestCommit[name].commit : getCommitId(target);
-                    latestCommit[name] = { commit };
+                    latestCommit[name] = commit;
                     // 如果之前未构建，preCommit[name] 为 undefined
                     let dirty = commit !== preCommit[name] || !preCommit[name];
                     return { commit, dirty };
