@@ -4,17 +4,17 @@ const path = require('path');
 const master = require('./master');
 
 
-module.exports = module => {
+module.exports = mod => {
 
     // 运行 Webpack 并处理返回结果
-    return master(module).then(stats => {
+    return master(mod).then(stats => {
 
         var date = (new Date()).toLocaleString();
         let hash = stats.hash;
         let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
 
         let moduleAssets = {
-            name: module.name,
+            name: mod.name,
             version: 1,
             commit: '',
             date: date,

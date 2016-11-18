@@ -50,10 +50,12 @@ module.exports = (options = {}, context = process.cwd()) => {
     Object.freeze(options);
 
     let {assets, parallel} = options;
-    let modulesChanged = false;
     let assetsPath = path.join(context, assets);
+
     let preCommit = {};
     let latestCommit = {};
+    let librarysCommit = {};
+
 
     if (parallel > numCPUs) {
         console.warn(color.yellow(`[warn] 当前计算机 CPU 核心数为 ${numCPUs} 个，parallel 设置为 ${parallel}`));
@@ -81,10 +83,11 @@ module.exports = (options = {}, context = process.cwd()) => {
                         });
                 });
             }).then(assetsContent => {
+                // 缓存上一次编译的 commit id
                 assetsContent = JSON.parse(assetsContent);
                 let {modules, librarys} = assetsContent;
                 Object.keys(modules).forEach(name => preCommit[name] = modules[name].commit);
-                Object.keys(librarys).forEach(name => preCommit[name] = librarys[name].commit);
+                Object.keys(librarys).forEach(name => preCommit[name] = librarys[name]);
             });
         },
 
@@ -92,21 +95,21 @@ module.exports = (options = {}, context = process.cwd()) => {
         // 转换 modules
         () => {
             return Object.keys(options.modules).map(key => {
-                let module = options.modules[key];
+                let mod = options.modules[key];
 
                 // 转换字符串形式的格式
-                if (typeof module === 'string') {
-                    module = { name: module, librarys: [], builder: {} };
+                if (typeof mod === 'string') {
+                    mod = { name: mod, librarys: [], builder: {} };
                 }
 
                 // 模块继承父设置
-                defaultsDeep(module.librarys, options.librarys);
-                defaultsDeep(module.builder, options.builder);
+                defaultsDeep(mod.librarys, options.librarys);
+                defaultsDeep(mod.builder, options.builder);
 
-                let builder = module.builder;
+                let builder = mod.builder;
                 let data = {
                     // TODO moduleCommit
-                    moduleName: module.name
+                    moduleName: mod.name
                 };
 
                 // builder 设置变量，路径相关都转成绝对路径
@@ -115,14 +118,13 @@ module.exports = (options = {}, context = process.cwd()) => {
                 builder.execArgv = builder.execArgv.map(argv => template(argv, data));
                 Object.keys(builder.env).forEach(key => builder.env[key] = template(builder.env[key], data));
 
-                return module;
+                return mod;
             });
         },
 
 
-        // 对比版本的修改
+        // 过滤未修改的版本
         modules => {
-
 
             let diff = name => {
                 let target = path.join(context, name);
@@ -130,24 +132,27 @@ module.exports = (options = {}, context = process.cwd()) => {
                     let commit = latestCommit[name] ? latestCommit[name].commit : getCommitId(target);
                     latestCommit[name] = { commit };
                     // 如果之前未构建，preCommit[name] 为 undefined
-                    return commit !== preCommit[name] || !preCommit[name];
+                    let dirty = commit !== preCommit[name] || !preCommit[name];
+                    return { commit, dirty };
                 } catch (e) {
                     throw new VError(e, `无法获取变更记录，因为目标不在 git 仓库中 "${target}"`);
                 }
             };
 
+            return modules.filter((mod) => {
 
-            return modules.filter((module) => {
+                let moduleChaned = diff(mod.name).dirty;
+                let librarysChanged = mod.librarys.filter(name => {
+                    let ret = diff(name);
+                    librarysCommit[name] = ret.commit;
+                    return ret.dirty;
+                }).length;
 
-                let moduleChaned = diff(module.name);
-                let librarysChanged = module.librarys.filter(name => diff(name)).length;
-
-                if (module.builder.force || librarysChanged || moduleChaned) {
-                    Object.freeze(module);
-                    modulesChanged = true;
+                if (mod.builder.force || librarysChanged || moduleChaned) {
+                    Object.freeze(mod);
                     return true;
                 } else {
-                    console.log(color.yellow(`\n[task:ignore] name: ${module.name}\n`));
+                    console.log(color.yellow(`\n[task:ignore] name: ${mod.name}\n`));
                     return false;
                 }
             });
@@ -157,14 +162,14 @@ module.exports = (options = {}, context = process.cwd()) => {
         // 运行构建器
         modules => {
 
-            let tasks = defaultsDeep(modules).map((module) => {
-                let builder = module.builder;
+            let tasks = defaultsDeep(modules).map(mod => {
+                let builder = mod.builder;
                 builder.$builderPath = getNodeModulePath(builder.name, builder.cwd);
 
                 return () => {
-                    let builder = require(`./builder/${module.builder.name}`);
-                    return builder(module).then(moduleAsset => {
-                        console.log(`\n[task:end] ${color.green(module.name)}\n`);
+                    let builder = require(`./builder/${mod.builder.name}`);
+                    return builder(mod).then(moduleAsset => {
+                        console.log(`\n[task:end] ${color.green(mod.name)}\n`);
                         return moduleAsset;
                     });
                 };
@@ -178,13 +183,13 @@ module.exports = (options = {}, context = process.cwd()) => {
         moduleAssets => {
             let modulesMap = {};
             let assetsContent = defaultsDeep({}, {
-                librarys: latestCommit
+                librarys: librarysCommit
             }, ASSETS_DEFAULT);
 
-            moduleAssets.forEach(module => {
-                module.commit = getCommitId(path.join(context, module.name));
-                modulesMap[module.name] = module;
-                delete modulesMap[module.name].name;
+            moduleAssets.forEach(mod => {
+                mod.commit = latestCommit[mod.name];
+                modulesMap[mod.name] = mod;
+                delete modulesMap[mod.name].name;
             });
 
             assetsContent.date = (new Date()).toLocaleString();
@@ -206,13 +211,13 @@ module.exports = (options = {}, context = process.cwd()) => {
                     latest.push(name);
 
                     let oldModule = preAssetsContent.modules[name];
-                    let module = modulesMap[name];
-                    let chunks = module.chunks;
-                    let assets = module.assets;
+                    let mod = modulesMap[name];
+                    let chunks = mod.chunks;
+                    let assets = mod.assets;
 
                     // 自动递增模块的编译版本号
                     if (oldModule) {
-                        module.version = oldModule.version + 1;
+                        mod.version = oldModule.version + 1;
                     }
 
                     // 将绝对路径转换为相对与资源描述文件的路径
@@ -222,7 +227,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                 });
 
                 Object.assign(preAssetsContent.modules, modulesMap);
-                Object.assign(preAssetsContent.librarys, module.librarys);
+                Object.assign(preAssetsContent.librarys, assetsContent.librarys);
                 preAssetsContent.version = (Number(preAssetsContent.version) || 0) + 1;
                 preAssetsContent.latest = latest;
                 preAssetsContent.date = (new Date()).toLocaleString();
@@ -232,20 +237,6 @@ module.exports = (options = {}, context = process.cwd()) => {
                 return fsp.writeFile(assetsPath, newAssetsContentText, 'utf8').then(() => preAssetsContent);
 
             })
-        },
-
-
-        // 显示日志
-        assetsContent => {
-            // silent
-            // if (process.stdout.isTTY) {
-            //     console.log(util.inspect(assetsContent, {
-            //         colors: true,
-            //         depth: null
-            //     }));
-            // } else {
-            //     console.log(JSON.stringify(assetsContent, null, 2));
-            // }
         }
 
     ]).catch(errors => process.nextTick(() => {

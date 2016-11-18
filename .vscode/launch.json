@@ -10,7 +10,7 @@
             "name": "debug no-force",
             "program": "${workspaceRoot}/bin/git-webpack",
             "cwd": "${workspaceRoot}",
-            "args": ["--config", "test/example/git-webpack.json"]
+            "args": ["--config", "example/git-webpack.json"]
         },
         {
             "type": "node",
@@ -18,7 +18,7 @@
             "name": "debug force",
             "program": "${workspaceRoot}/bin/git-webpack",
             "cwd": "${workspaceRoot}",
-            "args": ["--config", "test/parallel/debug.json", "--builder-force"]
+            "args": ["--config", "example/git-webpack.json", "--builder-force"]
         },
         {
             "type": "node",
