@@ -105,6 +105,7 @@ module.exports = (options = {}, context = process.cwd()) => {
 
                 let builder = module.builder;
                 let data = {
+                    // TODO moduleCommit
                     moduleName: module.name
                 };
 

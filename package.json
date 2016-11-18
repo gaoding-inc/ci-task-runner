@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "bin": "bin/git-webpack",
   "scripts": {
-    "example": "git-webpack --config test/example/git-webpack.json",
+    "example": "git-webpack --config example/git-webpack.json",
     "parallel-test": "node test/parallel/index.js",
     "test": "mocha test/index.js && npm run example"
   },

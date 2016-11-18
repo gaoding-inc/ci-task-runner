@@ -3,13 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "devDependencies": {
-    "git-webpack": "^0.0.1",
     "jquery": "^3.1.1",
     "webpack": "^1.13.3"
   },
-  "main": "git-webpack-module-example/index.js",
   "scripts": {
-    "dev": "webpack --config git-webpack-module-example/webpack.config.js",
     "build": "git-webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

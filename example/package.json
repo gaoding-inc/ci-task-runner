@@ -6,7 +6,6 @@
     "git-webpack": "^0.0.1",
     "webpack": "^1.13.3"
   },
-  "main": "git-webpack-module-example/index.js",
   "scripts": {
     "dev": "webpack --config git-webpack-module-example/webpack.config.js",
     "build": "git-webpack",
