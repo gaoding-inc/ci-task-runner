@@ -116,7 +116,7 @@ module.exports = (options = {}, context = process.cwd()) => {
 
         // 过滤未修改的版本
         modules => {
-
+            let list = [];
             let diff = name => {
                 let target = path.join(context, name);
                 try {
@@ -131,16 +131,12 @@ module.exports = (options = {}, context = process.cwd()) => {
             };
 
             let filter = mod => {
-                if (Array.isArray(mod)) {
-                    return mod.filter(filter);
-                }
-
                 let moduleChaned = diff(mod.name).dirty;
                 let librarysChanged = mod.librarys.filter(name => {
                     let ret = diff(name);
                     librarysCommit[name] = ret.commit;
                     return ret.dirty;
-                }).length;
+                }).length !== 0;
 
                 if (mod.builder.force || librarysChanged || moduleChaned) {
                     return true;
@@ -149,8 +145,16 @@ module.exports = (options = {}, context = process.cwd()) => {
                     return false;
                 }
             };
+            
+            modules.forEach(mod => {
+                if (Array.isArray(mod)) {
+                    list.push(mod.filter(filter));
+                } else if (filter(mod)) {
+                    list.push(mod);
+                }
+            });
 
-            return modules.filter(filter);
+            return list;
         },
 
 
