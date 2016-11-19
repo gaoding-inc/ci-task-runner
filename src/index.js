@@ -92,14 +92,15 @@ module.exports = (options = {}, context = process.cwd()) => {
         },
 
 
-        // 转换 modules
+        // 标准化配置
         () => {
-            return Object.keys(options.modules).map(key => {
-                let mod = options.modules[key];
 
+            let normalize = mod => {
                 // 转换字符串形式的格式
                 if (typeof mod === 'string') {
                     mod = { name: mod, librarys: [], builder: {} };
+                } else if (Array.isArray(mod)) {
+                    return mod.map(normalize);
                 }
 
                 // 模块继承父设置
@@ -107,7 +108,9 @@ module.exports = (options = {}, context = process.cwd()) => {
                 defaultsDeep(mod.builder, options.builder);
 
                 return mod;
-            });
+            };
+
+            return options.modules.map(normalize);
         },
 
 
@@ -127,7 +130,10 @@ module.exports = (options = {}, context = process.cwd()) => {
                 }
             };
 
-            return modules.filter((mod) => {
+            let filter = mod => {
+                if (Array.isArray(mod)) {
+                    return mod.filter(filter);
+                }
 
                 let moduleChaned = diff(mod.name).dirty;
                 let librarysChanged = mod.librarys.filter(name => {
@@ -137,24 +143,30 @@ module.exports = (options = {}, context = process.cwd()) => {
                 }).length;
 
                 if (mod.builder.force || librarysChanged || moduleChaned) {
-                    Object.freeze(mod);
                     return true;
                 } else {
                     console.log(color.yellow(`\n[task:ignore] name: ${mod.name}\n`));
                     return false;
                 }
-            });
+            };
+
+            return modules.filter(filter);
         },
 
 
         // 运行构建器
         modules => {
 
-            let tasks = modules.map(mod => {
+            let task = mod => {
+
+                if (Array.isArray(mod)) {
+                    return promiseTask.parallel(mod.map(task), parallel);
+                }
+
                 let builder = defaultsDeep(mod.builder);
                 let data = {
-                    // TODO moduleCommit
-                    moduleName: mod.name
+                    moduleName: mod.name,
+                    moduleCommit: latestCommit[mod.name]
                 };
 
                 // builder 设置变量，路径相关都转成绝对路径
@@ -172,9 +184,11 @@ module.exports = (options = {}, context = process.cwd()) => {
                         return moduleAsset;
                     });
                 };
-            });
+            };
 
-            return promiseTask.parallel(tasks, parallel);
+            let tasks = modules.map(task);
+
+            return promiseTask.serial(tasks);
         },
 
 

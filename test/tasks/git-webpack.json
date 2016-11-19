@@ -1,0 +1,18 @@
+{
+  "modules": ["lib", ["mod1", "mod2"]],
+  "librarys": ["lib", "package.json"],
+  "assets": "dist/assets.json",
+  "parallel": 3,
+  "builder": {
+    "force": false,
+    "timeout": 60000,
+    "cwd": "${moduleName}",
+    "env": {
+      "GIT_WEBPACK": "1"
+    },
+    "execArgv": [],
+    "silent": false,
+    "name": "webpack",
+    "launch": "${moduleName}/webpack.config.js"
+  }
+}
