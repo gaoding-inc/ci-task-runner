@@ -32,10 +32,14 @@ module.exports = builder => {
                 if (message.errors) {
                     reject(message.errors);
                 } else {
-                    resolve(message.data);
+                    
+                    if (!builder.silent) {
+                        console.log(message.data.log);
+                    }
+
+                    resolve(message.data.data);
                 }
 
-                worker.kill();
             }
         });
 

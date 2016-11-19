@@ -7,7 +7,7 @@ const GIT_WEBPACK = process.env.GIT_WEBPACK;
 const webpackConfig = {
     context: __dirname,
     entry: {
-        'index': './js/index.js'
+        'mod2': './js/index.js'
     },
     output: {
         path: dist,

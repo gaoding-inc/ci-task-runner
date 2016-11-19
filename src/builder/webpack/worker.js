@@ -26,24 +26,30 @@ compiler.run(function (errors, stats) {
             cmd: TYPE.WEBPACK_RESULT,
             errors: errors.toString(),
             data: null
+        }, () => {
+            process.exit(1);
         });
     } else {
-
-        if (isWebpackCliConfig) {
-            console.log('[webpack:build]', stats.toString({
-                chunks: false,
-                colors: true
-            }));
-        }
 
         process.send({
             cmd: TYPE.WEBPACK_RESULT,
             errors: null,
-            data: Object.assign(stats.toJson(), {
-                compilation: {
-                    outputOptions: stats.compilation.outputOptions
-                }
-            })
+            data: {
+                // 不直接使用 console.log 是为了避免顺序问题
+                log: '[webpack:build]' + stats.toString({
+                    chunks: false,
+                    colors: true
+                }),
+                data: Object.assign(stats.toJson(), {
+                    compilation: {
+                        outputOptions: stats.compilation.outputOptions
+                    }
+                })
+            }
+        }, () => {
+            if (isWebpackCliConfig) {
+                process.exit(0);
+            }
         });
     }
 });
