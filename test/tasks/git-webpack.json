@@ -1,6 +1,6 @@
 {
   "modules": ["lib", ["mod1", "mod2"]],
-  "librarys": ["lib", "package.json"],
+  "librarys": ["lib"],
   "assets": "dist/assets.json",
   "parallel": 3,
   "builder": {

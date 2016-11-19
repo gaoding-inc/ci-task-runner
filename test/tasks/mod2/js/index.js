@@ -1,2 +1,2 @@
 var log = require('./log');
-log('hello world');
+log('2:hello world');
