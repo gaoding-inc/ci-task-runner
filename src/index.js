@@ -30,7 +30,7 @@ const ASSETS_DEFAULT = require(ASSETS_DEFAULT_NAME);
  * @param   {string[]}          options.librarys           模块组公共依赖（相对）
  * @param   {string}            options.assets          构建后文件索引表输出路径（相对）
  * @param   {number}            options.parallel        最大进程数
- * @param   {Object}            options.builder           编译器设置
+ * @param   {Object}            options.builder         编译器设置
  * @param   {string}            options.builder.name
  * @param   {boolean}           options.builder.force
  * @param   {number}            options.builder.timeout
