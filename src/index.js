@@ -1,23 +1,17 @@
 'use strict';
 
 const path = require('path');
-const gulp = require('gulp');
-const rename = require('gulp-rename');
-const fsp = require('fs-promise');
 const color = require('cli-color');
-const numCPUs = require('os').cpus().length;
-const defaultsDeep = require('lodash.defaultsdeep');
-const promiseTask = require('./lib/promise-task');
-const template = require('./lib/template');
-const getNodeModulePath = require('./lib/get-node-module-path');
-const getCommitId = require('./lib/get-commit-id');
 const VError = require('verror');
+const numCPUs = require('os').cpus().length;
+const promiseTask = require('./lib/promise-task');
+const getCommitId = require('./lib/get-commit-id');
 
-const ASSETS_DEFAULT_NAME = './config/assets.default.json';
-const ASSETS_DEFAULT_PATH = path.join(__dirname, ASSETS_DEFAULT_NAME);
-const GIT_WEBPACK_DEFAULT = require('./config/git-webpack.default.json');
-const ASSETS_DEFAULT = require(ASSETS_DEFAULT_NAME);
-
+const normalizeOptions = require('./normalize-options');
+const readAssets = require('./read-assets');
+const filterModules = require('./filter-modules');
+const buildModules = require('./build-modules');
+const createAssets = require('./create-assets');
 
 
 /**
@@ -46,7 +40,7 @@ const ASSETS_DEFAULT = require(ASSETS_DEFAULT_NAME);
  * @param   {string}            context                 工作目录（绝对路径）
  */
 module.exports = (options = {}, context = process.cwd()) => {
-    options = defaultsDeep({}, options, GIT_WEBPACK_DEFAULT);
+    options = normalizeOptions(options);
     Object.freeze(options);
 
     let {assets, parallel} = options;
@@ -54,7 +48,7 @@ module.exports = (options = {}, context = process.cwd()) => {
 
     let preCommit = {};
     let latestCommit = {};
-    let librarysCommit = {};
+    let templateData = {};
 
 
     if (parallel > numCPUs) {
@@ -65,206 +59,52 @@ module.exports = (options = {}, context = process.cwd()) => {
 
 
         // 读取上一次的编译记录
-        () => {
-            return fsp.readFile(assetsPath, 'utf8').catch(() => {
-                return new Promise((resolve, reject) => {
-                    let basename = path.basename(assetsPath);
-
-                    // 使用 gulp 创建文件可避免目录不存在的问题
-                    gulp.src(ASSETS_DEFAULT_PATH)
-                        .pipe(rename(basename))
-                        .pipe(gulp.dest(path.dirname(assetsPath)))
-                        .on('end', errors => {
-                            if (errors) {
-                                reject(errors);
-                            } else {
-                                resolve(JSON.stringify(ASSETS_DEFAULT));
-                            }
-                        });
-                });
-            }).then(assetsContent => {
-                // 缓存上一次编译的 commit id
-                assetsContent = JSON.parse(assetsContent);
-                let {modules, librarys} = assetsContent;
-                Object.keys(modules).forEach(name => preCommit[name] = modules[name].commit);
-                Object.keys(librarys).forEach(name => preCommit[name] = librarys[name]);
-            });
-        },
+        () => readAssets(assetsPath),
 
 
-        // 标准化配置
-        () => {
-
-            let normalize = mod => {
-                // 转换字符串形式的格式
-                if (typeof mod === 'string') {
-                    mod = { name: mod, librarys: [], builder: {} };
-                } else if (Array.isArray(mod)) {
-                    return mod.map(normalize);
-                }
-
-                // 模块继承父设置
-                defaultsDeep(mod.librarys, options.librarys);
-                defaultsDeep(mod.builder, options.builder);
-
-                return mod;
-            };
-
-            return options.modules.map(normalize);
+        // 缓存上一次编译的 git commit id
+        assetsContent => {
+            let {modules, librarys} = assetsContent;
+            Object.keys(modules).forEach(name => preCommit[name] = modules[name].commit);
+            Object.keys(librarys).forEach(name => preCommit[name] = librarys[name]);
         },
 
 
         // 过滤未修改的版本
-        modules => {
-            let list = [];
-            let diff = name => {
+        () => {
+            return filterModules(options.modules, name => {
                 let target = path.join(context, name);
-                try {
-                    let commit = latestCommit[name] ? latestCommit[name] : getCommitId(target);
-                    latestCommit[name] = commit;
-                    // 如果之前未构建，preCommit[name] 为 undefined
-                    let dirty = commit !== preCommit[name] || !preCommit[name];
-                    return { commit, dirty };
-                } catch (e) {
-                    throw new VError(e, `无法获取变更记录，因为目标不在 git 仓库中 "${target}"`);
-                }
-            };
+                let commit = latestCommit[name];
 
-            let filter = mod => {
-                let moduleChaned = diff(mod.name).dirty;
-                let librarysChanged = mod.librarys.filter(name => {
-                    let ret = diff(name);
-                    librarysCommit[name] = ret.commit;
-                    return ret.dirty;
-                }).length !== 0;
+                if (!commit) {
+                    try {
+                        commit = latestCommit[name] = getCommitId(target);
+                    } catch (e) {
+                        throw new VError(e, `无法获取变更记录，因为目标不在 git 仓库中 "${target}"`);
+                    }
+                }
 
-                if (mod.builder.force || librarysChanged || moduleChaned) {
-                    return true;
-                } else {
-                    console.log(color.yellow(`\n[task:ignore] name: ${mod.name}\n`));
-                    return false;
-                }
-            };
-            
-            modules.forEach(mod => {
-                if (Array.isArray(mod)) {
-                    list.push(mod.filter(filter));
-                } else if (filter(mod)) {
-                    list.push(mod);
-                }
+                templateData[name] = {
+                    moduleName: name,
+                    moduleCommit: commit
+                };
+
+                // 如果之前未构建，preCommit[name] 为 undefined
+                let dirty = commit !== preCommit[name] || !preCommit[name];
+                return dirty;
             });
-
-            return list;
         },
 
 
         // 运行构建器
         modules => {
-
-            let task = mod => {
-
-                if (Array.isArray(mod)) {
-                    return mod.map(task);
-                }
-
-                let builder = defaultsDeep(mod.builder);
-                let data = {
-                    moduleName: mod.name,
-                    moduleCommit: latestCommit[mod.name]
-                };
-
-                // builder 设置变量，路径相关都转成绝对路径
-                builder.cwd = path.join(context, template(builder.cwd, data));
-                builder.launch = path.join(context, template(builder.launch, data));
-                builder.execArgv = builder.execArgv.map(argv => template(argv, data));
-                Object.keys(builder.env).forEach(key => builder.env[key] = template(builder.env[key], data));
-                builder.$builderPath = getNodeModulePath(builder.name, builder.cwd);
-
-                return () => {
-                    let runner = require(`./builder/${builder.name}`);
-                    return runner(builder).then(moduleAsset => {
-                        console.log(`\n[task:end] ${color.green(mod.name)}\n`);
-                        moduleAsset.name = mod.name;
-                        return moduleAsset;
-                    });
-                };
-            };
-
-            let tasks = modules.map(mod => {
-                let fn = task(mod);
-                if (typeof fn === 'function') {
-                    // 串行任务
-                    return fn;
-                } else {
-                    // 并行任务
-                    return () => promiseTask.parallel(fn, parallel);
-                }
-            });
-
-            return promiseTask.serial(tasks).then(moduleAssets => {
-                return [].concat(...moduleAssets);
-            });
+            return buildModules(modules, options.parallel, templateData, context);
         },
 
 
-        // 创建资源索引
-        moduleAssets => {
-            let modulesMap = {};
-            let assetsContent = defaultsDeep({}, {
-                librarys: librarysCommit
-            }, ASSETS_DEFAULT);
-
-            moduleAssets.forEach(mod => {
-                mod.commit = latestCommit[mod.name];
-                modulesMap[mod.name] = mod;
-                delete modulesMap[mod.name].name;
-            });
-
-            assetsContent.date = (new Date()).toLocaleString();
-            assetsContent.modules = modulesMap;
-            return assetsContent;
-        },
-
-
-        // 保存资源索引文件（TIPS: 为了保证有效性，要第一时间读取最新描述文件再写入）
-        assetsContent => {
-            return fsp.readFile(assetsPath, 'utf8').then(JSON.parse).then(preAssetsContent => {
-
-                let modulesMap = assetsContent.modules;
-                let relative = file => path.relative(path.dirname(assetsPath), file);
-                let latest = []
-
-                Object.keys(modulesMap).forEach(name => {
-
-                    latest.push(name);
-
-                    let oldModule = preAssetsContent.modules[name];
-                    let mod = modulesMap[name];
-                    let chunks = mod.chunks;
-                    let assets = mod.assets;
-
-                    // 自动递增模块的编译版本号
-                    if (oldModule) {
-                        mod.version = oldModule.version + 1;
-                    }
-
-                    // 将绝对路径转换为相对与资源描述文件的路径
-                    Object.keys(chunks).forEach(name => chunks[name] = relative(chunks[name]));
-                    assets.forEach((file, index) => assets[index] = relative(file));
-
-                });
-
-                Object.assign(preAssetsContent.modules, modulesMap);
-                Object.assign(preAssetsContent.librarys, assetsContent.librarys);
-                preAssetsContent.version = (Number(preAssetsContent.version) || 0) + 1;
-                preAssetsContent.latest = latest;
-                preAssetsContent.date = (new Date()).toLocaleString();
-
-                let newAssetsContentText = JSON.stringify(preAssetsContent, null, 2);
-
-                return fsp.writeFile(assetsPath, newAssetsContentText, 'utf8').then(() => preAssetsContent);
-
-            })
+        // 保存资源索引文件
+        modulesAssets => {
+            return createAssets(assetsPath, modulesAssets, latestCommit);
         }
 
     ]).catch(errors => process.nextTick(() => {

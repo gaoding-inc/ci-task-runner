@@ -8,7 +8,8 @@
     "timeout": 60000,
     "cwd": "${moduleName}",
     "env": {
-      "GIT_WEBPACK": "1"
+      "MODULE_NAME": "${moduleName}",
+      "MODULE_COMMIT": "${moduleCommit}"
     },
     "execArgv": [],
     "silent": false,
