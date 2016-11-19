@@ -106,18 +106,6 @@ module.exports = (options = {}, context = process.cwd()) => {
                 defaultsDeep(mod.librarys, options.librarys);
                 defaultsDeep(mod.builder, options.builder);
 
-                let builder = mod.builder;
-                let data = {
-                    // TODO moduleCommit
-                    moduleName: mod.name
-                };
-
-                // builder 设置变量，路径相关都转成绝对路径
-                builder.cwd = path.join(context, template(builder.cwd, data));
-                builder.launch = path.join(context, template(builder.launch, data));
-                builder.execArgv = builder.execArgv.map(argv => template(argv, data));
-                Object.keys(builder.env).forEach(key => builder.env[key] = template(builder.env[key], data));
-
                 return mod;
             });
         },
@@ -162,14 +150,25 @@ module.exports = (options = {}, context = process.cwd()) => {
         // 运行构建器
         modules => {
 
-            let tasks = defaultsDeep(modules).map(mod => {
-                let builder = mod.builder;
+            let tasks = modules.map(mod => {
+                let builder = defaultsDeep(mod.builder);
+                let data = {
+                    // TODO moduleCommit
+                    moduleName: mod.name
+                };
+
+                // builder 设置变量，路径相关都转成绝对路径
+                builder.cwd = path.join(context, template(builder.cwd, data));
+                builder.launch = path.join(context, template(builder.launch, data));
+                builder.execArgv = builder.execArgv.map(argv => template(argv, data));
+                Object.keys(builder.env).forEach(key => builder.env[key] = template(builder.env[key], data));
                 builder.$builderPath = getNodeModulePath(builder.name, builder.cwd);
 
                 return () => {
-                    let builder = require(`./builder/${mod.builder.name}`);
-                    return builder(mod).then(moduleAsset => {
+                    let runner = require(`./builder/${builder.name}`);
+                    return runner(builder).then(moduleAsset => {
                         console.log(`\n[task:end] ${color.green(mod.name)}\n`);
+                        moduleAsset.name = mod.name;
                         return moduleAsset;
                     });
                 };

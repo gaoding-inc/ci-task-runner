@@ -11,7 +11,7 @@ const workerFile = path.join(__dirname, 'worker.js');
  * Webpack 运行器 - 使用子进程启动 Webpack
  * @param   {Object}    module  模块描述信息
  */
-module.exports = ({builder}) => {
+module.exports = builder => {
     return new Promise((resolve, reject) => {
 
         let pending = true;
