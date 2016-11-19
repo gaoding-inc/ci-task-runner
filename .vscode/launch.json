@@ -18,7 +18,7 @@
             "name": "debug force",
             "program": "${workspaceRoot}/bin/git-webpack",
             "cwd": "${workspaceRoot}",
-            "args": ["--config", "test/tasks/git-webpack.json", "--builder-force"]
+            "args": ["--config", "test/tasks/git-webpack.json", "--force"]
         },
         {
             "type": "node",

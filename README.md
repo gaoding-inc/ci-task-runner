@@ -52,8 +52,8 @@ git-webpack.json
   "librarys": ["package.json"],
   "assets": "dist/assets.json",
   "parallel": 3,
+  "force": false,
   "builder": {
-    "force": false,
     "timeout": 60000,
     "cwd": "${moduleName}",
     "env": {

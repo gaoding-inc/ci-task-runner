@@ -3,8 +3,8 @@
   "librarys": ["package.json"],
   "assets": "dist/assets.json",
   "parallel": 3,
+  "force": true,
   "builder": {
-    "force": true,
     "timeout": 60000,
     "cwd": "${moduleName}",
     "env": {

@@ -14,7 +14,7 @@ module.exports = (modules, diff) => {
             return diff(name);
         }).length !== 0;
 
-        if (mod.builder.force || librarysChanged || moduleChaned) {
+        if (librarysChanged || moduleChaned) {
             return true;
         } else {
             console.log(color.yellow(`\n[task:ignore] name: ${mod.name}\n`));

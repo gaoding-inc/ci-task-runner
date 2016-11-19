@@ -24,9 +24,9 @@ const createAssets = require('./create-assets');
  * @param   {string[]}          options.librarys           模块组公共依赖（相对）
  * @param   {string}            options.assets          构建后文件索引表输出路径（相对）
  * @param   {number}            options.parallel        最大进程数
+ * @param   {boolean}           options.force           是否强制全部编译
  * @param   {Object}            options.builder         编译器设置
  * @param   {string}            options.builder.name
- * @param   {boolean}           options.builder.force
  * @param   {number}            options.builder.timeout
  * @param   {string}            options.builder.launch                   
  * @param   {string}            options.builder.cwd                   
@@ -62,50 +62,48 @@ module.exports = (options = {}, context = process.cwd()) => {
         () => readAssets(assetsPath),
 
 
-        // 缓存上一次编译的 git commit id
+        // 缓存 git commit id
         assetsContent => {
             let {modules, librarys} = assetsContent;
-            Object.keys(modules).forEach(name => preCommit[name] = modules[name].commit);
-            Object.keys(librarys).forEach(name => preCommit[name] = librarys[name]);
-        },
-
-
-        // 过滤未修改的版本
-        () => {
-            return filterModules(options.modules, name => {
-                let target = path.join(context, name);
-                let commit = latestCommit[name];
-
-                if (!commit) {
-                    try {
-                        commit = latestCommit[name] = getCommitId(target);
-                    } catch (e) {
-                        throw new VError(e, `无法获取变更记录，因为目标不在 git 仓库中 "${target}"`);
-                    }
+            let getCommit = target => {
+                try {
+                    return getCommitId(target);
+                } catch (e) {
+                    throw new VError(e, `无法获取变更记录，因为目标不在 git 仓库中 "${target}"`);
                 }
+            };
 
+            Object.keys(modules).forEach(name => {
+                let target = path.join(context, name);
+                preCommit[name] = modules[name].commit;
+                latestCommit[name] = latestCommit[name] || getCommit(target);
                 templateData[name] = {
                     moduleName: name,
-                    moduleCommit: commit
+                    moduleCommit: latestCommit[name]
                 };
+            });
 
-                // 如果之前未构建，preCommit[name] 为 undefined
-                let dirty = commit !== preCommit[name] || !preCommit[name];
-                return dirty;
+            Object.keys(librarys).forEach(name => {
+                let target = path.join(context, name);
+                preCommit[name] = librarys[name];
+                latestCommit[name] = latestCommit[name] || getCommit(target);
             });
         },
 
 
+        // 过滤未修改的版本
+        () => filterModules(options.modules, name => {
+            let dirty = options.force || latestCommit[name] !== preCommit[name];
+            return dirty;
+        }),
+
+
         // 运行构建器
-        modules => {
-            return buildModules(modules, options.parallel, templateData, context);
-        },
+        modules => buildModules(modules, options.parallel, templateData, context),
 
 
         // 保存资源索引文件
-        modulesAssets => {
-            return createAssets(assetsPath, modulesAssets, latestCommit);
-        }
+        modulesAssets => createAssets(assetsPath, modulesAssets, latestCommit)
 
     ]).catch(errors => process.nextTick(() => {
         throw errors;
