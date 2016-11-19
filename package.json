@@ -7,7 +7,8 @@
   "scripts": {
     "example": "git-webpack --config example/git-webpack.json",
     "parallel-test": "node test/parallel/index.js",
-    "test": "mocha test/index.js && npm run example"
+    "tasks-test": "git-webpack --config test/tasks/git-webpack.json",
+    "test": "mocha test/index.js && npm run example && npm run tasks-test"
   },
   "repository": {
     "type": "git",
