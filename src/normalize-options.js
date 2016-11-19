@@ -1,5 +1,5 @@
 const defaultsDeep = require('lodash.defaultsdeep');
-const GIT_WEBPACK_DEFAULT = require('./config/git-webpack.default.json');
+const DEFAULT = require('./config/config.default.json');
 
 
 /**
@@ -8,7 +8,7 @@ const GIT_WEBPACK_DEFAULT = require('./config/git-webpack.default.json');
  * @return  {Object}
  */
 module.exports = options => {
-    options = defaultsDeep({}, options, GIT_WEBPACK_DEFAULT);
+    options = defaultsDeep({}, options, DEFAULT);
     
     let normalize = mod => {
         // 转换字符串形式的格式
