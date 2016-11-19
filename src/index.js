@@ -160,7 +160,7 @@ module.exports = (options = {}, context = process.cwd()) => {
             let task = mod => {
 
                 if (Array.isArray(mod)) {
-                    return promiseTask.parallel(mod.map(task), parallel);
+                    return mod.map(task);
                 }
 
                 let builder = defaultsDeep(mod.builder);
@@ -186,9 +186,20 @@ module.exports = (options = {}, context = process.cwd()) => {
                 };
             };
 
-            let tasks = modules.map(task);
+            let tasks = modules.map(mod => {
+                let fn = task(mod);
+                if (typeof fn === 'function') {
+                    // 串行任务
+                    return fn;
+                } else {
+                    // 并行任务
+                    return () => promiseTask.parallel(fn, parallel);
+                }
+            });
 
-            return promiseTask.serial(tasks).then(moduleAssets => [].concat(...moduleAssets));
+            return promiseTask.serial(tasks).then(moduleAssets => {
+                return [].concat(...moduleAssets);
+            });
         },
 
 
