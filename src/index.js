@@ -188,7 +188,7 @@ module.exports = (options = {}, context = process.cwd()) => {
 
             let tasks = modules.map(task);
 
-            return promiseTask.serial(tasks);
+            return promiseTask.serial(tasks).then(moduleAssets => [].concat(...moduleAssets));
         },
 
 
