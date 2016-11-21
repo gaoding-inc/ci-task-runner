@@ -47,7 +47,7 @@ git-webpack
 
 ## 配置
 
-git-webpack.json
+git-webpack.json 文件范例：
 
 ```javascript
 {
@@ -71,28 +71,28 @@ git-webpack.json
 }
 ```
 
-`modules` 与 `librarys` 是关键配置字段。
+`modules` 与 `librarys` 是关键配置字段。它们之间的区别：
 
-* `modules` 表示要构建的模块目录列表，只要有变更则会在对应的模块目录运行 Webpack。
-* `librarys` 是模块目录外的依赖列表，只要它发生变更模块会被强制构建。
+* `modules`：要构建的模块目录列表。只要模块目录文件变更，目录则会进行构建。
+* `librarys`：模块目录外部依赖列表。只要外部依赖有变更，无论 `modules` 是否有变更，都会将会触发 `modules` 的构建。
 
 ### `modules`
 
-设置要构建的模块目录列表。git-webpack 支持多个目录、项目进行集中构建，`module name` 则是目录名，如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持字符串与对象形式：
+设置要构建的模块目录列表。git-webpack 支持多个目录、项目进行集中构建，`module.name` 则是目录名，如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持字符串与对象形式：
 
 ```javascript 
 "modules": [
-    "mod1",
-    "mod2",
+    "module1",
+    "module2",
     {
-        "name": "mod3",
+        "name": "module3",
         "librarys": ["common/v1"],
         "builder": {}
     }
 ]
 ```
 
-`librarys` 与 `builder` 会继承顶层的配置。`modules` 支持配置并行任务，参考 [多进程](#多进程)
+`librarys` 与 `builder` 会继承顶层的配置。`modules` 支持配置并行任务，参考 [多进程](#多进程)。
 
 ### `assets`
 
@@ -102,7 +102,8 @@ git-webpack.json
 
 如果模块目录依赖了目录外的库，可以在此手动指定依赖，这样外部库更新也可以触发模块构建。
 
-`librarys` 使用 Git 来实现变更检测，所以其路径必须已经受 Git 管理。如果想监控 node_modules 的变更，可以指定：`"librarys": ["package.json"]`。
+* `librarys` 使用 Git 来实现变更检测，所以其路径必须已经受 Git 管理。如果想监控 node_modules 的变更，可以指定：`"librarys": ["package.json"]`。
+* `librarys` 路径相对于 git-webpack.json
 
 ### `force`
 
@@ -119,11 +120,11 @@ git-webpack.json
 需要多进程构建的模块使用二维数组即可：
 
 ```javascript
-"modules": ["lib", ["mod1", "mod2", "mod3"]],
+"modules": ["lib", ["module1", "module2", "module3"]],
 "parallel": 8
 ```
 
-lib 构建完成后，mod1、mod2、mod3 会并行构建。
+lib 构建完成后，module1、module2、module3 会并行构建。
 
 > `parallel` 的推荐值为 CPU 核心数。
 
