@@ -1,158 +1,202 @@
 'use strict';
+const path = require('path');
 const assert = require('assert');
 const promiseTask = require('../src/lib/promise-task');
+const watchCommit = require('../src/lib/watch-commit');
 
 
-describe('lib', function () {
+describe('lib', () => {
 
-    const delay = (fuc, time) => {
-        return new Promise(results => {
-            setTimeout(() => {
-                results(fuc());
-            }, time);
-        });
-    }
 
-    describe('#promise-task.serial', function () {
+    describe('#promise-task', () => {
 
-        it('results', function () {
-            return promiseTask.serial([
-                () => 0,
-                (result) => {
-                    assert.deepEqual(0, result)
-                    return 1;
-                },
-                (result) => {
-                    assert.deepEqual(1, result)
-                    return 2;
-                },
-                (result) => {
-                    assert.deepEqual(2, result)
-                    return 3;
-                }
-            ]).then((results) => {
-                assert.deepEqual([0, 1, 2, 3], results)
+        const delay = (fuc, time) => {
+            return new Promise(results => {
+                setTimeout(() => {
+                    results(fuc());
+                }, time);
             });
+        }
+
+        describe('#promise-task.serial', () => {
+
+            it('results', () => {
+                return promiseTask.serial([
+                    () => 0,
+                    (result) => {
+                        assert.deepEqual(0, result)
+                        return 1;
+                    },
+                    (result) => {
+                        assert.deepEqual(1, result)
+                        return 2;
+                    },
+                    (result) => {
+                        assert.deepEqual(2, result)
+                        return 3;
+                    }
+                ]).then((results) => {
+                    assert.deepEqual([0, 1, 2, 3], results)
+                });
+            });
+
+            it('order', () => {
+                return promiseTask.serial([
+                    () => {
+                        return delay(() => 0, 40);
+                    },
+                    () => {
+                        return delay(() => 1, 30);
+                    },
+                    () => {
+                        return delay(() => 2, 35);
+                    },
+                    () => {
+                        return delay(() => 3, 0);
+                    }
+                ]).then((results) => {
+                    assert.deepEqual([0, 1, 2, 3], results)
+                });
+            });
+
+            it('Promise reject', () => {
+                return promiseTask.serial([
+                    () => 0,
+                    () => 1,
+                    () => Promise.reject(2),
+                    () => 3
+                ]).catch(function (error) {
+                    assert.deepEqual(2, error)
+                });
+            });
+
+            it('Function error', () => {
+                return promiseTask.serial([
+                    () => 0,
+                    () => 1,
+                    () => {
+                        throw Error('Function error');
+                    },
+                    () => 3
+                ]).catch(function (error) {
+                    assert.deepEqual('Function error', error.message)
+                });
+            });
+
         });
 
-        it('order', function () {
-            return promiseTask.serial([
-                () => {
-                    return delay(() => 0, 40);
-                },
-                () => {
-                    return delay(() => 1, 30);
-                },
-                () => {
-                    return delay(() => 2, 35);
-                },
-                () => {
-                    return delay(() => 3, 0);
-                }
-            ]).then((results) => {
-                assert.deepEqual([0, 1, 2, 3], results)
-            });
-        });
 
-        it('Promise reject', function () {
-            return promiseTask.serial([
-                () => 0,
-                () => 1,
-                () => Promise.reject(2),
-                () => 3
-            ]).catch(function (error) {
-                assert.deepEqual(2, error)
-            });
-        });
+        describe('#promise-task.parallel', () => {
+            const limit = 2;
 
-        it('Function error', function () {
-            return promiseTask.serial([
-                () => 0,
-                () => 1,
-                () => {
-                    throw Error('Function error');
-                },
-                () => 3
-            ]).catch(function (error) {
-                assert.deepEqual('Function error', error.message)
+            it('results', () => {
+                return promiseTask.parallel([
+                    () => 0,
+                    () => 1,
+                    () => 2,
+                    () => 3
+                ], limit).then((results) => {
+                    assert.deepEqual([0, 1, 2, 3], results);
+                });
             });
+
+            it('order', () => {
+                return promiseTask.parallel([
+                    () => {
+                        return delay(() => 0, 40);
+                    },
+                    () => {
+                        return delay(() => 1, 30);
+                    },
+                    () => {
+                        return delay(() => 2, 35);
+                    },
+                    () => {
+                        return delay(() => 3, 0);
+                    }
+                ], limit).then((results) => {
+                    assert.deepEqual([0, 1, 2, 3], results)
+                });
+            });
+
+            it('Promise reject', () => {
+                return promiseTask.parallel([
+                    () => 0,
+                    () => 1,
+                    () => Promise.reject(2),
+                    () => 3
+                ], limit).catch(function (error) {
+                    assert.deepEqual(2, error)
+                });
+            });
+
+
+            it('Function error', () => {
+                return promiseTask.parallel([
+                    () => 0,
+                    () => 1,
+                    () => {
+                        throw Error('Function error');
+                    },
+                    () => 3
+                ], limit).catch(function (error) {
+                    assert.deepEqual('Function error', error.message)
+                });
+            });
+
+
+            it('Function error', () => {
+                return promiseTask.parallel([
+                    null,
+                    undefined,
+                    {},
+                    []
+                ], limit).then(() => {
+                    throw new Error('error');
+                }).catch(function (errors) {
+                    assert.deepEqual('object', typeof errors)
+                });
+            });
+
+
         });
 
     });
 
 
-    describe('#promise-task.parallel', function () {
-        const limit = 2;
 
-        it('results', function () {
-            return promiseTask.parallel([
-                () => 0,
-                () => 1,
-                () => 2,
-                () => 3
-            ], limit).then((results) => {
-                assert.deepEqual([0, 1, 2, 3], results);
-            });
-        });
+    describe('#watch-commit', () => {
 
-        it('order', function () {
-            return promiseTask.parallel([
-                () => {
-                    return delay(() => 0, 40);
-                },
-                () => {
-                    return delay(() => 1, 30);
-                },
-                () => {
-                    return delay(() => 2, 35);
-                },
-                () => {
-                    return delay(() => 3, 0);
+        it('watch one file', () => {
+            let target = path.join(__dirname, '..', 'src', 'index.js');
+            let dbPath = path.join(__dirname, '.watch-commit.json');
+            return watchCommit(target, dbPath).then(([newCommitId, oldCommitId]) => {
+                assert.deepEqual('string', typeof newCommitId);
+                if (oldCommitId !== undefined) {
+                    assert.deepEqual('string', typeof oldCommitId);
                 }
-            ], limit).then((results) => {
-                assert.deepEqual([0, 1, 2, 3], results)
             });
         });
 
-        it('Promise reject', function () {
-            return promiseTask.parallel([
-                () => 0,
-                () => 1,
-                () => Promise.reject(2),
-                () => 3
-            ], limit).catch(function (error) {
-                assert.deepEqual(2, error)
+        it('watch file list', () => {
+            let target = path.join(__dirname, '..', 'src', 'index.js');
+            let target2 = path.join(__dirname, '..', 'package.json');
+            let dbPath = path.join(__dirname, '.watch-commit.json');
+            let list = [target, target2];
+
+            return watchCommit(list, dbPath).then(results => {
+
+                assert.deepEqual(list.length, results.length);
+                list.forEach((file, index) => {
+                    let [newCommitId, oldCommitId] = results[index];
+                    assert.deepEqual('string', typeof newCommitId);
+                    if (oldCommitId !== undefined) {
+                        assert.deepEqual('string', typeof oldCommitId);
+                    }
+                });
+
             });
         });
-
-
-        it('Function error', function () {
-            return promiseTask.parallel([
-                () => 0,
-                () => 1,
-                () => {
-                    throw Error('Function error');
-                },
-                () => 3
-            ], limit).catch(function (error) {
-                assert.deepEqual('Function error', error.message)
-            });
-        });
-
-
-        it('Function error', function () {
-            return promiseTask.parallel([
-                null,
-                undefined,
-                {},
-                []
-            ], limit).then(function () {
-                throw new Error('error');
-            }).catch(function(errors) {
-                assert.deepEqual('object', typeof errors)
-            });
-        });
-
 
     });
 
