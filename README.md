@@ -92,7 +92,7 @@ git-webpack.json
 ]
 ```
 
-`librarys` 与 `builder` 会继承顶层的配置。
+`librarys` 与 `builder` 会继承顶层的配置。`modules` 支持配置并行任务，参考 [多进程](#多进程)
 
 ### `assets`
 
@@ -123,7 +123,7 @@ git-webpack.json
 "parallel": 8
 ```
 
-其中 mod1、mod2、mod3 会并行构建。
+lib 构建完成后，mod1、mod2、mod3 会并行构建。
 
 > `parallel` 的推荐值为 CPU 核心数。
 
