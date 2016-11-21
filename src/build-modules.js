@@ -22,11 +22,11 @@ module.exports = (modules, parallel, templateData, context) => {
         }
 
         let builder = defaultsDeep(mod.builder);
-        let data = templateData[mod.name];
+        let data = templateData[mod.name] || {};
 
         // builder 设置变量，路径相关都转成绝对路径
-        builder.cwd = path.join(context, template(builder.cwd, data));
-        builder.launch = path.join(context, template(builder.launch, data));
+        builder.cwd = path.resolve(context, template(builder.cwd, data));
+        builder.launch = path.resolve(context, template(builder.launch, data));
         builder.execArgv = builder.execArgv.map(argv => template(argv, data));
         Object.keys(builder.env).forEach(key => builder.env[key] = template(builder.env[key], data));
         builder.$builderPath = getNodeModulePath(builder.name, builder.cwd);

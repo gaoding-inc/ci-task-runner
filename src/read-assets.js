@@ -4,7 +4,7 @@ const rename = require('gulp-rename');
 const fsp = require('fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
 const ASSETS_DEFAULT_NAME = './config/assets.default.json';
-const ASSETS_DEFAULT_PATH = path.join(__dirname, ASSETS_DEFAULT_NAME);
+const ASSETS_DEFAULT_PATH = path.resolve(__dirname, ASSETS_DEFAULT_NAME);
 const ASSETS_DEFAULT = require(ASSETS_DEFAULT_NAME);
 
 

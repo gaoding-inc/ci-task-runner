@@ -44,7 +44,7 @@ module.exports = (options = {}, context = process.cwd()) => {
     Object.freeze(options);
 
     let {assets, parallel} = options;
-    let assetsPath = path.join(context, assets);
+    let assetsPath = path.resolve(context, assets);
 
     let preCommit = {};
     let latestCommit = {};
@@ -74,7 +74,7 @@ module.exports = (options = {}, context = process.cwd()) => {
             };
 
             Object.keys(modules).forEach(name => {
-                let target = path.join(context, name);
+                let target = path.resolve(context, name);
                 preCommit[name] = modules[name].commit;
                 latestCommit[name] = latestCommit[name] || getCommit(target);
                 templateData[name] = {
@@ -84,7 +84,7 @@ module.exports = (options = {}, context = process.cwd()) => {
             });
 
             Object.keys(librarys).forEach(name => {
-                let target = path.join(context, name);
+                let target = path.resolve(context, name);
                 preCommit[name] = librarys[name];
                 latestCommit[name] = latestCommit[name] || getCommit(target);
             });

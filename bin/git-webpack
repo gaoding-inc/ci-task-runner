@@ -79,12 +79,12 @@ function config(file) {
     };
 
     if (file) {
-        let configFile = path.join(CONTEXT, file);
+        let configFile = path.resolve(CONTEXT, file);
         let config = require(configFile);
         defaultsDeep(options, config);
         CONTEXT = path.resolve(configFile, '../');
     } else {
-        let configFile = path.join(CONTEXT, CONFIG_PATH_NAME);
+        let configFile = path.resolve(CONTEXT, CONFIG_PATH_NAME);
         try {
             // 尝试加载目录默认的配置文件
             let config = require(configFile);
@@ -99,17 +99,17 @@ function config(file) {
 
 
 function init() {
-    fs.access(path.join(CONTEXT, CONFIG_PATH_NAME), errors => {
+    fs.access(path.resolve(CONTEXT, CONFIG_PATH_NAME), errors => {
 
         if (!errors) {
             return;
         }
 
-        let example = path.join(__dirname, '..', 'example');
+        let example = path.resolve(__dirname, '..', 'example');
         
         gulp.src([
-            path.join(example, '**/*'),
-            '!' + path.join(example, 'package.json')
+            path.resolve(example, '**/*'),
+            '!' + path.resolve(example, 'package.json')
         ]).pipe(gulp.dest('./')).on('end', function (errors) {
             if (errors) {
                 throw errors;

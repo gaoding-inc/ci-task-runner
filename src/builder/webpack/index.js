@@ -27,13 +27,13 @@ module.exports = builder => {
 
             // 如果开启 devtool 后，可能输出 source-map 文件
             file = Array.isArray(file) ? file[0] : file;
-            moduleAssets.chunks[chunkName] = path.join(output, file);
+            moduleAssets.chunks[chunkName] = path.resolve(output, file);
         });
 
 
         moduleAssets.assets = stats.assets.map(asset => {
             let file = asset.name;
-            return path.join(output, file);
+            return path.resolve(output, file);
         });
 
 

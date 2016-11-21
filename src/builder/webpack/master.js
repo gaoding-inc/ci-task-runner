@@ -4,7 +4,7 @@ const path = require('path');
 const childProcess = require('child_process');
 const defaultsDeep = require('lodash.defaultsdeep');
 const TYPE = require('./type');
-const workerFile = path.join(__dirname, 'worker.js');
+const workerFile = path.resolve(__dirname, 'worker.js');
 
 
 /**
