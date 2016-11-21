@@ -20,24 +20,25 @@ const createAssets = require('./create-assets');
  * @param   {Object[]|string[]} options.modules         模块目录列表
  * @param   {Object}            options.modules.name    模块目录名（相对）
  * @param   {string[]}          options.modules.librarys   模块依赖目录（相对），继承 options.librarys
- * @param   {Object}            options.modules.builder    模块编译器设置，继承 options.builder
+ * @param   {Object}            options.modules.builder    模块构建器设置，继承 options.builder
  * @param   {string[]}          options.librarys           模块组公共依赖（相对）
  * @param   {string}            options.assets          构建后文件索引表输出路径（相对）
  * @param   {number}            options.parallel        最大进程数
- * @param   {boolean}           options.force           是否强制全部编译
- * @param   {Object}            options.builder         编译器设置
+ * @param   {boolean}           options.force           是否强制全部构建
+ * @param   {Object}            options.builder         构建器设置
  * @param   {string}            options.builder.name
  * @param   {number}            options.builder.timeout
- * @param   {string}            options.builder.launch                   
- * @param   {string}            options.builder.cwd                   
- * @param   {Object}            options.builder.env                   
- * @param   {string}            options.builder.execPath                   
- * @param   {string}            options.builder.execArgv                   
- * @param   {string}            options.builder.silent             
- * @param   {string[]|number[]} options.builder.stdio           
- * @param   {Object}            options.builder.uid         
- * @param   {string}            options.builder.gid         
+ * @param   {string}            options.builder.launch
+ * @param   {string}            options.builder.cwd
+ * @param   {Object}            options.builder.env
+ * @param   {string}            options.builder.execPath
+ * @param   {string}            options.builder.execArgv
+ * @param   {string}            options.builder.silent
+ * @param   {string[]|number[]} options.builder.stdio
+ * @param   {Object}            options.builder.uid
+ * @param   {string}            options.builder.gid
  * @param   {string}            context                 工作目录（绝对路径）
+ * @return  {Promise}
  */
 module.exports = (options = {}, context = process.cwd()) => {
     options = normalizeOptions(options);
@@ -48,7 +49,8 @@ module.exports = (options = {}, context = process.cwd()) => {
 
     let preCommit = {};
     let latestCommit = {};
-    let templateData = {};
+    let librarysCommit = {};
+    let moduleVariables = {};
 
 
     if (parallel > numCPUs) {
@@ -58,13 +60,12 @@ module.exports = (options = {}, context = process.cwd()) => {
     return promiseTask.serial([
 
 
-        // 读取上一次的编译记录
+        // 读取上一次的构建记录
         () => readAssets(assetsPath),
 
 
         // 缓存 git commit id
         assetsContent => {
-            let {modules, librarys} = assetsContent;
             let getCommit = target => {
                 try {
                     return getCommitId(target);
@@ -73,20 +74,25 @@ module.exports = (options = {}, context = process.cwd()) => {
                 }
             };
 
-            Object.keys(modules).forEach(name => {
+            let callMod = mod => {
+                let name = mod.name;
                 let target = path.resolve(context, name);
-                preCommit[name] = modules[name].commit;
+                let preMod = assetsContent.modules[name];
+                preCommit[name] = preMod ? preMod.commit : undefined;
                 latestCommit[name] = latestCommit[name] || getCommit(target);
-                templateData[name] = {
+                moduleVariables[name] = {
                     moduleName: name,
                     moduleCommit: latestCommit[name]
                 };
-            });
+            };
 
-            Object.keys(librarys).forEach(name => {
+            options.modules.forEach(mod => Array.isArray(mod) ? mod.forEach(callMod) : callMod(mod));
+
+            options.librarys.forEach(name => {
                 let target = path.resolve(context, name);
-                preCommit[name] = librarys[name];
+                preCommit[name] = assetsContent.librarys[name];
                 latestCommit[name] = latestCommit[name] || getCommit(target);
+                librarysCommit[name] = latestCommit[name];
             });
         },
 
@@ -99,13 +105,11 @@ module.exports = (options = {}, context = process.cwd()) => {
 
 
         // 运行构建器
-        modules => buildModules(modules, options.parallel, templateData, context),
+        modules => buildModules(modules, options.parallel, moduleVariables, context),
 
 
         // 保存资源索引文件
-        modulesAssets => createAssets(assetsPath, modulesAssets, latestCommit)
+        modulesAssets => createAssets(assetsPath, modulesAssets, latestCommit, librarysCommit)
 
-    ]).catch(errors => process.nextTick(() => {
-        throw errors;
-    }));
+    ]);
 };
