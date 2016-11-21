@@ -6,14 +6,14 @@ const template = require('./lib/template');
 const getNodeModulePath = require('./lib/get-node-module-path');;
 
 /**
- * 启动模块设置的编译器
- * @param  {Object[]}  modules      模块列表
- * @param  {number}    parallel     最大并发数
- * @param  {Object}    templateData 字符串模板变量
- * @param  {string}    context      工作路径
+ * 启动模块设置的构建器
+ * @param  {Object[]}  modules          模块列表
+ * @param  {number}    parallel         最大并发数
+ * @param  {Object}    moduleVariables  字符串模板变量
+ * @param  {string}    context          工作路径
  * @return {Promise}
  */
-module.exports = (modules, parallel, templateData, context) => {
+module.exports = (modules, parallel, moduleVariables, context) => {
 
     let task = mod => {
 
@@ -22,7 +22,7 @@ module.exports = (modules, parallel, templateData, context) => {
         }
 
         let builder = defaultsDeep(mod.builder);
-        let data = templateData[mod.name] || {};
+        let data = moduleVariables[mod.name] || {};
 
         // builder 设置变量，路径相关都转成绝对路径
         builder.cwd = path.resolve(context, template(builder.cwd, data));
@@ -33,6 +33,7 @@ module.exports = (modules, parallel, templateData, context) => {
 
         return () => {
             let runner = require(`./builder/${builder.name}`);
+            console.log(`\n[task:start] ${color.green(mod.name)}\n`);
             return runner(builder).then(moduleAsset => {
                 console.log(`\n[task:end] ${color.green(mod.name)}\n`);
                 moduleAsset.name = mod.name;
