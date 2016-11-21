@@ -9,7 +9,7 @@
 
 * 基于 Git Commit 进行增量构建
 * 支持串行与多并行构建
-* 支持多进程构建
+* 支持多进程加速构建
 * 支持多 Webpack 实例进行构建
 * 无侵入现有 Webpack 构建配置
 
@@ -36,6 +36,8 @@ cd you-project
 ```bash
 git-webpack --init
 ```
+
+会在当前目录创建 git-webpack.json 文件以及演示模块目录。
 
 3\. 运行 git-webpack
 
@@ -72,7 +74,7 @@ git-webpack.json
 `modules` 与 `librarys` 是关键配置字段。
 
 * `modules` 表示要构建的模块目录列表，只要有变更则会在对应的模块目录运行 Webpack。
-* `librarys` 是模块的外部依赖列表，只要它发生变更模块会被强制构建。
+* `librarys` 是模块目录外的依赖列表，只要它发生变更模块会被强制构建。
 
 ### `modules`
 
@@ -154,8 +156,8 @@ git-webpack.json
 ```javascript
 "scripts": {
   "build": "git-webpack --parallel 4",
-  "deploy": "npm run build && npm run cdn",
   "cdn": "echo 'publish...'"
+  "deploy": "npm run build && npm run cdn" 
 }
 ```
 
