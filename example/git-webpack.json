@@ -1,5 +1,5 @@
 {
-  "modules": ["git-webpack-module-example"],
+  "modules": ["module-example"],
   "librarys": ["package.json"],
   "assets": "dist/assets.json",
   "parallel": 3,
