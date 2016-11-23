@@ -37,17 +37,13 @@ module.exports = (assetsPath, modulesAssets, latestCommit, librarysCommit) => {
             delete modulesMap[name].name;
         });
 
-        let assetsContent = defaultsDeep({
+        let assetsContent = Object.assign({}, ASSETS_DEFAULT, {
             version: (Number(preAssetsContent.version) || 0) + 1,
             date: (new Date()).toLocaleString(),
             latest: latest,
-            modules: modulesMap,
-            librarys: librarysCommit
-        }, ASSETS_DEFAULT);
-
-
-        Object.assign(assetsContent.modules, preAssetsContent.modules);
-        Object.assign(assetsContent.librarys, preAssetsContent.librarys);
+            modules: defaultsDeep(modulesMap, preAssetsContent.modules),
+            librarys: defaultsDeep(librarysCommit, preAssetsContent.librarys)
+        });
 
         let data = JSON.stringify(assetsContent, null, 2);
         return fsp.writeFile(assetsPath, data, 'utf8').then(() => assetsContent);
