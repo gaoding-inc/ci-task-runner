@@ -4,10 +4,24 @@ const assert = require('assert');
 const promiseTask = require('../src/lib/promise-task');
 const GitCommit = require('../src/lib/git-commit');
 const fsPromise = require('../src/lib/fs-promise');
+const Loger = require('../src/lib/loger');
 
 
 describe('lib', () => {
 
+
+    describe('#loger', () => {
+        it('toUBB', () => {
+            let loger = new Loger(false);
+            assert.deepEqual('[id]hello world!', loger.toUBB('[red][id]hello world![/red]'));
+            assert.deepEqual('[id]hello world!', loger.toUBB('[id]hello world!'));
+        });
+        it('display color', () => {
+            let loger = new Loger(true);
+            loger.log('hello [green]world[/green]!');
+            loger.error('hello [red]world[/red]!');
+        });
+    });
 
     describe('#promise-task', () => {
 
@@ -165,7 +179,7 @@ describe('lib', () => {
 
     describe('#git-commit', () => {
 
-        const dbPath = path.join(__dirname, '.watch-commit.json');
+        const dbPath = path.join(__dirname, 'dist', '.watch-commit.json');
         const gitCommit = new GitCommit(dbPath);
 
         it('watch one file', () => {

@@ -13,6 +13,8 @@ const gitWebpack = require('../');
 const CONFIG_PATH_NAME = 'git-webpack.json';
 let CONTEXT = process.cwd();
 
+process.env.LOGER_DISPLAY_COLOR = 1;
+
 program
     .version(require('../package.json').version)
     .usage('[options]')

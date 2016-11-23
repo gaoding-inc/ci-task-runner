@@ -14,14 +14,29 @@ const mkdirs = (dirname, callback) => {
     });
 };
 
-const writeFile = (...params) => {
-    let dirname = path.dirname(params[0]);
+
+/**
+ * 写文件（自动创建目录）
+ * @see     fs.writeFile
+ * @return  {Promise}
+ */
+const writeFile = promiseify((...params) => {
+    let file = params[0];
+    let dirname = path.dirname(file);
     mkdirs(dirname, ()=> {
         fs.writeFile(...params);
     });
-};
+});
+
+
+/**
+ * 读文件
+ * @see     fs.readFile
+ * @return  {Promise}
+ */
+const readFile = promiseify(fs.readFile);
 
 module.exports = {
-    writeFile: promiseify(writeFile),
-    readFile: promiseify(fs.readFile)
+    writeFile,
+    readFile
 };
