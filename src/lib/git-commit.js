@@ -86,12 +86,19 @@ class GitCommit {
     }
 
 
+    /**
+     * 对比版本更改
+     * @param   {string} target   目标
+     * @return {Promise}
+     */
     watch(target) {
         return Promise.all([this.getNewCommitId(target), this.getOldCommitId(target)]);
     }
 
 
-
+    /**
+     * 保存新的 git commit 到文件
+     */
     save() {
         return this.getStorageCache().then(data => {
             let content = JSON.stringify(data, null, 2);

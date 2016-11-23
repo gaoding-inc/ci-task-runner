@@ -15,7 +15,7 @@ const saveAssets = require('./save-assets');
 
 /**
  * 多进程构建任务管理器
- * @param   {Object}            options
+ * @param   {Object}            options                 @see config/config.default.json
  * @param   {Object[]|string[]} options.modules         模块目录列表
  * @param   {Object}            options.modules.name    模块目录名（相对）
  * @param   {string[]}          options.modules.librarys   模块依赖目录（相对），继承 options.librarys
@@ -43,11 +43,11 @@ module.exports = (options = {}, context = process.cwd()) => {
     options = defaultsDeep({}, options, DEFAULT);
     
     let assetsPath = path.resolve(context, options.assets);
-    let gitCommit = new GitCommit(assetsPath);
+    
     let loger = new Loger();
 
     if (options.parallel > numCPUs) {
-        loger.log(`[yellow][warn] 当前计算机 CPU 核心数为 ${numCPUs} 个，parallel 设置为 ${options.parallel}[/yellow]`);
+        loger.log(`[yellow][task:warn] 当前计算机 CPU 核心数为 ${numCPUs} 个，但 parallel 设置为 ${options.parallel}[/yellow]`);
     }
 
     return promiseTask.serial([
@@ -56,6 +56,7 @@ module.exports = (options = {}, context = process.cwd()) => {
 
         // 检查模块是否有变更
         modules => {
+            let gitCommit = new GitCommit(assetsPath);
             return Promise.all(modules.map(mod => {
                 return Promise.all([
 

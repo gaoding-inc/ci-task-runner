@@ -1,4 +1,3 @@
-const color = require('cli-color');
 const promiseTask = require('./lib/promise-task');
 const Loger = require('./lib/loger');
 
@@ -19,15 +18,15 @@ module.exports = (modules, parallel) => {
         let date = (new Date()).toLocaleString();
         loger.log(`[task:start] [green]${mod.name}[/green] ${date}`);
 
-        return runner(mod.builder).then((moduleAsset = {
+        return runner(mod.builder).then((modAsset = {
             chunks: {},
             assets: []
         }) => {
             let date = (new Date()).toLocaleString();
-            moduleAsset.name = mod.name;
+            modAsset.name = mod.name;
             loger.log(`[task:end] [green]${mod.name}[/green] ${date}`);
             
-            return moduleAsset;
+            return modAsset;
         });
     };
 
@@ -43,7 +42,7 @@ module.exports = (modules, parallel) => {
 
     return promiseTask.serial(tasks.map(tasks => () => {
         return promiseTask.parallel(tasks, parallel);
-    })).then(moduleAssets => {
-        return [].concat(...moduleAssets);
+    })).then(modAssets => {
+        return [].concat(...modAssets);
     });
 };
