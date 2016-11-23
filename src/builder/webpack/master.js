@@ -18,7 +18,7 @@ module.exports = builder => {
         let timer = null;
         let options = defaultsDeep({}, {
             env: {
-                [TYPE.WEBPACK_PATH]: builder.$builderPath,
+                [TYPE.WEBPACK_PATH]: builder.path,
                 [TYPE.WEBPACK_CONFIG_PATH]: builder.launch
             }
         }, builder);
