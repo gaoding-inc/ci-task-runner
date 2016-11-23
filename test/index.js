@@ -2,7 +2,8 @@
 const path = require('path');
 const assert = require('assert');
 const promiseTask = require('../src/lib/promise-task');
-const watchCommit = require('../src/lib/watch-commit');
+const GitCommit = require('../src/lib/git-commit');
+const fsPromise = require('../src/lib/fs-promise');
 
 
 describe('lib', () => {
@@ -164,40 +165,38 @@ describe('lib', () => {
     });
 
 
+    describe('#git-commit', () => {
 
-    describe('#watch-commit', () => {
+        const dbPath = path.join(__dirname, '.watch-commit.json');
+        const gitCommit = new GitCommit(dbPath);
 
         it('watch one file', () => {
             let target = path.join(__dirname, '..', 'src', 'index.js');
-            let dbPath = path.join(__dirname, '.watch-commit.json');
-            return watchCommit(target, dbPath).then(([newCommitId, oldCommitId]) => {
+            return gitCommit.watch(target, dbPath).then(([newCommitId, oldCommitId]) => {
                 assert.deepEqual('string', typeof newCommitId);
                 if (oldCommitId !== undefined) {
                     assert.deepEqual('string', typeof oldCommitId);
                 }
-            });
-        });
-
-        it('watch file list', () => {
-            let target = path.join(__dirname, '..', 'src', 'index.js');
-            let target2 = path.join(__dirname, '..', 'package.json');
-            let dbPath = path.join(__dirname, '.watch-commit.json');
-            let list = [target, target2];
-
-            return watchCommit(list, dbPath).then(results => {
-
-                assert.deepEqual(list.length, results.length);
-                list.forEach((file, index) => {
-                    let [newCommitId, oldCommitId] = results[index];
-                    assert.deepEqual('string', typeof newCommitId);
-                    if (oldCommitId !== undefined) {
-                        assert.deepEqual('string', typeof oldCommitId);
-                    }
-                });
-
+                gitCommit.save();
             });
         });
 
     });
+
+
+    describe('#fs-promise', () => {
+        const dist = path.join(__dirname, 'dist', 'test', 'test.json');
+        const json = { type: 'test' };
+
+        it('write file && read file', () => {
+            return fsPromise.writeFile(dist, JSON.stringify(json), 'utf-8').then(() => {
+                return fsPromise.readFile(dist, 'utf-8').then(JSON.parse).then(data => {
+                    assert.deepEqual(json, data);
+                });
+            });
+        });
+
+    });
+
 
 });

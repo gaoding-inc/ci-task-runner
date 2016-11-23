@@ -15,7 +15,7 @@ const webpack = require(WEBPACK_PATH);
 const options = require(WEBPACK_CONFIG_PATH);
 
 
-Object.assign(options, { context: WEBPACK_CONTEXT });
+//Object.assign(options, { context: WEBPACK_CONTEXT });
 let isWebpackCliConfig = options.entry && options.output && typeof options.run !== 'function';
 let compiler = isWebpackCliConfig ? webpack(options) : options;
 
