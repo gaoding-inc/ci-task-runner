@@ -6,7 +6,6 @@ const path = require('path');
 const program = require('commander');
 const defaultsDeep = require('lodash.defaultsdeep');
 const gulp = require('gulp');
-const VError = require('verror');
 
 
 const gitWebpack = require('../');
@@ -92,7 +91,7 @@ function config(file) {
             let config = require(configFile);
             defaultsDeep(options, config);
         } catch (e) {
-            throw new VError(e, `找不到配置文件`);
+            throw new Error(`找不到配置文件 "${configFile}"`);
         }
     }
 
