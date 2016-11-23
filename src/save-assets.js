@@ -21,18 +21,18 @@ module.exports = (assetsPath, modulesAssets) => {
             let chunks = mod.chunks;
             let assets = mod.assets;
 
-            // 自动递增模块的编译版本号
-            if (preModMap) {
-                mod.version = preModMap.version + 1;
-            }
+            // 编译版本号
+            mod.version =  preModMap ? preModMap.version + 1 : 1;
 
-            // 将绝对路径转换为相对与资源描述文件的路径
+            // 编译时间
+            mod.date = (new Date()).toLocaleString();
+
+            // 转换为相对路径
             Object.keys(chunks).forEach(name => chunks[name] = relative(chunks[name]));
             assets.forEach((file, index) => assets[index] = relative(file));
 
             latest.push(name);
             modulesMap[name] = mod;
-
             delete modulesMap[name].name;
         });
 
