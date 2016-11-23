@@ -5,17 +5,13 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-这是一个 Webpack 任务管理器，支持增量构建与多进程构建，适用于前端持续集成系统。
+这是一个 Webpack 任务管理器，支持增量构建与多进程构建，适用于前端持续集成系统中。
 
 * 基于 Git Commit 进行增量构建
 * 支持串行与多并行构建
-* 支持多进程加速构建
+* 支持开启多进程例用多核 CPU 加速构建
 * 支持多 Webpack 实例进行构建
 * 无侵入现有 Webpack 构建配置
-
-## 性能
-
-在 2012 款 Macbook Pro 15 寸基本款中全量运行 Webpack 冷构建测试用例，默认情况下耗时 21260.747ms，设置多进程后（`parallel:5`）Webpack 在 7098.425ms 完成，接近三倍速度提升。
 
 ## 安装
 
