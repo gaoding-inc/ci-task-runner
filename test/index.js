@@ -23,7 +23,7 @@ describe('lib', () => {
 
             it('results', () => {
                 return promiseTask.serial([
-                    () => 0,
+                    0,
                     (result) => {
                         assert.deepEqual(0, result)
                         return 1;
@@ -43,9 +43,7 @@ describe('lib', () => {
 
             it('order', () => {
                 return promiseTask.serial([
-                    () => {
-                        return delay(() => 0, 40);
-                    },
+                    0,
                     () => {
                         return delay(() => 1, 30);
                     },

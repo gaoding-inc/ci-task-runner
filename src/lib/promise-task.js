@@ -2,34 +2,40 @@
 
 /**
  * 串行执行任务
- * @param  {function[]}     tasks 任务列表，任务函数返回 Promise
- * @return {Promise}              .then(results => {})
+ * @param   {function[]|any[]}     tasks 任务列表，任务函数返回 Promise
+ * @return  {Promise}
  */
 function serial(tasks) {
     let p = Promise.resolve();
     let results = [];
 
-    tasks.forEach(fn => {
-        p = p.then(fn).then(result => {
-            results.push(result);
-            return result;
-        });
-    });
+    let each = task => {
+        if (typeof task === 'function') {
+            p = p.then(task).then(result => {
+                results.push(result);
+                return result;
+            });
+        } else {
+            each(() => task);
+        }
+    }
+
+    tasks.forEach(each);
 
     return p.then(() => results);
 }
 
 /**
  * 并行执行任务
- * @param   {function[]}     tasks 任务列表，任务函数返回 Promise
- * @param   {number}         limit 最大并发数
- * @return  {Promise}              .then(results => {})
+ * @param   {function[]|any[]}     tasks 任务列表，任务函数返回 Promise
+ * @param   {number}               limit 最大并发数
+ * @return  {Promise}
  */
 function parallel(tasks, limit = tasks.length) {
     if (limit === tasks.length) {
-        return Promise.all(tasks.map(fn => {
+        return Promise.all(tasks.map(task => {
             try {
-                return typeof fn === 'function' ? fn() : fn;
+                return typeof task === 'function' ? task() : task;
             } catch (e) {
                 return Promise.reject(e);
             }
@@ -49,9 +55,9 @@ function parallel(tasks, limit = tasks.length) {
 
 // async function parallel(tasks, limit) {
 //     const currentTasks = tasks.splice(0, limit);
-//     await Promise.all(tasks.map(fn => {
+//     await Promise.all(tasks.map(task => {
 //         try {
-//             return fn();
+//             return task();
 //         } catch (e) {
 //             return Promise.reject(e);
 //         }
