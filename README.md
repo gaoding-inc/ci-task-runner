@@ -56,8 +56,7 @@ git-webpack.json 文件范例：
     "timeout": 60000,
     "cwd": "${moduleName}",
     "env": {
-      "MODULE_NAME": "${moduleName}",
-      "MODULE_COMMIT": "${moduleCommit}"
+      "MODULE_NAME": "${moduleName}"
     },
     "execArgv": [],
     "silent": false,

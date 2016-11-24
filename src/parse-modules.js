@@ -2,7 +2,6 @@ const path = require('path');
 const template = require('./lib/template');
 const getNodeModulePath = require('./lib/get-node-module-path');
 const defaultsDeep = require('lodash.defaultsdeep');
-const DEFAULT = require('./config/config.default.json');
 
 
 class File {
@@ -42,7 +41,6 @@ class Module extends File {
  * @return  {Module[]}
  */
 module.exports = (options, context) => {
-    options = defaultsDeep({}, options, DEFAULT);
     let modules = [];
     let createModule = (mod, level) => {
 

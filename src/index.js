@@ -2,13 +2,12 @@
 
 const path = require('path');
 const defaultsDeep = require('lodash.defaultsdeep');
-const numCPUs = require('os').cpus().length;
 const promiseTask = require('./lib/promise-task');
 const GitCommit = require('./lib/git-commit');
 const Loger = require('./lib/loger');
 const DEFAULT = require('./config/config.default.json');
 
-const createModules = require('./create-modules');
+const parseModules = require('./parse-modules');
 const buildModules = require('./build-modules');
 const saveAssets = require('./save-assets');
 
@@ -46,13 +45,9 @@ module.exports = (options = {}, context = process.cwd()) => {
     
     let loger = new Loger();
 
-    if (options.parallel > numCPUs) {
-        loger.log(`[yellow][task:warn] 当前计算机 CPU 核心数为 ${numCPUs} 个，但 parallel 设置为 ${options.parallel}[/yellow]`);
-    }
-
     return promiseTask.serial([
 
-        createModules(options, context),
+        parseModules(options, context),
 
         // 检查模块是否有变更
         modules => {
@@ -82,7 +77,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                 if (mod.dirty) {
                     return true
                 } else {
-                    loger.log(`[yellow][task:ignore] ${mod.name}[/yellow]`);
+                    loger.log(`[yellow]•[/yellow] module: [green]${mod.name}[/green] ignore`);
                     return false;
                 }
             });

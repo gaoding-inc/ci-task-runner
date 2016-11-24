@@ -36,7 +36,7 @@ compiler.run(function (errors, stats) {
             errors: null,
             data: {
                 // 不直接使用 console.log 是为了避免顺序问题
-                log: '[webpack:build]' + stats.toString({
+                log: stats.toString({
                     chunks: false,
                     colors: true
                 }),

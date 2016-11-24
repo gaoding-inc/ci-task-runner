@@ -16,7 +16,7 @@ module.exports = (modules, parallel) => {
     let task = mod => () => {
         let runner = require(`./builder/${mod.builder.name}`);
         let date = (new Date()).toLocaleString();
-        loger.log(`[task:start] [green]${mod.name}[/green] ${date}`);
+        loger.log(`[green]•[/green] module: [green]${mod.name}[/green] start. [gray]${date}[/gray]`);
 
         return runner(mod.builder).then((modAsset = {
             chunks: {},
@@ -24,7 +24,7 @@ module.exports = (modules, parallel) => {
         }) => {
             let date = (new Date()).toLocaleString();
             modAsset.name = mod.name;
-            loger.log(`[task:end] [green]${mod.name}[/green] ${date}`);
+            loger.log(`[green]•[/green] module: [green]${mod.name}[/green] end. [gray]${date}[/gray]\n`);
             
             return modAsset;
         });
