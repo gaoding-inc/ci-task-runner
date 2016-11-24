@@ -1,10 +1,10 @@
 'use strict';
 const path = require('path');
 const assert = require('assert');
-const promiseTask = require('../src/lib/promise-task');
-const GitCommit = require('../src/lib/git-commit');
-const fsPromise = require('../src/lib/fs-promise');
-const Loger = require('../src/lib/loger');
+const promiseTask = require('../lib/promise-task');
+const GitCommit = require('../lib/git-commit');
+const fsPromise = require('../lib/fs-promise');
+const Loger = require('../lib/loger');
 
 
 describe('lib', () => {

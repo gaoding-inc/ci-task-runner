@@ -1,4 +1,4 @@
-const fsp = require('./lib/fs-promise');
+const fsp = require('../lib/fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
 const ASSETS_DEFAULT_NAME = './config/assets.default.json';
 const ASSETS_DEFAULT = require(ASSETS_DEFAULT_NAME);

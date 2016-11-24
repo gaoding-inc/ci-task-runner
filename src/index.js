@@ -2,9 +2,9 @@
 
 const path = require('path');
 const defaultsDeep = require('lodash.defaultsdeep');
-const promiseTask = require('./lib/promise-task');
-const GitCommit = require('./lib/git-commit');
-const Loger = require('./lib/loger');
+const promiseTask = require('../lib/promise-task');
+const GitCommit = require('../lib/git-commit');
+const Loger = require('../lib/loger');
 const DEFAULT = require('./config/config.default.json');
 
 const parseModules = require('./parse-modules');

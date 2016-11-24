@@ -1,6 +1,6 @@
 const path = require('path');
-const template = require('./lib/template');
-const getNodeModulePath = require('./lib/get-node-module-path');
+const template = require('../lib/template');
+const getNodeModulePath = require('../lib/get-node-module-path');
 const defaultsDeep = require('lodash.defaultsdeep');
 
 

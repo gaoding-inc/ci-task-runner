@@ -1,5 +1,5 @@
-const promiseTask = require('./lib/promise-task');
-const Loger = require('./lib/loger');
+const promiseTask = require('../lib/promise-task');
+const Loger = require('../lib/loger');
 
 /**
  * 启动模块设置的构建器
@@ -14,9 +14,10 @@ module.exports = (modules, parallel) => {
     let loger = new Loger();
 
     let task = mod => () => {
+        // TODO 改成外部 npm 模块，以插件的方式载入
         let runner = require(`./builder/${mod.builder.name}`);
         let date = (new Date()).toLocaleString();
-        loger.log(`[green]•[/green] module: [green]${mod.name}[/green] start. [gray]${date}[/gray]`);
+        loger.log(`[green]•[/green] module: [green]${mod.name}[/green] start [gray]${date}[/gray]`);
 
         return runner(mod.builder).then((modAsset = {
             chunks: {},
@@ -24,7 +25,7 @@ module.exports = (modules, parallel) => {
         }) => {
             let date = (new Date()).toLocaleString();
             modAsset.name = mod.name;
-            loger.log(`[green]•[/green] module: [green]${mod.name}[/green] end. [gray]${date}[/gray]\n`);
+            loger.log(`[green]•[/green] module: [green]${mod.name}[/green] end [gray]${date}[/gray]\n`);
             
             return modAsset;
         });
