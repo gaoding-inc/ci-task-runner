@@ -60,6 +60,7 @@ module.exports = (options, context) => {
         builder.launch = path.resolve(context, template(builder.launch, data));
         builder.execArgv = builder.execArgv.map(argv => template(argv, data));
         Object.keys(builder.env).forEach(key => builder.env[key] = template(builder.env[key], data));
+        builder.env = Object.assign({}, process.env, builder.env);
         builder.path = getNodeModulePath(builder.name, builder.cwd);
 
         return new Module({
