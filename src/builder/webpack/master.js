@@ -34,7 +34,6 @@ module.exports = builder => {
                 } else {
                     
                     if (!builder.silent) {
-                        console.log('Builder: ' + builder.name);
                         console.log(message.data.log);
                     }
 
