@@ -8,14 +8,11 @@ process.on('error', errors => {
 
 const WEBPACK_PATH = process.env[TYPE.WEBPACK_PATH];
 const WEBPACK_CONFIG_PATH = process.env[TYPE.WEBPACK_CONFIG_PATH];
-const WEBPACK_CONTEXT = process.env[TYPE.WEBPACK_CONTEXT];
-
 
 const webpack = require(WEBPACK_PATH);
 const options = require(WEBPACK_CONFIG_PATH);
 
 
-//Object.assign(options, { context: WEBPACK_CONTEXT });
 let isWebpackCliConfig = options.entry && options.output && typeof options.run !== 'function';
 let compiler = isWebpackCliConfig ? webpack(options) : options;
 
