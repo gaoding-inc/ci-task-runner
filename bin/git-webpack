@@ -6,12 +6,13 @@ const path = require('path');
 const program = require('commander');
 const defaultsDeep = require('lodash.defaultsdeep');
 const gulp = require('gulp');
-const VError = require('verror');
 
 
 const gitWebpack = require('../');
 const CONFIG_PATH_NAME = 'git-webpack.json';
 let CONTEXT = process.cwd();
+
+process.env.LOGER_DISPLAY_COLOR = 1;
 
 program
     .version(require('../package.json').version)
@@ -90,7 +91,7 @@ function config(file) {
             let config = require(configFile);
             defaultsDeep(options, config);
         } catch (e) {
-            throw new VError(e, `找不到配置文件`);
+            throw new Error(`找不到配置文件 "${configFile}"`);
         }
     }
 

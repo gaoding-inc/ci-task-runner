@@ -9,14 +9,10 @@ module.exports = builder => {
     // 运行 Webpack 并处理返回结果
     return master(builder).then(stats => {
 
-        var date = (new Date()).toLocaleString();
         let hash = stats.hash;
         let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
 
-        let moduleAssets = {
-            version: 1,
-            commit: '',
-            date: date,
+        let result = {
             chunks: {},
             assets: []
         };
@@ -27,16 +23,16 @@ module.exports = builder => {
 
             // 如果开启 devtool 后，可能输出 source-map 文件
             file = Array.isArray(file) ? file[0] : file;
-            moduleAssets.chunks[chunkName] = path.resolve(output, file);
+            result.chunks[chunkName] = path.resolve(output, file);
         });
 
 
-        moduleAssets.assets = stats.assets.map(asset => {
+        result.assets = stats.assets.map(asset => {
             let file = asset.name;
             return path.resolve(output, file);
         });
 
 
-        return moduleAssets;
+        return result;
     });
 };

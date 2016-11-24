@@ -1,22 +1,20 @@
 'use strict';
 
 const path = require('path');
-const color = require('cli-color');
-const VError = require('verror');
-const numCPUs = require('os').cpus().length;
+const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('./lib/promise-task');
-const getCommitId = require('./lib/get-commit-id');
+const GitCommit = require('./lib/git-commit');
+const Loger = require('./lib/loger');
+const DEFAULT = require('./config/config.default.json');
 
-const normalizeOptions = require('./normalize-options');
-const readAssets = require('./read-assets');
-const filterModules = require('./filter-modules');
+const parseModules = require('./parse-modules');
 const buildModules = require('./build-modules');
-const createAssets = require('./create-assets');
+const saveAssets = require('./save-assets');
 
 
 /**
  * 多进程构建任务管理器
- * @param   {Object}            options
+ * @param   {Object}            options                 @see config/config.default.json
  * @param   {Object[]|string[]} options.modules         模块目录列表
  * @param   {Object}            options.modules.name    模块目录名（相对）
  * @param   {string[]}          options.modules.librarys   模块依赖目录（相对），继承 options.librarys
@@ -41,75 +39,61 @@ const createAssets = require('./create-assets');
  * @return  {Promise}
  */
 module.exports = (options = {}, context = process.cwd()) => {
-    options = normalizeOptions(options);
-    Object.freeze(options);
-
-    let {assets, parallel} = options;
-    let assetsPath = path.resolve(context, assets);
-
-    let preCommit = {};
-    let latestCommit = {};
-    let librarysCommit = {};
-    let moduleVariables = {};
-
-
-    if (parallel > numCPUs) {
-        console.warn(color.yellow(`[warn] 当前计算机 CPU 核心数为 ${numCPUs} 个，parallel 设置为 ${parallel}`));
-    }
+    options = defaultsDeep({}, options, DEFAULT);
+    
+    let assetsPath = path.resolve(context, options.assets);
+    
+    let loger = new Loger();
 
     return promiseTask.serial([
 
+        parseModules(options, context),
 
-        // 读取上一次的构建记录
-        () => readAssets(assetsPath),
+        // 检查模块是否有变更
+        modules => {
+            let gitCommit = new GitCommit(assetsPath);
+            return Promise.all(modules.map(mod => {
+                return Promise.all([
 
+                    gitCommit.watch(mod.path),
+                    ...mod.librarys.map(lib => gitCommit.watch(lib.path))
 
-        // 缓存 git commit id
-        assetsContent => {
-            let getCommit = target => {
-                try {
-                    return getCommitId(target);
-                } catch (e) {
-                    throw new VError(e, `无法获取变更记录，因为目标不在 git 仓库中 "${target}"`);
-                }
-            };
+                ]).then(([modCommit, ...libCommits]) => {
 
-            let callMod = mod => {
-                let name = mod.name;
-                let target = path.resolve(context, name);
-                let preMod = assetsContent.modules[name];
-                preCommit[name] = preMod ? preMod.commit : undefined;
-                latestCommit[name] = latestCommit[name] || getCommit(target);
-                moduleVariables[name] = {
-                    moduleName: name,
-                    moduleCommit: latestCommit[name]
-                };
-            };
-
-            options.modules.forEach(mod => Array.isArray(mod) ? mod.forEach(callMod) : callMod(mod));
-
-            options.librarys.forEach(name => {
-                let target = path.resolve(context, name);
-                preCommit[name] = assetsContent.librarys[name];
-                latestCommit[name] = latestCommit[name] || getCommit(target);
-                librarysCommit[name] = latestCommit[name];
+                    let modChanged = modCommit[0] !== modCommit[1];
+                    let libChanged = libCommits.filter(libCommit => libCommit[0] !== libCommit[1]).length !== 0;
+                    mod.dirty = options.force || modChanged || libChanged;
+                    return mod;
+                });
+            })).then(modules => {
+                return gitCommit.save().then(() => modules);
             });
         },
 
 
         // 过滤未修改的版本
-        () => filterModules(options.modules, name => {
-            let dirty = options.force || latestCommit[name] !== preCommit[name];
-            return dirty;
-        }),
+        modules => {
+            return modules.filter(mod => {
+                if (mod.dirty) {
+                    return true
+                } else {
+                    loger.log(`[yellow]•[/yellow] module: [green]${mod.name}[/green] ignore`);
+                    return false;
+                }
+            });
+        },
 
 
         // 运行构建器
-        modules => buildModules(modules, options.parallel, moduleVariables, context),
+        modules => {
+            return buildModules(modules, options.parallel);
+        },
 
 
         // 保存资源索引文件
-        modulesAssets => createAssets(assetsPath, modulesAssets, latestCommit, librarysCommit)
+        modulesAssets => {
+            return saveAssets(assetsPath, modulesAssets);
+        }
 
     ]);
 };

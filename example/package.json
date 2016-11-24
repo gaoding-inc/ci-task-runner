@@ -1,13 +1,13 @@
 {
-  "name": "example",
+  "name": "module-example",
   "version": "1.0.0",
   "description": "",
   "devDependencies": {
-    "git-webpack": "^0.0.1",
+    "git-webpack": "^0.0.14-beta",
     "webpack": "^1.13.3"
   },
   "scripts": {
-    "dev": "webpack --config git-webpack-module-example/webpack.config.js",
+    "dev": "webpack --config module-example/webpack.config.js",
     "build": "git-webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
