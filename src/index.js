@@ -41,9 +41,9 @@ const saveAssets = require('./save-assets');
 module.exports = (options = {}, context = process.cwd()) => {
     options = defaultsDeep({}, options, DEFAULT);
     
-    let assetsPath = path.resolve(context, options.assets);
-    
-    let loger = new Loger();
+    const assetsPath = path.resolve(context, options.assets);
+    const loger = new Loger();
+    const gitCommit = new GitCommit(assetsPath);
 
     return promiseTask.serial([
 
@@ -51,7 +51,6 @@ module.exports = (options = {}, context = process.cwd()) => {
 
         // 检查模块是否有变更
         modules => {
-            let gitCommit = new GitCommit(assetsPath);
             return Promise.all(modules.map(mod => {
                 return Promise.all([
 
@@ -65,9 +64,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                     mod.dirty = options.force || modChanged || libChanged;
                     return mod;
                 });
-            })).then(modules => {
-                return gitCommit.save().then(() => modules);
-            });
+            }));
         },
 
 
@@ -93,6 +90,12 @@ module.exports = (options = {}, context = process.cwd()) => {
         // 保存资源索引文件
         modulesAssets => {
             return saveAssets(assetsPath, modulesAssets);
+        },
+
+
+        // 保存当前版本号
+        assetsContent => {
+            return gitCommit.save().then(() => assetsContent);
         }
 
     ]);
