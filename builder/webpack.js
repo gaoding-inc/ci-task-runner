@@ -9,6 +9,9 @@ module.exports = (builder, callback) => {
     const webpack = require(WEBPACK_PATH);
     const options = require(WEBPACK_CONFIG_PATH);
 
+    // webpack 默认配置下，如果 run 发生错误，不会进入错误流程
+    options.bail = true;
+
 
     let isWebpackCliConfig = options.entry && options.output && typeof options.run !== 'function';
     let compiler = isWebpackCliConfig ? webpack(options) : options;
@@ -25,6 +28,15 @@ module.exports = (builder, callback) => {
             }));
 
             let data = stats.toJson();
+            let errors = data.errors;
+
+            if (errors.length > 0) {
+                // 报告第一个错误
+                errors = errors[0];
+                callback(new Error(errors));
+                return;
+            }
+
             let hash = data.hash;
             let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
 
