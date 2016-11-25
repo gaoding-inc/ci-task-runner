@@ -27,6 +27,11 @@ module.exports = (modules, parallel) => {
         }) => {
             let date = (new Date()).toLocaleString();
             modAsset.name = mod.name;
+
+            if (modAsset.log) {
+                console.log(modAsset.log);
+            }
+
             loger.log(`[green]•[/green] module: [green]${mod.name}[/green] end [gray]${date}[/gray]\n`);
             
             return modAsset;

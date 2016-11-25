@@ -22,11 +22,6 @@ module.exports = (builder, callback) => {
             callback(errors);
         } else {
 
-            console.log(stats.toString({
-                chunks: false,
-                colors: true
-            }));
-
             let data = stats.toJson();
             let errors = data.errors;
 
@@ -42,7 +37,11 @@ module.exports = (builder, callback) => {
 
             let result = {
                 chunks: {},
-                assets: []
+                assets: [],
+                log: stats.toString({
+                    chunks: false,
+                    colors: true
+                })
             };
 
 
@@ -62,7 +61,7 @@ module.exports = (builder, callback) => {
 
 
             callback(null, result);
-            
+
         }
     });
 };
