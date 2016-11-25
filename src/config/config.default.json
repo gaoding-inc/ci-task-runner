@@ -2,7 +2,6 @@
   "modules": [],
   "librarys": ["package.json"],
   "assets": "dist/assets.json",
-  "parallel": 3,
   "force": false,
   "builder": {
     "name": "webpack",

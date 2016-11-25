@@ -9,7 +9,7 @@ const worker = require('../lib/worker');
  * @param  {number}    parallel         最大并发数
  * @return {Promise}
  */
-module.exports = (modules, parallel) => {
+module.exports = (modules, parallel = require('os').cpus().length) => {
 
     let tasks = [[]];
     let prevLevel = 0;
@@ -19,7 +19,9 @@ module.exports = (modules, parallel) => {
         // TODO 改成外部 npm 模块，以插件的方式载入
         let plugin = require.resolve(`../builder/${mod.builder.name}`);
         let date = (new Date()).toLocaleString();
-        loger.log(`[green]•[/green] module: [green]${mod.name}[/green] start [gray]${date}[/gray]`);
+        let message = `[green]•[/green] module: [green]${mod.name}[/green]`;
+
+        loger.log(`${message} start [gray]${date}[/gray]`);
 
         return worker(plugin, [mod.builder], mod.builder).then((modAsset = {
             chunks: {},
@@ -28,11 +30,11 @@ module.exports = (modules, parallel) => {
             let date = (new Date()).toLocaleString();
             modAsset.name = mod.name;
 
-            if (modAsset.log) {
+            if (modAsset.log && !mod.builder.silent) {
                 console.log(modAsset.log);
             }
 
-            loger.log(`[green]•[/green] module: [green]${mod.name}[/green] end [gray]${date}[/gray]\n`);
+            loger.log(`${message} end [gray]${date}[/gray]\n`);
             
             return modAsset;
         });
