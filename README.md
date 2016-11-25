@@ -5,13 +5,13 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-这是一个 Webpack 任务管理器，支持增量构建与多进程构建，适用于前端持续集成系统中。
+这是一个 Webpack 任务管理器，支持增量构建与多进程并行构建，适合在服务器中搭建前端持续集成系统。
 
 * 基于 Git Commit 进行增量构建
 * 支持串行与多并行构建
-* 支持开启多进程例用多核 CPU 加速构建
+* 支持开启多进程例用多核 CPU 并行加速构建
 * 支持多 Webpack 实例进行构建
-* 无侵入现有 Webpack 构建配置
+* 采用 JSON 描述项目，无侵入现有 Webpack 构建配置
 
 ## 安装
 
@@ -21,13 +21,7 @@ npm install git-webpack -g
 
 ## 使用
 
-1\. 切换到 Git 项目目录
-
-```bash
-cd you-project
-```
-
-2\. 生成配置
+1\. 切换到 Git 项目目录，运行：
 
 ```bash
 git-webpack --init
@@ -35,7 +29,7 @@ git-webpack --init
 
 会在当前目录创建 git-webpack.json 文件以及演示模块目录。
 
-3\. 运行 git-webpack
+2\. 运行 git-webpack
 
 ```bash
 git-webpack
