@@ -2,7 +2,6 @@
   "modules": ["module-example"],
   "librarys": ["package.json"],
   "assets": "dist/assets.json",
-  "parallel": 3,
   "force": false,
   "builder": {
     "timeout": 60000,

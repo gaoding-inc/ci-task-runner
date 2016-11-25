@@ -50,7 +50,6 @@ git-webpack.json 文件范例：
   "modules": [],
   "librarys": ["package.json"],
   "assets": "dist/assets.json",
-  "parallel": 3,
   "force": false,
   "builder": {
     "timeout": 60000,
@@ -104,6 +103,10 @@ git-webpack.json 文件范例：
 
 强制构建所有模块。
 
+## `parallel`
+
+设置最大并行进程数，默认值为 `require('os').cpus().length`
+
 ## `builder`
 
 构建器配置（文档尚未完善，采用默认配置可运行）。
@@ -121,7 +124,7 @@ git-webpack.json 文件范例：
 
 lib 构建完成后，module1、module2、module3 会并行构建。
 
-> `parallel` 的推荐值为 CPU 核心数。
+> `parallel` 默认会设置为当前计算机 CPU 核心数。
 
 ## 最佳实践
 
