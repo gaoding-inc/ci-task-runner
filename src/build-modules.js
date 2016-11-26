@@ -30,10 +30,6 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
             let date = (new Date()).toLocaleString();
             modAsset.name = mod.name;
 
-            if (modAsset.log && !mod.builder.silent) {
-                console.log(modAsset.log);
-            }
-
             loger.log(`${message} end [gray]${date}[/gray]\n`);
             
             return modAsset;

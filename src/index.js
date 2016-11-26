@@ -93,8 +93,9 @@ module.exports = (options = {}, context = process.cwd()) => {
         },
 
 
-        // 保存当前版本号
+        // 保存最新的版本信息（git commid id）
         assetsContent => {
+            // 必须构建完才保存版本信息，否则构建失败后下一次可能不会重新构建
             return gitCommit.save().then(() => assetsContent);
         }
 

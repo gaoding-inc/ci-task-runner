@@ -17,7 +17,7 @@ module.exports = (builder, callback) => {
     let compiler = isWebpackCliConfig ? webpack(options) : options;
 
 
-    compiler.run(function (errors, stats) {
+    compiler.run(function(errors, stats) {
         if (errors) {
             callback(errors);
         } else {
@@ -32,16 +32,17 @@ module.exports = (builder, callback) => {
                 return;
             }
 
+            console.log(stats.toString({
+                chunks: false,
+                colors: true
+            }));
+
             let hash = data.hash;
             let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
 
             let result = {
                 chunks: {},
-                assets: [],
-                log: stats.toString({
-                    chunks: false,
-                    colors: true
-                })
+                assets: []
             };
 
 
