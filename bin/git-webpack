@@ -17,64 +17,17 @@ process.env.LOGER_DISPLAY_COLOR = 1;
 program
     .version(require('../package.json').version)
     .usage('[options]')
-    .option('--modules <string>...', '模块目录名列表', list)
-    .option('--librarys [string]...', '依赖的文件与目录列表（它的变更会引起模块重新编译）', list)
-    .option('--assets [string]', '文件索引表输出路径')
     .option('--parallel [number]', '进程最大并发数', parseInt)
     .option('--force', '强制编译所有模块')
     .option('--config [string]', '外部配置文件路径')
     .option('--init', '初始化项目，生成配置文件')
-    .option('--builder-command [string]')
-    .option('--builder-options-cwd [string]')
-    .option('--builder-env [list]', null, query)
-    .option('--builder-exec-path [string]')
-    .option('--builder-exec-argv [list]', null, list)
-    .option('--builder-silent')
-    .option('--builder-stdio [list]', null, list)
-    .option('--builder-uid [number]', null, parseInt)
-    .option('--builder-gid [number]', null, parseInt)
     .parse(process.argv);
-
-
-
-function list(val) {
-    return val.split(',');
-}
-
-
-function query(val) {
-    let ret = {};
-    let reg = /([^,=]+)=([^,=]*)/g;
-    val.replace(reg, function (rs, key, value) {
-        value = String(value);
-        ret[key] = value;
-        return rs;
-    });
-    return ret;
-}
 
 
 function config(file) {
     const options = {
-        modules: program.modules,
-        librarys: program.librarys,
-        assets: program.assets,
         parallel: program.parallel,
-        force: program.force,
-        builder: (() => {
-            let builder = {};
-            var reg = /^builder(\w)/;
-
-            Object.keys(program).forEach((key) => {
-                if (reg.test(key)) {
-                    builder[key.replace(reg, ($0, $1) => {
-                        return $1.toLowerCase();
-                    })] = program[key];
-                }
-            });
-
-            return builder;
-        })()
+        force: program.force
     };
 
     if (file) {
