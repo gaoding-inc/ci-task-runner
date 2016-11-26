@@ -2,6 +2,7 @@
 
 const path = require('path');
 const worker = require('../lib/worker');
+const packageName = require('../package.json').name;
 
 class AssetsWebpackPlugin {
     apply(compiler) {
@@ -39,13 +40,15 @@ class AssetsWebpackPlugin {
                 return path.resolve(output, file);
             });
 
-            worker.send(result);
+            process.nextTick(() => {
+                worker.send(result);
+            });
         });
     }
 };
 
 
-if (process.env.$GIT_WEBPACK) {
+if (process.env[packageName]) {
     module.exports = AssetsWebpackPlugin;
 } else {
     module.exports = () => {
