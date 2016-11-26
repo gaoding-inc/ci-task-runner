@@ -8,7 +8,6 @@
     "options": {
       "cwd": "${modulePath}",
       "env": {
-        "$GIT_WEBPACK": "1",
         "$ASSETS_PATH": "${assetsPath}",
         "$MODULE_NAME": "${moduleName}",
         "$MODULE_PATH": "${modulePath}"
