@@ -5,14 +5,14 @@
   "parallel": 3,
   "force": true,
   "builder": {
-    "timeout": 60000,
-    "cwd": "${moduleName}",
-    "env": {
-      "GIT_WEBPACK": "1"
-    },
-    "execArgv": [],
-    "silent": false,
-    "name": "webpack",
-    "launch": "${moduleName}/webpack.config.js"
+    "command": "webpack --config ${modulePath}/webpack.config.js",
+    "options": {
+      "cwd": "${modulePath}",
+      "env": {
+        "MODULE_NAME": "${moduleName}",
+        "MODULE_PATH": "${modulePath}"
+      },
+      "timeout": 0
+    }
   }
 }

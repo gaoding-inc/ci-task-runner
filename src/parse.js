@@ -1,6 +1,5 @@
 const path = require('path');
 const template = require('../lib/template');
-const getNodeModulePath = require('../lib/get-node-module-path');
 const defaultsDeep = require('lodash.defaultsdeep');
 
 
@@ -11,15 +10,10 @@ class File {
     }
 }
 
-class Builder extends File {
-    constructor({name, path, timeout, cwd, env, execArgv, silent, launch}) {
-        super({ name, path });
-        this.timeout = timeout;
-        this.cwd = cwd;
-        this.env = env;
-        this.execArgv = execArgv;
-        this.silent = silent;
-        this.launch = launch;
+class Builder {
+    constructor({command, options}) {
+        this.command = command;
+        this.options = options;
     }
 }
 
@@ -45,27 +39,44 @@ module.exports = (options, context) => {
     let createModule = (mod, level) => {
 
         let name = mod.name;
+        let modPath = path.resolve(context, name);
+        let assetsPath = path.resolve(context, options.assets);
         let librarys = defaultsDeep(mod.librarys, options.librarys).map(library => {
             return {
                 name: library,
                 path: path.resolve(context, library)
             };
         });
-        let builder = defaultsDeep(mod.builder, options.builder);
+        let builder = defaultsDeep({
+            options: {
+                // 继承父进程的环境变量
+                env: process.env
+            }
+        }, mod.builder, options.builder);
 
+        let variables = {
+            moduleName: name,
+            modulePath: modPath,
+            assetsPath: assetsPath
+        };
+        let setVariables = target => {
+            let type = typeof target;
+            if (type === 'string') {
+                return template(target, variables);
+            } else if (Array.isArray(target)) {
+                return target.map(setVariables);
+            } else if (type === 'object' && type !== null) {
+                let object = {};
+                Object.keys(target).forEach(key => object[key] = setVariables(target[key]));
+                return object;
+            }
+        };
 
-        // builder 设置变量，路径相关都转成绝对路径
-        let data = { moduleName: mod.name };
-        builder.cwd = path.resolve(context, template(builder.cwd, data));
-        builder.launch = path.resolve(context, template(builder.launch, data));
-        builder.execArgv = builder.execArgv.map(argv => template(argv, data));
-        Object.keys(builder.env).forEach(key => builder.env[key] = template(builder.env[key], data));
-        builder.env = Object.assign({}, process.env, builder.env);
-        builder.path = getNodeModulePath(builder.name, builder.cwd);
+        builder = setVariables(builder);
 
         return new Module({
             name,
-            path: path.resolve(context, name),
+            path: modPath,
             librarys,
             builder,
             level,

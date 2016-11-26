@@ -4,14 +4,16 @@
   "assets": "dist/assets.json",
   "force": false,
   "builder": {
-    "name": "webpack",
-    "timeout": 60000,
-    "cwd": "${moduleName}",
-    "env": {
-      "MODULE_NAME": "${moduleName}"
-    },
-    "execArgv": [],
-    "silent": false,
-    "launch": "${moduleName}/webpack.config.js"
+    "command": "webpack --config ${modulePath}/webpack.config.js",
+    "options": {
+      "cwd": "${modulePath}",
+      "env": {
+        "$GIT_WEBPACK": "1",
+        "$ASSETS_PATH": "${assetsPath}",
+        "$MODULE_NAME": "${moduleName}",
+        "$MODULE_PATH": "${modulePath}"
+      },
+      "timeout": 0
+    }
   }
 }

@@ -7,9 +7,9 @@ const GitCommit = require('../lib/git-commit');
 const Loger = require('../lib/loger');
 const DEFAULT = require('./config/config.default.json');
 
-const parseModules = require('./parse-modules');
-const buildModules = require('./build-modules');
-const saveAssets = require('./save-assets');
+const parse = require('./parse');
+const build = require('./build');
+const assets = require('./assets');
 
 
 /**
@@ -47,7 +47,7 @@ module.exports = (options = {}, context = process.cwd()) => {
 
     return promiseTask.serial([
 
-        parseModules(options, context),
+        parse(options, context),
 
         // 检查模块是否有变更
         modules => {
@@ -83,13 +83,13 @@ module.exports = (options = {}, context = process.cwd()) => {
 
         // 运行构建器
         modules => {
-            return buildModules(modules, options.parallel);
+            return build(modules, options.parallel);
         },
 
 
         // 保存资源索引文件
         modulesAssets => {
-            return saveAssets(assetsPath, modulesAssets);
+            return assets(assetsPath, modulesAssets);
         },
 
 

@@ -16,22 +16,19 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
     let loger = new Loger();
 
     let task = mod => () => {
-        // TODO 改成外部 npm 模块，以插件的方式载入
-        let plugin = require.resolve(`../builder/${mod.builder.name}`);
+
         let date = (new Date()).toLocaleString();
         let message = `[green]•[/green] module: [green]${mod.name}[/green]`;
 
         loger.log(`${message} start [gray]${date}[/gray]`);
 
-        return worker(plugin, [mod.builder], mod.builder).then((modAsset = {
+        return worker(mod.builder.command, mod.builder.options).then((modAsset = {
             chunks: {},
             assets: []
         }) => {
-            let date = (new Date()).toLocaleString();
             modAsset.name = mod.name;
-
+            let date = (new Date()).toLocaleString();
             loger.log(`${message} end [gray]${date}[/gray]\n`);
-            
             return modAsset;
         });
     };
