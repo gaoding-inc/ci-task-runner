@@ -1,31 +1,32 @@
 {
-  "name": "git-webpack",
-  "version": "0.0.15",
-  "description": "基于 git 的 webpack 多进程调度器",
+  "name": "module-watcher",
+  "version": "0.1.0-beta",
+  "description": "支持增量与多进程并行构建任务管理器",
   "main": "src/index.js",
-  "bin": "bin/git-webpack",
+  "bin": "bin/module-watcher",
   "scripts": {
-    "example": "git-webpack --config example/git-webpack.json",
+    "example": "module-watcher --config example/module-watcher.json",
     "parallel-test": "node test/parallel/index.js",
-    "tasks-test": "git-webpack --config test/tasks/git-webpack.json",
+    "tasks-test": "module-watcher --config test/tasks/module-watcher.json",
     "test": "mocha test/index.js && npm run example && npm run tasks-test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aui/git-webpack.git"
+    "url": "git+https://github.com/aui/module-watcher.git"
   },
   "keywords": [
     "webpack",
     "git",
+    "svn",
     "task",
     "build"
   ],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/aui/git-webpack/issues"
+    "url": "https://github.com/aui/module-watcher/issues"
   },
-  "homepage": "https://github.com/aui/git-webpack#readme",
+  "homepage": "https://github.com/aui/module-watcher#readme",
   "dependencies": {
     "commander": "^2.9.0",
     "gulp": "^3.9.1",
