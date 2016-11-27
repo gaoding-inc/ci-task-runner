@@ -9,9 +9,10 @@
     "options": {
       "cwd": "${modulePath}",
       "env": {
-        "$ASSETS_PATH": "${assetsPath}",
-        "$MODULE_NAME": "${moduleName}",
-        "$MODULE_PATH": "${modulePath}"
+        "MODULE_WATCHER": "1",
+        "MODULE_WATCHER_ASSETS_PATH": "${assetsPath}",
+        "MODULE_WATCHER_MODULE_NAME": "${moduleName}",
+        "MODULE_WATCHER_MODULE_PATH": "${modulePath}"
       },
       "timeout": 0
     }

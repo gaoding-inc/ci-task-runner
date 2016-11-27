@@ -1,9 +1,6 @@
 const path = require('path');
 const template = require('../lib/template');
 const defaultsDeep = require('lodash.defaultsdeep');
-const packageData = require('../package.json');
-const packageName = packageData.name;
-const packageVersion = packageData.name;
 
 class File {
     constructor({name, path}) {
@@ -52,9 +49,7 @@ module.exports = (options, context) => {
         let builder = defaultsDeep({
             options: {
                 // 继承父进程的环境变量
-                env: defaultsDeep({
-                    [packageName]: packageVersion
-                }, process.env)
+                env: process.env
             }
         }, mod.builder, options.builder);
 

@@ -2,7 +2,6 @@
 
 const path = require('path');
 const worker = require('../lib/worker');
-const packageName = require('../package.json').name;
 
 class AssetsWebpackPlugin {
 
@@ -60,10 +59,12 @@ class AssetsWebpackPlugin {
 };
 
 
-if (process.env[packageName]) {
+class noopWebpackPlugin {
+    apply(){}
+}
+
+if (process.env.MODULE_WATCHER) {
     module.exports = AssetsWebpackPlugin;
 } else {
-    module.exports = () => {
-        this.apply = () => { };
-    };
+    module.exports = noopWebpackPlugin;
 }
