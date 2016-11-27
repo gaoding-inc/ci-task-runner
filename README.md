@@ -117,6 +117,8 @@ module-watcher.json 文件范例：
 
 构建器进程配置。构建器会在子进程中运行，在这里设置进程的选项。
 
+[查看 child_process.exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)
+
 ## 多进程并行构建
 
 如果模块之间没有依赖，可以开启多进程构建，这样能够充分利用多核 CPU 加速构建。
