@@ -3,6 +3,7 @@
   "librarys": ["package.json"],
   "assets": "dist/assets.json",
   "force": false,
+  "repository": "git",
   "builder": {
     "command": "webpack --config ${modulePath}/webpack.config.js",
     "options": {
