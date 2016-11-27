@@ -12,7 +12,7 @@ const worker = require('../lib/worker');
 module.exports = (modules, parallel = require('os').cpus().length) => {
 
     let tasks = [[]];
-    let prevLevel = 0;
+    let preOrder = 0;
     let loger = new Loger();
 
     let task = mod => () => {
@@ -33,13 +33,13 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
         });
     };
 
-    modules.sort((a, b) => a.level - b.level).forEach(mod => {
-        if (mod.level === prevLevel) {
+    modules.sort((a, b) => a.order - b.order).forEach(mod => {
+        if (mod.order === preOrder) {
             tasks[tasks.length - 1].push(task(mod));
         } else {
             tasks.push([task(mod)]);
         }
-        prevLevel = mod.level;
+        preOrder = mod.order;
     });
 
 

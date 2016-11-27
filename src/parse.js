@@ -20,11 +20,11 @@ class Builder {
 }
 
 class Module extends File {
-    constructor({name, path, librarys, builder, level, dirty}) {
+    constructor({name, path, librarys, builder, order, dirty}) {
         super({ name, path });
         this.librarys = librarys.map(library => new File(library));
         this.builder = new Builder(builder);
-        this.level = level;
+        this.order = order;
         this.dirty = dirty;
     }
 };
@@ -38,7 +38,7 @@ class Module extends File {
  */
 module.exports = (options, context) => {
     let modules = [];
-    let createModule = (mod, level) => {
+    let createModule = (mod, order) => {
 
         let name = mod.name;
         let modPath = path.resolve(context, name);
@@ -83,7 +83,7 @@ module.exports = (options, context) => {
             path: modPath,
             librarys,
             builder,
-            level,
+            order,
             dirty: false
         });
     };
