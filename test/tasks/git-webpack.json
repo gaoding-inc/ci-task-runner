@@ -1,6 +1,6 @@
 {
   "modules": ["lib", ["mod1", "mod2"]],
-  "librarys": ["lib"],
+  "dependencies": ["lib"],
   "assets": "dist/assets.json",
   "parallel": 3,
   "force": false,

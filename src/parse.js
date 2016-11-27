@@ -20,9 +20,9 @@ class Builder {
 }
 
 class Module extends File {
-    constructor({name, path, librarys, builder, order, dirty}) {
+    constructor({name, path, dependencies, builder, order, dirty}) {
         super({ name, path });
-        this.librarys = librarys.map(library => new File(library));
+        this.dependencies = dependencies.map(library => new File(library));
         this.builder = new Builder(builder);
         this.order = order;
         this.dirty = dirty;
@@ -43,7 +43,7 @@ module.exports = (options, context) => {
         let name = mod.name;
         let modPath = path.resolve(context, name);
         let assetsPath = path.resolve(context, options.assets);
-        let librarys = defaultsDeep(mod.librarys, options.librarys).map(library => {
+        let dependencies = defaultsDeep(mod.dependencies, options.dependencies).map(library => {
             return {
                 name: library,
                 path: path.resolve(context, library)
@@ -81,7 +81,7 @@ module.exports = (options, context) => {
         return new Module({
             name,
             path: modPath,
-            librarys,
+            dependencies,
             builder,
             order,
             dirty: false
@@ -97,7 +97,7 @@ module.exports = (options, context) => {
         if (typeof mod === 'string') {
             mod = {
                 name: mod,
-                librarys: [],
+                dependencies: [],
                 builder: {}
             };
         }

@@ -17,9 +17,9 @@ const assets = require('./assets');
  * @param   {Object}            options                 @see config/config.default.json
  * @param   {Object[]|string[]} options.modules         模块目录列表
  * @param   {Object}            options.modules.name    模块目录名（相对）
- * @param   {string[]}          options.modules.librarys   模块依赖目录（相对），继承 options.librarys
+ * @param   {string[]}          options.modules.dependencies   模块依赖目录（相对），继承 options.dependencies
  * @param   {Object}            options.modules.builder    模块构建器设置，继承 options.builder
- * @param   {string[]}          options.librarys           模块组公共依赖（相对）
+ * @param   {string[]}          options.dependencies           模块组公共依赖（相对）
  * @param   {string}            options.assets          构建后文件索引表输出路径（相对）
  * @param   {string}            options.repository      仓库类型，可选 git|svn
  * @param   {number}            options.parallel        最大进程数
@@ -56,7 +56,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                 return Promise.all([
 
                     repository.watch(mod.path),
-                    ...mod.librarys.map(lib => repository.watch(lib.path))
+                    ...mod.dependencies.map(lib => repository.watch(lib.path))
 
                 ]).then(([modCommit, ...libCommits]) => {
 

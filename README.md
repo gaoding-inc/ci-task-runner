@@ -5,13 +5,12 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-这是一个 Webpack 任务管理器，支持增量构建与多进程并行构建，适合在服务器中搭建前端持续集成系统。
+这是一个前端构建任务管理器，支持增量构建与多进程并行构建，适合在服务器中搭建前端持续集成系统。
 
-* 基于 Git Commit 进行增量构建
-* 支持串行与多并行构建
-* 支持开启多进程例用多核 CPU 并行加速构建
-* 支持多 Webpack 实例进行构建
-* 采用 JSON 描述项目，无侵入现有 Webpack 构建配置
+* 基于 Git 与 Svn 进行增量构建
+* 支持串行与多进程并行加速构建
+* 支持 Webpack、Gulp、Grunt 等构建任务
+* 简单，采用 JSON 配置
 
 ## 安装
 
@@ -41,28 +40,29 @@ git-webpack.json 文件范例：
 
 ```javascript
 {
-  "modules": [],
-  "librarys": ["package.json"],
+  "modules": ["mod1", "mod2"],
+  "dependencies": ["package.json"],
   "assets": "dist/assets.json",
   "force": false,
+  "repository": "git",
   "builder": {
-    "timeout": 60000,
-    "cwd": "${moduleName}",
-    "env": {
-      "MODULE_NAME": "${moduleName}"
-    },
-    "execArgv": [],
-    "silent": false,
-    "name": "webpack",
-    "launch": "${moduleName}/webpack.config.js"
+    "command": "webpack --config ${modulePath}/webpack.config.js",
+    "options": {
+      "cwd": "${modulePath}",
+      "env": {
+        "MODULE_NAME": "${moduleName}",
+        "MODULE_PATH": "${modulePath}"
+      },
+      "timeout": 0
+    }
   }
 }
 ```
 
-`modules` 与 `librarys` 是关键配置字段。它们之间的区别：
+`modules` 与 `dependencies` 是关键配置字段。它们之间的区别：
 
 * `modules`：要构建的模块目录列表。只要模块目录文件变更，目录则会进行构建。
-* `librarys`：模块目录外部依赖列表。只要外部依赖有变更，无论 `modules` 是否有变更，都会将会触发 `modules` 的构建。
+* `dependencies`：模块目录外部依赖列表。只要外部依赖有变更，无论 `modules` 是否有变更，都会将会触发 `modules` 的构建。
 
 ### `modules`
 
@@ -74,28 +74,32 @@ git-webpack.json 文件范例：
     "module2",
     {
         "name": "module3",
-        "librarys": ["common/v1"],
+        "dependencies": ["common/v1"],
         "builder": {}
     }
 ]
 ```
 
-`librarys` 与 `builder` 会继承顶层的配置。`modules` 支持配置并行任务，参考 [多进程](#多进程)。
+`dependencies` 与 `builder` 会继承顶层的配置。`modules` 支持配置并行任务，参考 [多进程](#多进程)。
 
 ### `assets`
 
 设置构建后文件索引表输出路径。构建任务结束后它会输出结果，以供其他程序调用。
 
-### `librarys`
+### `dependencies`
 
 如果模块目录依赖了目录外的库，可以在此手动指定依赖，这样外部库更新也可以触发模块构建。
 
-* `librarys` 使用 Git 来实现变更检测，所以其路径必须已经受 Git 管理。如果想监控 node_modules 的变更，可以指定：`"librarys": ["package.json"]`。
-* `librarys` 路径相对于 git-webpack.json
+* `dependencies` 使用 Git 来实现变更检测，所以其路径必须已经受 Git 管理。如果想监控 node_modules 的变更，可以指定：`"dependencies": ["package.json"]`。
+* `dependencies` 路径相对于 git-webpack.json
 
 ### `force`
 
 强制构建所有模块。
+
+## `repository`
+
+设置仓库的类型。支持 git 与 svn。
 
 ## `parallel`
 
@@ -103,7 +107,11 @@ git-webpack.json 文件范例：
 
 ## `builder`
 
-构建器配置（文档尚未完善，采用默认配置可运行）。
+构建器配置。
+
+### `builder.command`
+
+构建命令。程序会将 node_modules/.bin 会自动加入到环境变量 `PATH` 中，优先使用本地模块。
 
 ## 多进程
 
@@ -135,8 +143,6 @@ lib 构建完成后，module1、module2、module3 会并行构建。
 
 * gitlab: gitlab-ci
 * github: travis
-
-如果没有条件采用服务器构建，可以考虑本地 Git hooks 来运行 git-webpack。
 
 ### 使用 npm scripts
 
