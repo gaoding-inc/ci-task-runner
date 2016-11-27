@@ -1,4 +1,4 @@
-# git-webpack
+# module-watcher
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
@@ -15,7 +15,7 @@
 ## 安装
 
 ```bash
-npm install git-webpack -g
+npm install module-watcher -g
 ```
 
 ## 使用
@@ -23,20 +23,20 @@ npm install git-webpack -g
 1\. 切换到 Git 项目目录，运行：
 
 ```bash
-git-webpack --init
+module-watcher --init
 ```
 
-会在当前目录创建 git-webpack.json 文件以及演示模块目录。
+会在当前目录创建 module-watcher.json 文件以及演示模块目录。
 
-2\. 运行 git-webpack
+2\. 运行 module-watcher
 
 ```bash
-git-webpack
+module-watcher
 ```
 
 ## 配置
 
-git-webpack.json 文件范例：
+module-watcher.json 文件范例：
 
 ```javascript
 {
@@ -66,7 +66,7 @@ git-webpack.json 文件范例：
 
 ### `modules`
 
-设置要构建的模块目录列表。git-webpack 支持多个目录、项目进行集中构建，`module.name` 则是目录名，如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持字符串与对象形式：
+设置要构建的模块目录列表。module-watcher 支持多个目录、项目进行集中构建，`module.name` 则是目录名，如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持字符串与对象形式：
 
 ```javascript 
 "modules": [
@@ -91,7 +91,7 @@ git-webpack.json 文件范例：
 如果模块目录依赖了目录外的库，可以在此手动指定依赖，这样外部库更新也可以触发模块构建。
 
 * `dependencies` 使用 Git 来实现变更检测，所以其路径必须已经受 Git 管理。如果想监控 node_modules 的变更，可以指定：`"dependencies": ["package.json"]`。
-* `dependencies` 路径相对于 git-webpack.json
+* `dependencies` 路径相对于 module-watcher.json
 
 ### `force`
 
@@ -132,7 +132,7 @@ lib 构建完成后，module1、module2、module3 会并行构建。
 
 ### 持续集成
 
-使用 CI 工具来在服务器上运行 git-webpack，前端构建、发布都将无须人工干预。
+使用 CI 工具来在服务器上运行 module-watcher，前端构建、发布都将无须人工干预。
 
 * 自动：分支推送即自动触发构建
 * 异步：无需中断编码工作
@@ -154,30 +154,30 @@ lib 构建完成后，module1、module2、module3 会并行构建。
 
 ```javascript
 "scripts": {
-  "build": "git-webpack --parallel 4",
+  "build": "module-watcher --parallel 4",
   "cdn": "echo 'publish...'"
   "deploy": "npm run build && npm run cdn" 
 }
 ```
 
-使用 npm run 启动 git-webpack
+使用 npm run 启动 module-watcher
 
 ```bash
 npm run build
 ```
 
-本地安装 git-webpack
+本地安装 module-watcher
 
 ```bash
-npm install --save-dev git-webpack
+npm install --save-dev module-watcher
 ```
 
 
-[npm-image]: https://img.shields.io/npm/v/git-webpack.svg
-[npm-url]: https://npmjs.org/package/git-webpack
-[node-version-image]: https://img.shields.io/node/v/git-webpack.svg
+[npm-image]: https://img.shields.io/npm/v/module-watcher.svg
+[npm-url]: https://npmjs.org/package/module-watcher
+[node-version-image]: https://img.shields.io/node/v/module-watcher.svg
 [node-version-url]: http://nodejs.org/download/
-[downloads-image]: https://img.shields.io/npm/dm/git-webpack.svg
-[downloads-url]: https://npmjs.org/package/git-webpack
-[travis-ci-image]: https://travis-ci.org/aui/git-webpack.svg?branch=master
-[travis-ci-url]: https://travis-ci.org/aui/git-webpack
+[downloads-image]: https://img.shields.io/npm/dm/module-watcher.svg
+[downloads-url]: https://npmjs.org/package/module-watcher
+[travis-ci-image]: https://travis-ci.org/aui/module-watcher.svg?branch=master
+[travis-ci-url]: https://travis-ci.org/aui/module-watcher

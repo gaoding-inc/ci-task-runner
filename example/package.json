@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "devDependencies": {
-    "git-webpack": "^0.0.14-beta",
+    "module-watcher": "^0.0.14-beta",
     "webpack": "^1.13.3"
   },
   "scripts": {
     "dev": "webpack --config module-example/webpack.config.js",
-    "build": "git-webpack",
+    "build": "module-watcher",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
