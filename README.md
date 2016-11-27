@@ -7,7 +7,7 @@
 
 支持增量与多进程并行构建任务管理器，适合在服务器中搭建前端持续集成系统。
 
-* 基于 Git 与 Svn 进行增量构建
+* 基于 Git 与 Svn 提交记录进行增量构建
 * 支持串行与多进程并行加速构建
 * 支持 Webpack、Gulp、Grunt 等构建任务
 * 简单，采用 JSON 配置
@@ -20,7 +20,7 @@ npm install module-watcher -g
 
 ## 使用
 
-1\. 切换到 Git 项目目录，运行：
+1\. 切换到项目目录，运行：
 
 ```bash
 module-watcher --init
@@ -80,7 +80,7 @@ module-watcher.json 文件范例：
 ]
 ```
 
-`dependencies` 与 `builder` 会继承顶层的配置。`modules` 支持配置并行任务，参考 [多进程](#多进程)。
+`dependencies` 与 `builder` 会继承顶层的配置。`modules` 支持配置并行任务，参考 [多进程并行构建](#多进程并行构建)。
 
 ### `assets`
 
@@ -103,30 +103,51 @@ module-watcher.json 文件范例：
 
 ## `parallel`
 
-设置最大并行进程数，默认值为 `require('os').cpus().length`
+设置最大并行进程数，默认值为 `require('os').cpus().length`。
 
 ## `builder`
 
-构建器配置。
+构建器配置。配置字段值支持 `${moduleName}` 与 `${modulePath}` 这两个变量，运行时会分别赋值为模块名和模块绝对路径。
 
 ### `builder.command`
 
-构建命令。程序会将 node_modules/.bin 会自动加入到环境变量 `PATH` 中，优先使用本地模块。
+设置执行的构建命令。（程序会将 node_modules/.bin 会自动加入到环境变量 `PATH` 中）
 
-## 多进程
+### `builder.options`
+
+构建器进程配置。构建器会在子进程中运行，在这里设置进程的选项。
+
+## 多进程并行构建
 
 如果模块之间没有依赖，可以开启多进程构建，这样能够充分利用多核 CPU 加速构建。
 
-需要多进程构建的模块使用二维数组即可：
+modules 最外层的模块名是串行运行，如果遇到数组则会并行运行：
 
 ```javascript
 "modules": ["lib", ["module1", "module2", "module3"]],
 "parallel": 8
 ```
 
-lib 构建完成后，module1、module2、module3 会并行构建。
+上述例子中，当 lib 构建完成后，module1、module2、module3 会以多线程的方式并行构建。
 
 > `parallel` 默认会设置为当前计算机 CPU 核心数。
+
+## 集中管理所有编译结果
+
+### Webpack
+
+module-watcher 提供了 assets-webpack-plugin 插件，可以统一管理各个模块的资源输出。
+
+```javascript
+// webpack.config.js
+var AssetsWebpackPlugin = require('module-watcher/plugin/assets-webpack-plugin');
+module.exports = {
+  //...
+  plugins: [new AssetsWebpackPlugin()]
+};
+```
+
+module-watcher 运行后，此插件会将输出的文件索引保存在 dist/assets.json 中，以便交给发布程序处理。
 
 ## 最佳实践
 
@@ -154,7 +175,7 @@ lib 构建完成后，module1、module2、module3 会并行构建。
 
 ```javascript
 "scripts": {
-  "build": "module-watcher --parallel 4",
+  "build": "module-watcher",
   "cdn": "echo 'publish...'"
   "deploy": "npm run build && npm run cdn" 
 }
