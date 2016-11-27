@@ -5,7 +5,7 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-这是一个前端构建任务管理器，支持增量构建与多进程并行构建，适合在服务器中搭建前端持续集成系统。
+支持增量与多进程并行构建任务管理器，适合在服务器中搭建前端持续集成系统。
 
 * 基于 Git 与 Svn 进行增量构建
 * 支持串行与多进程并行加速构建
