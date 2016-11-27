@@ -26,13 +26,15 @@ npm install module-watcher -g
 module-watcher --init
 ```
 
-会在当前目录创建 module-watcher.json 文件以及演示模块目录。
+会在当前目录创建 module-watcher.json 文件以及演示模块目录（依赖 Webpack）。
 
 2\. 运行 module-watcher
 
 ```bash
 module-watcher
 ```
+
+> 在服务器上可以使用 CI 工具启动 module-watcher，参考 [持续集成](#持续集成)
 
 ## 配置
 
@@ -150,6 +152,10 @@ module.exports = {
 ```
 
 module-watcher 运行后，此插件会将输出的文件索引保存在 dist/assets.json 中，以便交给发布程序处理。
+
+## Gulp、Grunt
+
+（尚不支持..）
 
 ## 最佳实践
 
