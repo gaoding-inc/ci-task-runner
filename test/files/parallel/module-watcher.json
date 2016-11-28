@@ -2,10 +2,9 @@
   "modules": [["mod1", "mod2", "mod3", "mod4", "mod5", "mod6", "mod7", "mod8"]],
   "dependencies": ["package.json"],
   "assets": "dist/assets.json",
-  "parallel": 3,
   "force": true,
   "builder": {
-    "command": "webpack --config ${modulePath}/webpack.config.js -p",
+    "command": "webpack -p --color --config ${modulePath}/webpack.config.js",
     "options": {
       "cwd": "${modulePath}",
       "env": {

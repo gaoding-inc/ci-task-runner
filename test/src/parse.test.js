@@ -204,9 +204,9 @@ describe('#parse', () => {
             builder: {
                 command: 'echo "mod1:' + path.resolve(__dirname, 'mod1') + '"',
                 options: {
-                    env: Object.assign({}, {
+                    env: Object.assign({}, process.env, {
                         MODULE_NAME: 'mod1'
-                    }, process.env)
+                    })
                 }
             },
             order: 0,
