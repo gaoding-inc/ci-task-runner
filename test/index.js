@@ -1,10 +1,10 @@
 'use strict';
 const path = require('path');
 const assert = require('assert');
-const promiseTask = require('../src/lib/promise-task');
-const GitCommit = require('../src/lib/git-commit');
-const fsPromise = require('../src/lib/fs-promise');
-const Loger = require('../src/lib/loger');
+const promiseTask = require('../lib/promise-task');
+const Repository = require('../lib/repository');
+const fsPromise = require('../lib/fs-promise');
+const Loger = require('../lib/loger');
 
 
 describe('lib', () => {
@@ -180,16 +180,16 @@ describe('lib', () => {
     describe('#git-commit', () => {
 
         const dbPath = path.join(__dirname, 'dist', '.watch-commit.json');
-        const gitCommit = new GitCommit(dbPath);
+        const repository = new Repository(dbPath);
 
         it('watch one file', () => {
             let target = path.join(__dirname, '..', 'src', 'index.js');
-            return gitCommit.watch(target, dbPath).then(([newCommitId, oldCommitId]) => {
+            return repository.watch(target, dbPath).then(([newCommitId, oldCommitId]) => {
                 assert.deepEqual('string', typeof newCommitId);
                 if (oldCommitId !== undefined) {
                     assert.deepEqual('string', typeof oldCommitId);
                 }
-                gitCommit.save();
+                repository.save();
             });
         });
 
@@ -202,9 +202,11 @@ describe('lib', () => {
 
         it('write file && read file', () => {
             return fsPromise.writeFile(dist, JSON.stringify(json), 'utf-8').then(() => {
-                return fsPromise.readFile(dist, 'utf-8').then(JSON.parse).then(data => {
-                    assert.deepEqual(json, data);
-                });
+                return fsPromise.readFile(dist, 'utf-8')
+                    .then(json => JSON.parse(json))
+                    .then(data => {
+                        assert.deepEqual(json, data);
+                    });
             });
         });
 

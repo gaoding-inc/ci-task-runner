@@ -7,7 +7,7 @@
     "webpack": "^1.13.3"
   },
   "scripts": {
-    "build": "git-webpack",
+    "build": "module-watcher",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

@@ -13,13 +13,7 @@ const webpackConfig = {
         path: dist,
         filename: '[name].js'
     },
-    plugins: [function () {
-        this.plugin('done', function (stats) {
-            if (!GIT_WEBPACK) {
-                console.log(moduleName, 'done');
-            }
-        });
-    }]
+    plugins: []
 };
 
 // 继承公共配置

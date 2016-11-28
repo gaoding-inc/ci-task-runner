@@ -1,5 +1,5 @@
 {
-  "modules": [],
+  "modules": ["module-example"],
   "dependencies": ["package.json"],
   "assets": "dist/assets.json",
   "force": false,
@@ -9,10 +9,8 @@
     "options": {
       "cwd": "${modulePath}",
       "env": {
-        "MODULE_WATCHER": "1",
-        "MODULE_WATCHER_ASSETS_PATH": "${assetsPath}",
-        "MODULE_WATCHER_MODULE_NAME": "${moduleName}",
-        "MODULE_WATCHER_MODULE_PATH": "${modulePath}"
+        "MODULE_NAME": "${moduleName}",
+        "MODULE_PATH": "${modulePath}"
       },
       "timeout": 0
     }

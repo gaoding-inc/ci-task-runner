@@ -1,0 +1,18 @@
+{
+  "modules": ["lib", ["mod1", "mod2"]],
+  "dependencies": ["lib"],
+  "assets": "dist/assets.json",
+  "parallel": 3,
+  "force": false,
+  "builder": {
+    "command": "webpack --config ${modulePath}/webpack.config.js",
+    "options": {
+      "cwd": "${modulePath}",
+      "env": {
+        "MODULE_NAME": "${moduleName}",
+        "MODULE_PATH": "${modulePath}"
+      },
+      "timeout": 0
+    }
+  }
+}
