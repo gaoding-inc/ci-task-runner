@@ -31,7 +31,8 @@ class AssetsWebpackPlugin {
 
 
         let hash = data.hash;
-        let output = stats.compilation.outputOptions.path.replace(/\[hash\]/g, hash);
+        let outputOptions = stats.compilation.outputOptions;
+        let output = outputOptions.path.replace(/\[hash\]/g, hash);
 
         let result = {
             chunks: {},

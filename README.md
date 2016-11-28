@@ -27,7 +27,7 @@ npm install module-watcher -g
 module-watcher --init
 ```
 
-会在当前目录创建 module-watcher.json 文件以及演示模块目录（依赖 Webpack）。
+会在当前目录创建 module-watcher.json 文件以及演示模块目录（演示依赖 Webpack）。
 
 2\. 运行 module-watcher
 
