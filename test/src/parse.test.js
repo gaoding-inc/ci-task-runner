@@ -193,4 +193,36 @@ describe('#parse', () => {
         }, __dirname));
     });
 
+    it('variables', () => {
+        assert.deepEqual([{
+            name: 'mod1',
+            path: path.resolve(__dirname, 'mod1'),
+            dependencies: [{
+                name: 'lib',
+                path: path.resolve(__dirname, 'lib')
+            }],
+            builder: {
+                command: 'echo "mod1:' + path.resolve(__dirname, 'mod1') + '"',
+                options: {
+                    env: Object.assign({}, {
+                        MODULE_NAME: 'mod1'
+                    }, process.env)
+                }
+            },
+            order: 0,
+            dirty: false
+        }], parse({
+            modules: ['mod1'],
+            dependencies: ['lib'],
+            builder: {
+                command: 'echo "${moduleName}:${modulePath}"',
+                options: {
+                    env: {
+                        MODULE_NAME: '${moduleName}'
+                    }
+                }
+            }
+        }, __dirname));
+    });
+
 });

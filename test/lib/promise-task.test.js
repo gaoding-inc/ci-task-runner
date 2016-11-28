@@ -116,7 +116,9 @@ describe('#promise-task', () => {
                 () => 1,
                 () => Promise.reject(2),
                 () => 3
-            ], limit).catch(function (error) {
+            ], limit).then(() => {
+                throw new Error('error');
+            }).catch(function (error) {
                 assert.deepEqual(2, error)
             });
         });
@@ -130,7 +132,9 @@ describe('#promise-task', () => {
                     throw Error('Function error');
                 },
                 () => 3
-            ], limit).catch(function (error) {
+            ], limit).then(() => {
+                throw new Error('error');
+            }).catch(function (error) {
                 assert.deepEqual('Function error', error.message)
             });
         });
