@@ -5,7 +5,7 @@
   "parallel": 3,
   "force": true,
   "builder": {
-    "command": "webpack --config ${modulePath}/webpack.config.js",
+    "command": "webpack --config ${modulePath}/webpack.config.js -p",
     "options": {
       "cwd": "${modulePath}",
       "env": {

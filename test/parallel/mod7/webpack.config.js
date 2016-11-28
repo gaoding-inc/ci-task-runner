@@ -2,15 +2,6 @@
 const path = require('path');
 const moduleName = path.basename(__dirname);
 const dist = path.resolve(__dirname, '../dist', moduleName);
-const GIT_WEBPACK = process.env.GIT_WEBPACK;
-
-const webpack = require('webpack');
-const uglify = new webpack.optimize.UglifyJsPlugin({
-    compress: {
-        warnings: false
-    }
-});
-
 const webpackConfig = {
     context: __dirname,
     entry: {
@@ -19,16 +10,7 @@ const webpackConfig = {
     output: {
         path: dist,
         filename: '[name].[chunkhash].js'
-    },
-    plugins: [
-        GIT_WEBPACK ? uglify : function () { },
-        function () {
-            this.plugin('done', function (stats) {
-                if (!GIT_WEBPACK) {
-                    console.log(moduleName, 'done');
-                }
-            });
-        }]
+    }
 };
 
 // 继承公共配置

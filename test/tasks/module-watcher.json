@@ -1,5 +1,10 @@
 {
-  "modules": ["lib", ["mod1", "mod2"]],
+  "modules": ["lib", ["mod1", "mod2", {
+    "name": "mod3",
+    "builder": {
+      "command": "node ${modulePath}/builder.js"
+    }
+  }]],
   "dependencies": ["lib"],
   "assets": "dist/assets.json",
   "parallel": 3,
