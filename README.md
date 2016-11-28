@@ -9,7 +9,7 @@
 
 * 基于 Git 与 Svn 提交记录进行增量构建
 * 支持串行与多进程并行加速构建
-* 支持 Webpack、Gulp、Grunt 等构建任务
+* 支持 Webpack、Gulp、Grunt 等构建器
 * 支持多个模块目录分别构建
 * 简单，采用 JSON 配置
 
