@@ -1,6 +1,6 @@
 {
   "modules": [],
-  "dependencies": ["package.json"],
+  "dependencies": [],
   "assets": "dist/assets.json",
   "force": false,
   "repository": "git",
