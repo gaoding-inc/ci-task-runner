@@ -11,7 +11,7 @@
   "parallel": 3,
   "force": false,
   "builder": {
-    "command": "webpack --config ${modulePath}/webpack.config.js",
+    "command": "webpack -p --color --config ${modulePath}/webpack.config.js",
     "options": {
       "cwd": "${modulePath}",
       "env": {

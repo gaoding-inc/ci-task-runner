@@ -16,9 +16,4 @@ const webpackConfig = {
     plugins: []
 };
 
-// 继承公共配置
-// const defaultsDeep = require('lodash.defaultsdeep');
-// const commonConfig = require('../webpack.common');
-// defaultsDeep(webpackConfig, commonConfig);
-
 module.exports = webpackConfig;
