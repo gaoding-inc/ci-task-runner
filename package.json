@@ -9,7 +9,9 @@
     "parallel-test": "node test/files/parallel/index.js",
     "tasks-test": "module-watcher --config test/files/tasks/module-watcher.json",
     "test": "mocha --recursive --bail 'test/**/*test.js'",
-    "posttest": "npm run example && npm run tasks-test"
+    "posttest": "npm run example && npm run tasks-test",
+    "clear": "rm -rf example/dist & rm -rf test/files/parallel/dist & rm -rf test/files/tasks/dist",
+    "new-test": "npm run clear && npm run test"
   },
   "repository": {
     "type": "git",
