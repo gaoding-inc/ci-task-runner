@@ -27,9 +27,9 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
             assets: []
         }) => {
 
-            modAsset = Object.assign({
+            Object.assign(modAsset, {
                 name: mod.name
-            }, modAsset);
+            });
 
             let date = (new Date()).toLocaleString();
             loger.log(`${message} end [gray]${date}[/gray]`);

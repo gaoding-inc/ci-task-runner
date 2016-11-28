@@ -1,25 +1,17 @@
 const path = require('path');
 const fsp = require('../lib/fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
-const ASSETS_DEFAULT_NAME = './config/assets.default.json';
-const ASSETS_DEFAULT = require(ASSETS_DEFAULT_NAME);
+const ASSETS_DEFAULT = require('./config/assets.default.json');
 
-
-// 并行写配置需要第一时间读取再操作
-module.exports = (assetsPath, modulesAssets) => fsp.readFile(assetsPath, 'utf8')
-.catch(() => JSON.stringify(ASSETS_DEFAULT, null, 2))
-.then(json => JSON.parse(json))
-.then(data => defaultsDeep(data, ASSETS_DEFAULT))
-.then(preAssetsContent => {
-
+const mergeAssets = (newAssets, oldAssets, assetsPath) => {
     let modulesMap = {};
     let latest = [];
     let assetsDiranme = path.dirname(assetsPath);
     let relative = file => path.relative(assetsDiranme, file);
 
-    modulesAssets.forEach(mod => {
+    newAssets.forEach(mod => {
         let name = mod.name;
-        let preModMap = preAssetsContent.modules[name];
+        let preModMap = oldAssets.modules[name];
         let chunks = mod.chunks;
         let assets = mod.assets;
 
@@ -38,13 +30,22 @@ module.exports = (assetsPath, modulesAssets) => fsp.readFile(assetsPath, 'utf8')
         delete modulesMap[name].name;
     });
 
-    let assetsContent = Object.assign({}, ASSETS_DEFAULT, preAssetsContent, {
-        version: (Number(preAssetsContent.version) || 0) + 1,
-        date: (new Date()).toLocaleString(),
-        latest: latest,
-        modules: defaultsDeep(modulesMap, preAssetsContent.modules)
-    });
+    oldAssets.version = (Number(oldAssets.version) || 0) + 1;
+    oldAssets.date = (new Date()).toLocaleString();
+    oldAssets.latest = latest;
+    oldAssets.modules = Object.assign(oldAssets.modules, modulesMap);
 
-    let data = JSON.stringify(assetsContent, null, 2);
-    return fsp.writeFile(assetsPath, data, 'utf8').then(() => assetsContent);
-});
+    return oldAssets;
+};
+
+
+// 并行写配置需要第一时间读取再操作
+module.exports = (assetsPath, newAssets) => fsp.readFile(assetsPath, 'utf8')
+    .catch(() => JSON.stringify(ASSETS_DEFAULT, null, 2))
+    .then(json => JSON.parse(json))
+    .then(oldAssets => {
+        defaultsDeep(oldAssets, ASSETS_DEFAULT);
+        let assetsContent = mergeAssets(newAssets, oldAssets, assetsPath);
+        let data = JSON.stringify(assetsContent, null, 2);
+        return fsp.writeFile(assetsPath, data, 'utf8').then(() => assetsContent);
+    });
