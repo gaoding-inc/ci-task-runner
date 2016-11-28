@@ -10,7 +10,6 @@
       "cwd": "${modulePath}",
       "env": {
         "MODULE_WATCHER": "1",
-        "MODULE_WATCHER_ASSETS_PATH": "${assetsPath}",
         "MODULE_WATCHER_MODULE_NAME": "${moduleName}",
         "MODULE_WATCHER_MODULE_PATH": "${modulePath}"
       },

@@ -25,6 +25,7 @@ class AssetsWebpackPlugin {
 
         if (errors.length > 0) {
             // 报告第一个错误
+            // TODO --watch 静默
             errors = errors[0];
             throw new Error(errors);
         }
