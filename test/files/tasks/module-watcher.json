@@ -1,6 +1,7 @@
 {
   "modules": ["lib", ["mod1", "mod2", {
     "name": "mod3",
+    "dependencies": [],
     "builder": {
       "command": "node ${modulePath}/builder.js"
     }

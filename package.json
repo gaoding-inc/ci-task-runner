@@ -6,9 +6,10 @@
   "bin": "bin/module-watcher",
   "scripts": {
     "example": "module-watcher --config example/module-watcher.json",
-    "parallel-test": "node test/parallel/index.js",
-    "tasks-test": "module-watcher --config test/tasks/module-watcher.json",
-    "test": "mocha test/index.js && npm run example && npm run tasks-test"
+    "parallel-test": "node test/files/parallel/index.js",
+    "tasks-test": "module-watcher --config test/files/tasks/module-watcher.json",
+    "test": "mocha --recursive --bail 'test/**/*test.js'",
+    "posttest": "npm run example && npm run tasks-test"
   },
   "repository": {
     "type": "git",
