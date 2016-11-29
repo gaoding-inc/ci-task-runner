@@ -1,15 +1,17 @@
 'use strict';
 
 const path = require('path');
+const fsp = require('../lib/fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('../lib/promise-task');
 const Repository = require('../lib/repository');
 const Loger = require('../lib/loger');
 const DEFAULT = require('./config/config.default.json');
+const ASSETS_DEFAULT = require('./config/assets.default.json');
 
 const parse = require('./parse');
 const build = require('./build');
-const assets = require('./assets');
+const merge = require('./merge');
 
 
 /**
@@ -41,14 +43,17 @@ const assets = require('./assets');
  */
 module.exports = (options = {}, context = process.cwd()) => {
     options = defaultsDeep({}, options, DEFAULT);
-    
+
     const assetsPath = path.resolve(context, options.assets);
     const loger = new Loger();
     const repository = new Repository(assetsPath, options.repository, 'revision');
 
     return promiseTask.serial([
 
+
+        // 将外部输入的配置转换成内部模块描述队列
         parse(options, context),
+
 
         // 检查模块是否有变更
         modules => {
@@ -88,16 +93,55 @@ module.exports = (options = {}, context = process.cwd()) => {
         },
 
 
-        // 保存资源索引文件
-        modulesAssets => {
-            return assets(assetsPath, modulesAssets);
+        // 创建资源描述对象
+        buildResults => {
+            let now = (new Date()).toLocaleString();
+            let assetsDiranme = path.dirname(assetsPath);
+            let relative = file => path.relative(assetsDiranme, file);
+            let assets = {
+                version: 1,
+                date: now,
+                latest: [],
+                modules: {}
+            };
+
+            buildResults.forEach(buildResult => {
+                let aChunks = buildResult.chunks;
+                let aAssets = buildResult.assets;
+
+                // 转换为相对路径
+                Object.keys(aChunks).forEach(name => aChunks[name] = relative(aChunks[name]));
+                aAssets.forEach((file, index) => aAssets[index] = relative(file));
+
+                buildResult.version = 1;
+                buildResult.date = now;
+                buildResult.chunks = aChunks;
+                buildResult.assets = aAssets;
+                assets.latest.push(buildResult.name);
+                assets.modules[buildResult.name] = buildResult;
+            });
+
+            return assets;
         },
 
 
-        // 保存最新的版本信息
-        assetsContent => {
-            // 必须构建完才保存版本信息，否则构建失败后下一次可能不会重新构建
-            return repository.save().then(() => assetsContent);
+        // 合并资源索引文件
+        assets => {
+            return fsp.readFile(assetsPath, 'utf8')
+                .then(json => defaultsDeep({}, JSON.parse(json)))
+                .catch(() => defaultsDeep({}, ASSETS_DEFAULT))
+                .then(oldAssets => merge(assets, oldAssets, assetsPath))
+                .then(assets => {
+                    let json = JSON.stringify(assets, null, 2);
+                    return fsp.writeFile(assetsPath, json, 'utf8').then(() => assets);
+                });
+        },
+
+
+        // 保存当前已编译的版本信息
+        // 必须构建完才保存版本信息，否则构建失败后下一次可能不会重新构建
+        assets => {
+            return repository.save().then(() => assets);
         }
 
     ]);

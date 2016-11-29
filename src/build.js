@@ -22,19 +22,19 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
 
         loger.log(`${message} start [gray]${date}[/gray]`);
 
-        return worker(mod.builder.command, mod.builder.options).then((modAsset = {
+        return worker(mod.builder.command, mod.builder.options).then((buildResult = {
             chunks: {},
             assets: []
         }) => {
 
-            Object.assign(modAsset, {
+            Object.assign(buildResult, {
                 name: mod.name
             });
 
             let date = (new Date()).toLocaleString();
             loger.log(`${message} end [gray]${date}[/gray]`);
 
-            return modAsset;
+            return buildResult;
         });
     };
 
@@ -50,7 +50,7 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
 
     return promiseTask.serial(tasks.map(tasks => () => {
         return promiseTask.parallel(tasks, parallel);
-    })).then(modAssets => {
-        return [].concat(...modAssets);
+    })).then(buildResults => {
+        return [].concat(...buildResults);
     });
 };

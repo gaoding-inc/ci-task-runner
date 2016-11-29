@@ -10,7 +10,6 @@ class AssetsWebpackPlugin {
             let result = this.assets(stats);
             this.send(result);
         });
-
     }
 
     send(result) {
