@@ -5,13 +5,15 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-支持增量与多进程并行构建任务管理器，适合在服务器中搭建前端持续集成系统。
+支持增量与多进程并行构建任务管理器。它能够监控代码仓库中目标对象的变更，从而调用相应程序来处理它。
 
 * 基于 Git 与 Svn 提交记录进行增量构建
 * 支持串行与多进程并行加速构建
 * 支持 Webpack、Gulp、Grunt 等构建器
 * 支持多个模块目录分别构建
 * 简单，采用 JSON 配置
+
+module-watcher 适用于在服务器中搭建前端持续集成的构建系统。
 
 ## 安装
 
