@@ -5,15 +5,20 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-支持增量与多进程并行构建任务管理器。它能够监控代码仓库中目标对象的变更，从而调用相应程序来处理它。
+支持增量与多进程并行构建任务管理器。简单的说，它的职责：
 
-* 基于 Git 与 Svn 提交记录进行增量构建
-* 支持串行与多进程并行加速构建
-* 支持 Webpack、Gulp、Grunt 等构建器
-* 支持多个模块目录分别构建
-* 简单，采用 JSON 配置
+1. 观察仓库的目录、文件变更
+2. 调用指定程序来构建变更后的文件，如 Webpack、Gulp、Grunt 等
 
-module-watcher 适用于在服务器中搭建前端持续集成的构建系统。
+因此，它适合部署在 CI 服务器中，作为持续集成中的一部分。
+
+## 特性
+
+* 标准：支持 Git 或 Svn 仓库
+* 快速：采用多进程并行构建
+* 灵活：适配任意构建器
+* 多例：支持为模块运行不同的构建实例
+* 简单：采用 JSON 配置
 
 ## 安装
 
@@ -51,7 +56,7 @@ module-watcher.json 文件范例：
   "force": false,
   "repository": "git",
   "program": {
-    "command": "webpack --config ${modulePath}/webpack.config.js",
+    "command": "webpack --color --config ${modulePath}/webpack.config.js",
     "options": {
       "cwd": "${modulePath}",
       "env": {
@@ -63,11 +68,6 @@ module-watcher.json 文件范例：
   }
 }
 ```
-
-`modules` 与 `dependencies` 是关键配置字段。它们之间的区别：
-
-* `modules`：要构建的模块目录列表。只要模块目录文件变更，目录则会进行构建。
-* `dependencies`：模块目录外部依赖列表。只要外部依赖有变更，无论 `modules` 是否有变更，都会将会触发 `modules` 的构建。
 
 ### `modules`
 
@@ -112,11 +112,7 @@ module-watcher.json 文件范例：
 
 ## `program`
 
-构建器配置。配置字段值支持变量：
-
-* `${moduleName}` 模块名
-* `${modulePath}` 模块绝对路径
-* `${moduleDirname}` 模块所在目录。如果模块是目录，${moduleDirname} 将会指向上一层目录；如果模块是文件，${moduleDirname} 则指向文件所在目录
+构建器配置。
 
 ### `program.command`
 
@@ -126,7 +122,15 @@ module-watcher.json 文件范例：
 
 构建器进程配置。构建器会在子进程中运行，在这里设置进程的选项。
 
-[查看 child_process.exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)
+[child_process.exec 详情](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)
+
+### 变量
+
+`program` 支持的字符串变量：
+
+* `${moduleName}` 模块名
+* `${modulePath}` 模块绝对路径
+* `${moduleDirname}` 不同于 `${modulePath}`，它内部实现： `path.diranme(modulePath)`，[详情](https://nodejs.org/api/path.html#path_path_dirname_path)
 
 ## 多进程并行构建
 
@@ -162,52 +166,23 @@ module-watcher 运行后，此插件会将输出的文件索引保存在 dist/as
 
 ## Gulp、Grunt
 
-（尚不支持..）
+Gulp、Grunt 需要手动输出资源索引（文档尚未完善）
 
-## 最佳实践
-
-### 持续集成
+## 持续集成
 
 使用 CI 工具来在服务器上运行 module-watcher，前端构建、发布都将无须人工干预。
 
-* 自动：分支推送即自动触发构建
-* 异步：无需中断编码工作
+* 自动：分支推送即自动触发构建、测试、发布
+* 异步：无需等待编译任务、无需中断编码工作
 * 稳定：确保构建后的版本稳定，构建结果与 Git Commit 一一对应
-* 安全：可以指受保护的 git 分支进行构建、发布，构建前可以进行 `code view`
+* 安全：所有操作均受 Git 或 Svn 监控
 
 相关工具：
 
 * gitlab: gitlab-ci
 * github: travis
 
-### 使用 npm scripts
-
-* 集中管理项目所有脚本
-* 管道式命令，支持串行与并行
-* 智能路径，使得很多命令行工具无需全局安装
-
-编辑 package.json，添加 npm scripts
-
-```javascript
-"scripts": {
-  "build": "module-watcher",
-  "cdn": "echo 'publish...'"
-  "deploy": "npm run build && npm run cdn" 
-}
-```
-
-使用 npm run 启动 module-watcher
-
-```bash
-npm run build
-```
-
-本地安装 module-watcher
-
-```bash
-npm install --save-dev module-watcher
-```
-
+（使用方法请查找第三方资料）
 
 [npm-image]: https://img.shields.io/npm/v/module-watcher.svg
 [npm-url]: https://npmjs.org/package/module-watcher
