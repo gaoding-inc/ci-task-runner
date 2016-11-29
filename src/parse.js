@@ -51,6 +51,18 @@ module.exports = (options, context) => {
     };
 
 
+    let parseProgram = program => {
+        if (typeof program === 'string') {
+            program = {
+                command: program,
+                options: {}
+            };
+        }
+
+        return program;
+    }
+
+
     let parseModule = (mod, order) => {
 
         if (typeof mod === 'string') {
@@ -61,15 +73,14 @@ module.exports = (options, context) => {
             };
         }
 
+
         mod = {
             name: mod.name,
             path: path.resolve(context, mod.path || mod.name),
             dependencies: [].concat(mod.dependencies || [], options.dependencies || []),
-            program: defaultsDeep({}, mod.program, options.program, {
+            program: defaultsDeep({}, parseProgram(mod.program), parseProgram(options.program), {
                 command: '',
-                options: {
-                    env: process.env // 使用父进程的环境变量
-                }
+                options: {}
             })
         };
         

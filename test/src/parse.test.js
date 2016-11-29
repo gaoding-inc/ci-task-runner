@@ -20,9 +20,7 @@ describe('#parse', () => {
             }],
             program: {
                 command: '',
-                options: {
-                    env: process.env
-                }
+                options: {}
             },
             order: 0,
             dirty: false
@@ -31,6 +29,29 @@ describe('#parse', () => {
             dependencies: ['lib']
         }, __dirname));
     });
+
+
+    it('type:program:string', () => {
+        assert.deepEqual([{
+            name: 'mod1',
+            path: path.resolve(__dirname, 'mod1'),
+            dependencies: [{
+                name: 'lib',
+                path: path.resolve(__dirname, 'lib')
+            }],
+            program: {
+                command: 'node build.js',
+                options: {}
+            },
+            order: 0,
+            dirty: false
+        }], parse({
+            modules: ['mod1'],
+            dependencies: ['lib'],
+            program: 'node build.js'
+        }, __dirname));
+    });
+
 
     it('type:object', () => {
         assert.deepEqual([{
@@ -42,9 +63,7 @@ describe('#parse', () => {
             }],
             program: {
                 command: '',
-                options: {
-                    env: process.env
-                }
+                options: {}
             },
             order: 0,
             dirty: false
@@ -69,9 +88,7 @@ describe('#parse', () => {
             }],
             program: {
                 command: '',
-                options: {
-                    env: process.env
-                }
+                options: {}
             },
             order: 0,
             dirty: false
@@ -95,9 +112,7 @@ describe('#parse', () => {
             dependencies: [],
             program: {
                 command: '',
-                options: {
-                    env: process.env
-                }
+                options: {}
             },
             order: 0,
             dirty: false
@@ -107,9 +122,7 @@ describe('#parse', () => {
             dependencies: [],
             program: {
                 command: '',
-                options: {
-                    env: process.env
-                }
+                options: {}
             },
             order: 1,
             dirty: false
@@ -119,9 +132,7 @@ describe('#parse', () => {
             dependencies: [],
             program: {
                 command: '',
-                options: {
-                    env: process.env
-                }
+                options: {}
             },
             order: 2,
             dirty: false
@@ -137,9 +148,7 @@ describe('#parse', () => {
             dependencies: [],
             program: {
                 command: '',
-                options: {
-                    env: process.env
-                }
+                options: {}
             },
             order: 0,
             dirty: false
@@ -149,9 +158,7 @@ describe('#parse', () => {
             dependencies: [],
             program: {
                 command: '',
-                options: {
-                    env: process.env
-                }
+                options: {}
             },
             order: 1,
             dirty: false
@@ -161,9 +168,7 @@ describe('#parse', () => {
             dependencies: [],
             program: {
                 command: '',
-                options: {
-                    env: process.env
-                }
+                options: {}
             },
             order: 1,
             dirty: false
@@ -182,9 +187,7 @@ describe('#parse', () => {
             }],
             program: {
                 command: 'webpack --config mod1/webpack.config.js',
-                options: {
-                    env: process.env
-                }
+                options: {}
             },
             order: 0,
             dirty: false
@@ -200,9 +203,7 @@ describe('#parse', () => {
             }],
             program: {
                 command: 'gulp',
-                options: {
-                    env: process.env
-                }
+                options: {}
             },
             order: 1,
             dirty: false
@@ -232,9 +233,9 @@ describe('#parse', () => {
             program: {
                 command: 'echo "mod1:' + path.resolve(__dirname, 'mod1') + '"',
                 options: {
-                    env: Object.assign({}, process.env, {
+                    env: {
                         MODULE_NAME: 'mod1'
-                    })
+                    }
                 }
             },
             order: 0,
