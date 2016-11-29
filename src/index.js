@@ -80,7 +80,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                 if (mod.dirty) {
                     return true
                 } else {
-                    loger.log(`[yellow]•[/yellow] module: [green]${mod.name}[/green] ignore`);
+                    loger.log(`[gray]•[/gray] module: [green]${mod.name}[/green] ignore`);
                     return false;
                 }
             });
