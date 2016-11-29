@@ -9,7 +9,7 @@ class File {
     }
 }
 
-class Builder {
+class Program {
     constructor({command, options}) {
         this.command = command;
         this.options = options;
@@ -17,10 +17,10 @@ class Builder {
 }
 
 class Module extends File {
-    constructor({name, path, dependencies, builder, order, dirty}) {
+    constructor({name, path, dependencies, program, order, dirty}) {
         super({ name, path });
         this.dependencies = dependencies.map(library => new File(library));
-        this.builder = new Builder(builder);
+        this.program = new Program(program);
         this.order = order;
         this.dirty = dirty;
     }
@@ -57,7 +57,7 @@ module.exports = (options, context) => {
             mod = {
                 name: mod,
                 dependencies: [],
-                builder: {}
+                program: {}
             };
         }
 
@@ -65,7 +65,7 @@ module.exports = (options, context) => {
             name: mod.name,
             path: path.resolve(context, mod.path || mod.name),
             dependencies: [].concat(mod.dependencies || [], options.dependencies || []),
-            builder: defaultsDeep({}, mod.builder, options.builder, {
+            program: defaultsDeep({}, mod.program, options.program, {
                 command: '',
                 options: {
                     env: process.env // 使用父进程的环境变量
@@ -95,13 +95,13 @@ module.exports = (options, context) => {
         };
 
         let dependencies = mod.dependencies.map(parseDependencie);
-        let builder = setVariables(mod.builder);
+        let program = setVariables(mod.program);
 
         return new Module({
             name: mod.name,
             path: mod.path,
             dependencies,
-            builder,
+            program,
             order,
             dirty: false
         });

@@ -50,7 +50,7 @@ module-watcher.json 文件范例：
   "assets": "dist/assets.json",
   "force": false,
   "repository": "git",
-  "builder": {
+  "program": {
     "command": "webpack --config ${modulePath}/webpack.config.js",
     "options": {
       "cwd": "${modulePath}",
@@ -80,12 +80,12 @@ module-watcher.json 文件范例：
     {
         "name": "module3",
         "dependencies": ["common/v1"],
-        "builder": {}
+        "program": {}
     }
 ]
 ```
 
-`dependencies` 与 `builder` 会继承顶层的配置。`modules` 支持配置并行任务，参考 [多进程并行构建](#多进程并行构建)。
+`dependencies` 与 `program` 会继承顶层的配置。`modules` 支持配置并行任务，参考 [多进程并行构建](#多进程并行构建)。
 
 ### `assets`
 
@@ -110,15 +110,19 @@ module-watcher.json 文件范例：
 
 设置最大并行进程数，默认值为 `require('os').cpus().length`。
 
-## `builder`
+## `program`
 
-构建器配置。配置字段值支持 `${moduleName}` 与 `${modulePath}` 这两个变量，运行时会分别赋值为模块名和模块绝对路径。
+构建器配置。配置字段值支持变量：
 
-### `builder.command`
+* `${moduleName}` 模块名
+* `${modulePath}` 模块绝对路径
+* `${moduleDirname}` 模块所在目录。如果模块是目录，${moduleDirname} 将会指向上一层目录；如果模块是文件，${moduleDirname} 则指向文件所在目录
+
+### `program.command`
 
 设置执行的构建命令。（程序会将 node_modules/.bin 会自动加入到环境变量 `PATH` 中）
 
-### `builder.options`
+### `program.options`
 
 构建器进程配置。构建器会在子进程中运行，在这里设置进程的选项。
 

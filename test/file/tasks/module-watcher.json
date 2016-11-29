@@ -2,13 +2,13 @@
   "modules": ["lib", ["mod1", "mod2", {
     "name": "mod3",
     "dependencies": [],
-    "builder": {
+    "program": {
       "command": "node ${modulePath}/builder.js"
     }
   }], {
     "name": "package.json",
     "path": "../../../package.json",
-    "builder": {
+    "program": {
       "command": "node -v",
       "options": {
         "cwd": "${moduleDirname}"
@@ -19,7 +19,7 @@
   "assets": "dist/assets.json",
   "parallel": 3,
   "force": false,
-  "builder": {
+  "program": {
     "command": "webpack -p --color --config ${modulePath}/webpack.config.js",
     "options": {
       "cwd": "${modulePath}",

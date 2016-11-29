@@ -20,24 +20,24 @@ const merge = require('./merge');
  * @param   {Object[]|string[]} options.modules         模块目录列表
  * @param   {Object}            options.modules.name    模块目录名（相对）
  * @param   {string[]}          options.modules.dependencies   模块依赖目录（相对），继承 options.dependencies
- * @param   {Object}            options.modules.builder    模块构建器设置，继承 options.builder
+ * @param   {Object}            options.modules.program    模块构建器设置，继承 options.program
  * @param   {string[]}          options.dependencies           模块组公共依赖（相对）
  * @param   {string}            options.assets          构建后文件索引表输出路径（相对）
  * @param   {string}            options.repository      仓库类型，可选 git|svn
  * @param   {number}            options.parallel        最大进程数
  * @param   {boolean}           options.force           是否强制全部构建
- * @param   {Object}            options.builder         构建器设置
- * @param   {string}            options.builder.name
- * @param   {number}            options.builder.timeout
- * @param   {string}            options.builder.launch
- * @param   {string}            options.builder.cwd
- * @param   {Object}            options.builder.env
- * @param   {string}            options.builder.execPath
- * @param   {string}            options.builder.execArgv
- * @param   {string}            options.builder.silent
- * @param   {string[]|number[]} options.builder.stdio
- * @param   {Object}            options.builder.uid
- * @param   {string}            options.builder.gid
+ * @param   {Object}            options.program         构建器设置
+ * @param   {string}            options.program.name
+ * @param   {number}            options.program.timeout
+ * @param   {string}            options.program.launch
+ * @param   {string}            options.program.cwd
+ * @param   {Object}            options.program.env
+ * @param   {string}            options.program.execPath
+ * @param   {string}            options.program.execArgv
+ * @param   {string}            options.program.silent
+ * @param   {string[]|number[]} options.program.stdio
+ * @param   {Object}            options.program.uid
+ * @param   {string}            options.program.gid
  * @param   {string}            context                 工作目录（绝对路径）
  * @return  {Promise}
  */

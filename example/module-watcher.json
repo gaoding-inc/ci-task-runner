@@ -4,7 +4,7 @@
   "assets": "dist/assets.json",
   "force": false,
   "repository": "git",
-  "builder": {
+  "program": {
     "command": "webpack --color --config ${modulePath}/webpack.config.js",
     "options": {
       "cwd": "${modulePath}",

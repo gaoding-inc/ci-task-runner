@@ -18,7 +18,7 @@ describe('#parse', () => {
                 name: 'lib',
                 path: path.resolve(__dirname, 'lib')
             }],
-            builder: {
+            program: {
                 command: '',
                 options: {
                     env: process.env
@@ -40,7 +40,7 @@ describe('#parse', () => {
                 name: 'lib',
                 path: '/Document/lib'
             }],
-            builder: {
+            program: {
                 command: '',
                 options: {
                     env: process.env
@@ -67,7 +67,7 @@ describe('#parse', () => {
                 name: 'lib',
                 path: path.resolve(__dirname, 'map', 'lib')
             }],
-            builder: {
+            program: {
                 command: '',
                 options: {
                     env: process.env
@@ -93,7 +93,7 @@ describe('#parse', () => {
             name: 'mod1',
             path: path.resolve(__dirname, 'mod1'),
             dependencies: [],
-            builder: {
+            program: {
                 command: '',
                 options: {
                     env: process.env
@@ -105,7 +105,7 @@ describe('#parse', () => {
             name: 'mod2',
             path: path.resolve(__dirname, 'mod2'),
             dependencies: [],
-            builder: {
+            program: {
                 command: '',
                 options: {
                     env: process.env
@@ -117,7 +117,7 @@ describe('#parse', () => {
             name: 'mod2',
             path: path.resolve(__dirname, 'mod2'),
             dependencies: [],
-            builder: {
+            program: {
                 command: '',
                 options: {
                     env: process.env
@@ -135,7 +135,7 @@ describe('#parse', () => {
             name: 'mod1',
             path: path.resolve(__dirname, 'mod1'),
             dependencies: [],
-            builder: {
+            program: {
                 command: '',
                 options: {
                     env: process.env
@@ -147,7 +147,7 @@ describe('#parse', () => {
             name: 'mod2',
             path: path.resolve(__dirname, 'mod2'),
             dependencies: [],
-            builder: {
+            program: {
                 command: '',
                 options: {
                     env: process.env
@@ -159,7 +159,7 @@ describe('#parse', () => {
             name: 'mod2',
             path: path.resolve(__dirname, 'mod2'),
             dependencies: [],
-            builder: {
+            program: {
                 command: '',
                 options: {
                     env: process.env
@@ -180,7 +180,7 @@ describe('#parse', () => {
                 name: 'lib',
                 path: path.resolve(__dirname, 'lib')
             }],
-            builder: {
+            program: {
                 command: 'webpack --config mod1/webpack.config.js',
                 options: {
                     env: process.env
@@ -198,7 +198,7 @@ describe('#parse', () => {
                 name: 'lib',
                 path: path.resolve(__dirname, 'lib')
             }],
-            builder: {
+            program: {
                 command: 'gulp',
                 options: {
                     env: process.env
@@ -210,12 +210,12 @@ describe('#parse', () => {
             modules: ['mod1', {
                 name: 'mod2',
                 dependencies: ['lib2'],
-                builder: {
+                program: {
                     command: 'gulp'
                 }
             }],
             dependencies: ['lib'],
-            builder: {
+            program: {
                 command: 'webpack --config mod1/webpack.config.js'
             }
         }, __dirname));
@@ -229,7 +229,7 @@ describe('#parse', () => {
                 name: 'lib',
                 path: path.resolve(__dirname, 'lib')
             }],
-            builder: {
+            program: {
                 command: 'echo "mod1:' + path.resolve(__dirname, 'mod1') + '"',
                 options: {
                     env: Object.assign({}, process.env, {
@@ -242,7 +242,7 @@ describe('#parse', () => {
         }], parse({
             modules: ['mod1'],
             dependencies: ['lib'],
-            builder: {
+            program: {
                 command: 'echo "${moduleName}:${modulePath}"',
                 options: {
                     env: {

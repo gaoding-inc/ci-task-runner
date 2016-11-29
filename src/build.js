@@ -22,7 +22,7 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
 
         loger.log(`${message} start [gray]${date}[/gray]`);
 
-        return worker(mod.builder.command, mod.builder.options).then((buildResult = {
+        return worker(mod.program.command, mod.program.options).then((buildResult = {
             chunks: {},
             assets: []
         }) => {
