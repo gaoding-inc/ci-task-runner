@@ -14,7 +14,7 @@ class AssetsWebpackPlugin {
 
     send(result) {
         process.nextTick(() => {
-            worker.send(result);
+            worker.send(result, process.pid);
         });
     }
 
