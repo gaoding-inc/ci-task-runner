@@ -1,6 +1,6 @@
 {
   "name": "module-watcher",
-  "version": "0.1.3-beta",
+  "version": "0.1.4-beta",
   "description": "支持增量与多进程并行构建任务管理器",
   "main": "src/index.js",
   "bin": "bin/module-watcher",
