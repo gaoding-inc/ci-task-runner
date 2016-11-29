@@ -5,7 +5,16 @@
     "builder": {
       "command": "node ${modulePath}/builder.js"
     }
-  }]],
+  }], {
+    "name": "package.json",
+    "path": "../../../package.json",
+    "builder": {
+      "command": "node -v",
+      "options": {
+        "cwd": "${moduleDirname}"
+      }
+    }
+  }],
   "dependencies": ["lib"],
   "assets": "dist/assets.json",
   "parallel": 3,

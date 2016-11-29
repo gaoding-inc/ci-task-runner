@@ -35,7 +35,7 @@ describe('#parse', () => {
     it('type:object', () => {
         assert.deepEqual([{
             name: 'mod1',
-            path: '/Document/mod1',
+            path: path.resolve(__dirname, 'mod1'),
             dependencies: [{
                 name: 'lib',
                 path: '/Document/lib'
@@ -50,8 +50,7 @@ describe('#parse', () => {
             dirty: false
         }], parse({
             modules: [{
-                name: 'mod1',
-                path: '/Document/mod1'
+                name: 'mod1'
             }],
             dependencies: [{
                 name: 'lib',
@@ -59,6 +58,35 @@ describe('#parse', () => {
             }]
         }, __dirname));
     });
+
+    it('path', () => {
+        assert.deepEqual([{
+            name: 'mod1',
+            path: path.resolve(__dirname, 'map', 'mod1'),
+            dependencies: [{
+                name: 'lib',
+                path: path.resolve(__dirname, 'map', 'lib')
+            }],
+            builder: {
+                command: '',
+                options: {
+                    env: process.env
+                }
+            },
+            order: 0,
+            dirty: false
+        }], parse({
+            modules: [{
+                name: 'mod1',
+                path: 'map/mod1'
+            }],
+            dependencies: [{
+                name: 'lib',
+                path: 'map/lib'
+            }]
+        }, __dirname));
+    });
+
 
     it('serial', () => {
         assert.deepEqual([{

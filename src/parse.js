@@ -45,9 +45,7 @@ module.exports = (options, context) => {
             };
         }
 
-        if (!lib.path) {
-            lib.path = path.resolve(context, lib);
-        }
+        lib.path = path.resolve(context, lib.path || lib.name);
 
         return lib;
     };
@@ -65,7 +63,7 @@ module.exports = (options, context) => {
 
         mod = {
             name: mod.name,
-            path: mod.path || path.resolve(context, mod.name),
+            path: path.resolve(context, mod.path || mod.name),
             dependencies: [].concat(mod.dependencies || [], options.dependencies || []),
             builder: defaultsDeep({}, mod.builder, options.builder, {
                 command: '',
@@ -78,7 +76,8 @@ module.exports = (options, context) => {
 
         let variables = {
             moduleName: mod.name,
-            modulePath: mod.path
+            modulePath: mod.path,
+            moduleDirname: path.dirname(mod.path)
         };
 
         // 设置字符串变量
