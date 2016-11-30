@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const worker = require('../lib/worker');
+const moduleWatcher = require('../src/index');
 
 class AssetsWebpackPlugin {
 
@@ -14,7 +14,7 @@ class AssetsWebpackPlugin {
 
     send(result) {
         process.nextTick(() => {
-            worker.send(result);
+            moduleWatcher.send(result);
         });
     }
 

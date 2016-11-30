@@ -5,6 +5,7 @@ const fsp = require('../lib/fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('../lib/promise-task');
 const Repository = require('../lib/repository');
+const worker = require('../lib/worker');
 const Loger = require('../lib/loger');
 const DEFAULT = require('./config/config.default.json');
 const ASSETS_DEFAULT = require('./config/assets.default.json');
@@ -27,21 +28,12 @@ const merge = require('./merge');
  * @param   {number}            options.parallel        最大进程数
  * @param   {boolean}           options.force           是否强制全部构建
  * @param   {Object}            options.program         构建器设置
- * @param   {string}            options.program.name
- * @param   {number}            options.program.timeout
- * @param   {string}            options.program.launch
- * @param   {string}            options.program.cwd
- * @param   {Object}            options.program.env
- * @param   {string}            options.program.execPath
- * @param   {string}            options.program.execArgv
- * @param   {string}            options.program.silent
- * @param   {string[]|number[]} options.program.stdio
- * @param   {Object}            options.program.uid
- * @param   {string}            options.program.gid
+ * @param   {string}            options.program.command 构建器运行命令
+ * @param   {string}            options.program.options 构建器子进程配置 @see childProcess.exec() options 
  * @param   {string}            context                 工作目录（绝对路径）
  * @return  {Promise}
  */
-module.exports = (options = {}, context = process.cwd()) => {
+const moduleWatcher = (options = {}, context = process.cwd()) => {
     options = defaultsDeep({}, options, DEFAULT);
 
     const assetsPath = path.resolve(context, options.assets);
@@ -146,3 +138,15 @@ module.exports = (options = {}, context = process.cwd()) => {
 
     ]);
 };
+
+
+/**
+ * 向 moduleWatcher 发送消息
+ * 构建器可以调用此方法，以便集中管理构建输出的资源（可选）
+ * @param   {Object}    data            JSON 数据
+ * @param   {Object}    data.chunks     入口文件映射表
+ * @param   {string[]}  data.assets     所有构建输出的资源绝对路径列表
+ */
+moduleWatcher.send = worker.send;
+
+module.exports = moduleWatcher;

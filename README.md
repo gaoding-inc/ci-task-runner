@@ -10,7 +10,7 @@
 1. 观察仓库的目录、文件变更
 2. 调用指定程序来构建变更后的文件，如 Webpack、Gulp、Grunt 等
 
-因此，它适合部署在 CI 服务器中，作为持续集成中的一部分。
+因此，module-watcher 能够在服务端的持续集成系统中实现增量编译。
 
 ## 特性
 
@@ -97,7 +97,7 @@ module-watcher.json 文件范例：
 
 如果模块目录依赖了目录外的库，可以在此手动指定依赖，这样外部库更新也可以触发模块构建。
 
-* `dependencies` 使用 Git 来实现变更检测，所以其路径必须已经受 Git 管理。如果想监控 node_modules 的变更，可以指定：`"dependencies": ["package.json"]`。
+* `dependencies` 使用 Git 或 Svn 来实现变更检测，所以其路径必须已经受版本管理。如果想监控 node_modules 的变更，可以指定：`"dependencies": ["package.json"]`。
 * `dependencies` 路径相对于 module-watcher.json
 
 ### `force`
@@ -176,8 +176,7 @@ Gulp、Grunt 需要手动输出资源索引（文档尚未完善）
 
 * 自动：分支推送即自动触发构建、测试、发布
 * 异步：无需等待编译任务、无需中断编码工作
-* 稳定：确保构建后的版本稳定，构建结果与 Git Commit 一一对应
-* 安全：所有操作均受 Git 或 Svn 监控
+* 稳定：确保构建源都来自于版本仓库中
 
 相关工具：
 
