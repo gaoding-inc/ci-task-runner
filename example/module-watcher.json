@@ -7,10 +7,9 @@
   "program": {
     "command": "webpack --color --config ${modulePath}/webpack.config.js",
     "options": {
-      "cwd": "${modulePath}",
       "env": {
-        "MODULE_NAME": "${moduleName}",
-        "MODULE_PATH": "${modulePath}"
+        "MODULE_WATCHER_NAME": "${moduleName}",
+        "MODULE_WATCHER_PATH": "${modulePath}"
       },
       "timeout": 0
     }
