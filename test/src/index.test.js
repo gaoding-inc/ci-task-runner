@@ -20,6 +20,9 @@ describe('#index', () => {
 
             let mod = assets.modules[name];
 
+            assert.deepEqual([name], assets.latest);
+            assert.deepEqual('string', typeof assets.revision['../file/script']);
+
             assert.deepEqual({
                 index: 'index.js'
             }, mod.chunks);
