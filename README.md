@@ -91,6 +91,8 @@ module-watcher.json 文件范例：
 
 设置构建后文件索引表输出路径。构建任务结束后它会输出结果，以供其他程序调用。
 
+> 请在版本库中忽略 `assets` 的文件
+
 ### `dependencies`
 
 如果模块目录依赖了目录外的库，可以在此手动指定依赖，这样外部库更新也可以触发模块构建。
@@ -182,7 +184,7 @@ Gulp、Grunt 需要手动输出资源索引（文档尚未完善）
 * gitlab: gitlab-ci
 * github: travis
 
-（使用方法请查找第三方资料）
+（使用方法略）
 
 [npm-image]: https://img.shields.io/npm/v/module-watcher.svg
 [npm-url]: https://npmjs.org/package/module-watcher
