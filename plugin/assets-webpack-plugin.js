@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const worker = require('../lib/worker');
+const moduleWatcher = require('../src/index');
 
 class AssetsWebpackPlugin {
 
@@ -10,12 +10,11 @@ class AssetsWebpackPlugin {
             let result = this.assets(stats);
             this.send(result);
         });
-
     }
 
     send(result) {
         process.nextTick(() => {
-            worker.send(result);
+            moduleWatcher.send(result);
         });
     }
 
@@ -25,6 +24,7 @@ class AssetsWebpackPlugin {
 
         if (errors.length > 0) {
             // 报告第一个错误
+            // TODO --watch 静默
             errors = errors[0];
             throw new Error(errors);
         }

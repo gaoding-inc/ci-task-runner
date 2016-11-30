@@ -1,15 +1,18 @@
 'use strict';
 
 const path = require('path');
+const fsp = require('../lib/fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('../lib/promise-task');
 const Repository = require('../lib/repository');
+const worker = require('../lib/worker');
 const Loger = require('../lib/loger');
 const DEFAULT = require('./config/config.default.json');
+const ASSETS_DEFAULT = require('./config/assets.default.json');
 
 const parse = require('./parse');
 const build = require('./build');
-const assets = require('./assets');
+const merge = require('./merge');
 
 
 /**
@@ -18,37 +21,31 @@ const assets = require('./assets');
  * @param   {Object[]|string[]} options.modules         模块目录列表
  * @param   {Object}            options.modules.name    模块目录名（相对）
  * @param   {string[]}          options.modules.dependencies   模块依赖目录（相对），继承 options.dependencies
- * @param   {Object}            options.modules.builder    模块构建器设置，继承 options.builder
+ * @param   {Object}            options.modules.program    模块构建器设置，继承 options.program
  * @param   {string[]}          options.dependencies           模块组公共依赖（相对）
  * @param   {string}            options.assets          构建后文件索引表输出路径（相对）
  * @param   {string}            options.repository      仓库类型，可选 git|svn
  * @param   {number}            options.parallel        最大进程数
  * @param   {boolean}           options.force           是否强制全部构建
- * @param   {Object}            options.builder         构建器设置
- * @param   {string}            options.builder.name
- * @param   {number}            options.builder.timeout
- * @param   {string}            options.builder.launch
- * @param   {string}            options.builder.cwd
- * @param   {Object}            options.builder.env
- * @param   {string}            options.builder.execPath
- * @param   {string}            options.builder.execArgv
- * @param   {string}            options.builder.silent
- * @param   {string[]|number[]} options.builder.stdio
- * @param   {Object}            options.builder.uid
- * @param   {string}            options.builder.gid
+ * @param   {Object}            options.program         构建器设置
+ * @param   {string}            options.program.command 构建器运行命令
+ * @param   {string}            options.program.options 构建器子进程配置 @see childProcess.exec() options 
  * @param   {string}            context                 工作目录（绝对路径）
  * @return  {Promise}
  */
-module.exports = (options = {}, context = process.cwd()) => {
+const moduleWatcher = (options = {}, context = process.cwd()) => {
     options = defaultsDeep({}, options, DEFAULT);
-    
+
     const assetsPath = path.resolve(context, options.assets);
     const loger = new Loger();
     const repository = new Repository(assetsPath, options.repository, 'revision');
 
-    return promiseTask.serial([
+    const tasks = [
 
+
+        // 将外部输入的配置转换成内部模块描述队列
         parse(options, context),
+
 
         // 检查模块是否有变更
         modules => {
@@ -75,7 +72,7 @@ module.exports = (options = {}, context = process.cwd()) => {
                 if (mod.dirty) {
                     return true
                 } else {
-                    loger.log(`[yellow]•[/yellow] module: [green]${mod.name}[/green] ignore`);
+                    loger.log(`[gray]•[/gray] watcher: [green]${mod.name}[/green] no changes`);
                     return false;
                 }
             });
@@ -88,17 +85,72 @@ module.exports = (options = {}, context = process.cwd()) => {
         },
 
 
-        // 保存资源索引文件
-        modulesAssets => {
-            return assets(assetsPath, modulesAssets);
+        // 创建资源描述对象
+        buildResults => {
+            let now = (new Date()).toLocaleString();
+            let assetsDiranme = path.dirname(assetsPath);
+            let relative = file => path.relative(assetsDiranme, file);
+            let assets = {
+                version: 1,
+                date: now,
+                latest: [],
+                modules: {}
+            };
+
+            buildResults.forEach(buildResult => {
+                let aChunks = buildResult.chunks;
+                let aAssets = buildResult.assets;
+
+                // 转换为相对路径
+                Object.keys(aChunks).forEach(name => aChunks[name] = relative(aChunks[name]));
+                aAssets.forEach((file, index) => aAssets[index] = relative(file));
+
+                buildResult.version = 1;
+                buildResult.date = now;
+                buildResult.chunks = aChunks;
+                buildResult.assets = aAssets;
+                assets.latest.push(buildResult.name);
+                assets.modules[buildResult.name] = buildResult;
+            });
+
+            return assets;
         },
 
 
-        // 保存最新的版本信息
-        assetsContent => {
-            // 必须构建完才保存版本信息，否则构建失败后下一次可能不会重新构建
-            return repository.save().then(() => assetsContent);
+        // 合并资源索引文件
+        assets => {
+            return fsp.readFile(assetsPath, 'utf8')
+                .then(json => defaultsDeep({}, JSON.parse(json)))
+                .catch(() => defaultsDeep({}, ASSETS_DEFAULT))
+                .then(oldAssets => merge(assets, oldAssets, assetsPath))
+                .then(assets => {
+                    let json = JSON.stringify(assets, null, 2);
+                    return fsp.writeFile(assetsPath, json, 'utf8').then(() => assets);
+                });
+        },
+
+
+        // 保存当前已编译的版本信息
+        // 必须构建完才保存版本信息，否则构建失败后下一次可能不会重新构建
+        assets => {
+            return repository.save().then(() => assets);
         }
 
-    ]);
+    ];
+
+    return promiseTask.serial(tasks).then(results => {
+        return results[results.length - 1];
+    });
 };
+
+
+/**
+ * 向 moduleWatcher 发送消息
+ * 构建器可以调用此方法，以便集中管理构建输出的资源（可选）
+ * @param   {Object}    data            JSON 数据
+ * @param   {Object}    data.chunks     入口文件映射表
+ * @param   {string[]}  data.assets     所有构建输出的资源绝对路径列表
+ */
+moduleWatcher.send = worker.send;
+
+module.exports = moduleWatcher;

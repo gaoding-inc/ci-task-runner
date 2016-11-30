@@ -1,18 +1,17 @@
 {
   "modules": [],
-  "dependencies": ["package.json"],
+  "dependencies": [],
   "assets": "dist/assets.json",
   "force": false,
   "repository": "git",
-  "builder": {
-    "command": "webpack --config ${modulePath}/webpack.config.js",
+  "program": {
+    "command": "",
     "options": {
-      "cwd": "${modulePath}",
       "env": {
         "MODULE_WATCHER": "1",
-        "MODULE_WATCHER_ASSETS_PATH": "${assetsPath}",
         "MODULE_WATCHER_MODULE_NAME": "${moduleName}",
-        "MODULE_WATCHER_MODULE_PATH": "${modulePath}"
+        "MODULE_WATCHER_MODULE_PATH": "${modulePath}",
+        "MODULE_WATCHER_MODULE_DIRNAME": "${moduleDirname}"
       },
       "timeout": 0
     }

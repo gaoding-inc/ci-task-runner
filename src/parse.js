@@ -9,7 +9,7 @@ class File {
     }
 }
 
-class Builder {
+class Program {
     constructor({command, options}) {
         this.command = command;
         this.options = options;
@@ -17,10 +17,10 @@ class Builder {
 }
 
 class Module extends File {
-    constructor({name, path, dependencies, builder, order, dirty}) {
+    constructor({name, path, dependencies, program, order, dirty}) {
         super({ name, path });
         this.dependencies = dependencies.map(library => new File(library));
-        this.builder = new Builder(builder);
+        this.program = new Program(program);
         this.order = order;
         this.dirty = dirty;
     }
@@ -35,29 +35,63 @@ class Module extends File {
  */
 module.exports = (options, context) => {
     let modules = [];
-    let createModule = (mod, order) => {
 
-        let name = mod.name;
-        let modPath = path.resolve(context, name);
-        let assetsPath = path.resolve(context, options.assets);
-        let dependencies = defaultsDeep(mod.dependencies, options.dependencies).map(library => {
-            return {
-                name: library,
-                path: path.resolve(context, library)
+
+    let parseDependencie = lib => {
+        if (typeof lib === 'string') {
+            lib = {
+                name: lib,
+                path: path.resolve(context, lib)
             };
-        });
-        let builder = defaultsDeep({
-            options: {
-                // 继承父进程的环境变量
-                env: process.env
-            }
-        }, mod.builder, options.builder);
+        }
+
+        lib.path = path.resolve(context, lib.path || lib.name);
+
+        return lib;
+    };
+
+
+    let parseProgram = program => {
+        if (typeof program === 'string') {
+            program = {
+                command: program,
+                options: {}
+            };
+        }
+
+        return program;
+    }
+
+
+    let parseModule = (mod, order) => {
+
+        if (typeof mod === 'string') {
+            mod = {
+                name: mod,
+                dependencies: [],
+                program: {}
+            };
+        }
+
+
+        mod = {
+            name: mod.name,
+            path: path.resolve(context, mod.path || mod.name),
+            dependencies: [].concat(mod.dependencies || [], options.dependencies || []),
+            program: defaultsDeep({}, parseProgram(mod.program), parseProgram(options.program), {
+                command: '',
+                options: {}
+            })
+        };
+        
 
         let variables = {
-            moduleName: name,
-            modulePath: modPath,
-            assetsPath: assetsPath
+            moduleName: mod.name,
+            modulePath: mod.path,
+            moduleDirname: path.dirname(mod.path)
         };
+
+        // 设置字符串变量
         let setVariables = target => {
             let type = typeof target;
             if (type === 'string') {
@@ -71,13 +105,14 @@ module.exports = (options, context) => {
             }
         };
 
-        builder = setVariables(builder);
+        let dependencies = mod.dependencies.map(parseDependencie);
+        let program = setVariables(mod.program);
 
         return new Module({
-            name,
-            path: modPath,
+            name: mod.name,
+            path: mod.path,
             dependencies,
-            builder,
+            program,
             order,
             dirty: false
         });
@@ -86,18 +121,9 @@ module.exports = (options, context) => {
     let each = (mod, index) => {
         if (Array.isArray(mod)) {
             mod.forEach(mod => each(mod, index));
-            return;
+        } else {
+            modules.push(parseModule(mod, index));
         }
-
-        if (typeof mod === 'string') {
-            mod = {
-                name: mod,
-                dependencies: [],
-                builder: {}
-            };
-        }
-
-        modules.push(createModule(mod, index));
     };
 
     options.modules.forEach(each);

@@ -18,23 +18,23 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
     let task = mod => () => {
 
         let date = (new Date()).toLocaleString();
-        let message = `[green]•[/green] module: [green]${mod.name}[/green]`;
+        let message = `[green]•[/green] watcher: [green]${mod.name}[/green]`;
 
         loger.log(`${message} start [gray]${date}[/gray]`);
 
-        return worker(mod.builder.command, mod.builder.options).then((modAsset = {
+        return worker(mod.program.command, mod.program.options).then((buildResult = {
             chunks: {},
             assets: []
         }) => {
 
-            modAsset = Object.assign({
+            Object.assign(buildResult, {
                 name: mod.name
-            }, modAsset);
+            });
 
             let date = (new Date()).toLocaleString();
             loger.log(`${message} end [gray]${date}[/gray]`);
 
-            return modAsset;
+            return buildResult;
         });
     };
 
@@ -50,7 +50,7 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
 
     return promiseTask.serial(tasks.map(tasks => () => {
         return promiseTask.parallel(tasks, parallel);
-    })).then(modAssets => {
-        return [].concat(...modAssets);
+    })).then(buildResults => {
+        return [].concat(...buildResults);
     });
 };

@@ -4,7 +4,6 @@
 const fs = require('fs');
 const path = require('path');
 const program = require('commander');
-const defaultsDeep = require('lodash.defaultsdeep');
 const gulp = require('gulp');
 
 
@@ -25,7 +24,7 @@ program
 
 
 function config(file) {
-    const options = {
+    let options = {
         parallel: program.parallel,
         force: program.force
     };
@@ -33,14 +32,14 @@ function config(file) {
     if (file) {
         let configFile = path.resolve(CONTEXT, file);
         let config = require(configFile);
-        defaultsDeep(options, config);
+        options = Object.assign(config, options);
         CONTEXT = path.resolve(configFile, '../');
     } else {
         let configFile = path.resolve(CONTEXT, CONFIG_PATH_NAME);
         try {
             // 尝试加载目录默认的配置文件
             let config = require(configFile);
-            defaultsDeep(options, config);
+            options = Object.assign(config, options);
         } catch (e) {
             throw new Error(`找不到配置文件 "${configFile}"`);
         }

@@ -1,14 +1,17 @@
 {
   "name": "module-watcher",
-  "version": "0.1.0-beta",
-  "description": "支持增量与多进程并行构建任务管理器",
+  "version": "0.1.6",
+  "description": "支持增量构建的任务管理器",
   "main": "src/index.js",
   "bin": "bin/module-watcher",
   "scripts": {
     "example": "module-watcher --config example/module-watcher.json",
-    "parallel-test": "node test/parallel/index.js",
-    "tasks-test": "module-watcher --config test/tasks/module-watcher.json",
-    "test": "mocha test/index.js && npm run example && npm run tasks-test"
+    "parallel-test": "node test/file/parallel/index.js",
+    "tasks-test": "module-watcher --config test/file/tasks/module-watcher.json",
+    "test": "mocha --recursive --bail 'test/**/*test.js'",
+    "posttest": "npm run example && npm run tasks-test",
+    "clear": "rm -rf example/dist & rm -rf test/file/parallel/dist & rm -rf test/file/tasks/dist",
+    "new-test": "npm run clear && npm run test"
   },
   "repository": {
     "type": "git",
@@ -16,6 +19,9 @@
   },
   "keywords": [
     "webpack",
+    "gulp",
+    "grunt",
+    "ci",
     "git",
     "svn",
     "task",

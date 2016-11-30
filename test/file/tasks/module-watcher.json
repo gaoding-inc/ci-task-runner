@@ -1,0 +1,33 @@
+{
+  "modules": ["lib", ["mod1", "mod2", {
+    "name": "mod3",
+    "dependencies": [],
+    "program": {
+      "command": "node ${modulePath}/builder.js"
+    }
+  }], {
+    "name": "package.json",
+    "path": "../../../package.json",
+    "program": {
+      "command": "node -v",
+      "options": {
+        "cwd": "${moduleDirname}"
+      }
+    }
+  }],
+  "dependencies": ["lib"],
+  "assets": "dist/assets.json",
+  "parallel": 3,
+  "force": false,
+  "program": {
+    "command": "webpack -p --color --config ${modulePath}/webpack.config.js",
+    "options": {
+      "cwd": "${modulePath}",
+      "env": {
+        "MODULE_NAME": "${moduleName}",
+        "MODULE_PATH": "${modulePath}"
+      },
+      "timeout": 0
+    }
+  }
+}

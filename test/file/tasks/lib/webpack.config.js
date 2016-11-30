@@ -2,18 +2,18 @@
 const path = require('path');
 const moduleName = path.basename(__dirname);
 const dist = path.resolve(__dirname, '../dist', moduleName);
-const AssetsWebpackPlugin = require('module-watcher/plugin/assets-webpack-plugin');
+const GIT_WEBPACK = process.env.GIT_WEBPACK;
 
 const webpackConfig = {
     context: __dirname,
     entry: {
-        'index': './js/index.js'
+        'lib': './js/index.js'
     },
     output: {
         path: dist,
-        filename: '[name].[chunkhash].js'
+        filename: '[name].js'
     },
-    plugins: [new AssetsWebpackPlugin()]
+    plugins: []
 };
 
 module.exports = webpackConfig;
