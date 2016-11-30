@@ -25,7 +25,7 @@
 
 ## 安装
 
-```bash
+```shell
 npm install module-watcher -g
 ```
 
@@ -33,7 +33,7 @@ npm install module-watcher -g
 
 1\. 切换到项目目录，运行：
 
-```bash
+```shell
 module-watcher --init
 ```
 
@@ -41,7 +41,7 @@ module-watcher --init
 
 2\. 运行 module-watcher
 
-```bash
+```shell
 module-watcher
 ```
 
@@ -99,7 +99,7 @@ module-watcher.json 文件范例：
 
 设置构建后文件索引表输出路径。构建任务结束后它会输出结果，以供其他程序调用。
 
-> 请在版本库中忽略 `assets` 的文件
+> 请在版本库中忽略 `assets` 的文件路径。
 
 ### `dependencies`
 
@@ -132,7 +132,7 @@ module-watcher.json 文件范例：
 
 构建器进程配置。构建器会在子进程中运行，在这里设置进程的选项。
 
-[child_process.exec 详情](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)
+参考：[child_process.exec] (https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)
 
 ### 变量
 
@@ -216,9 +216,7 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
 
 ## 集中管理所有编译结果
 
-推荐使用 module-watcher 来管理构建输出的资源索引（可选），它只有所有任务成功结束后才会保存这些索引信息。
-
-默认会保存在 dist/assets.json 中。
+推荐使用 module-watcher 来管理构建输出的资源索引（可选），默认会保存在 dist/assets.json 中。
 
 ### Webpack
 
