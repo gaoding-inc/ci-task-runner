@@ -5,20 +5,23 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-支持增量与多进程并行构建任务管理器。简单的说，它的职责：
+支持增量构建的任务管理器。
+
+## 特性
+
+* 标准：使用 Git 或 Svn 仓库来检测变更
+* 快速：利用多核 CPU 多进程并行加速构建
+* 灵活：适配任意构建器或自定义脚本
+* 简单：采用语义化的 JSON 文件来描述项目
+
+简单的说，它的职责：
 
 1. 观察版本仓库的目录、文件变更
 2. 调用指定程序来构建变更后的文件，如 Webpack、Gulp、Grunt 等
 
-因此，module-watcher 能够在服务端的持续集成系统中实现增量编译。
+适用场景：
 
-## 特性
-
-* 标准：支持 Git 或 Svn 仓库
-* 快速：利用多核 CPU 多进程并行构建
-* 灵活：适配任意构建器与自定义脚本
-* 多例：支持为模块运行不同的构建实例
-* 简单：采用语义化的 JSON 文件来描述项目
+前端项目云构建、[持续集成](#持续集成)。
 
 ## 安装
 
@@ -42,7 +45,7 @@ module-watcher --init
 module-watcher
 ```
 
-> 在服务器上可以使用 CI 工具启动 module-watcher，参考 [持续集成](#持续集成)
+> 在服务器上可以使用 CI 工具启动 module-watcher，参考： [持续集成](#持续集成)
 
 ## 配置
 
@@ -50,42 +53,47 @@ module-watcher.json 文件范例：
 
 ```javascript
 {
-  "modules": ["mod1", "mod2"],
-  "dependencies": ["package.json"],
+  "modules": ["mod1", "mod2", "mod3"],
   "assets": "dist/assets.json",
-  "force": false,
   "repository": "git",
   "program": {
     "command": "webpack --color --config ${modulePath}/webpack.config.js",
     "options": {
-      "cwd": "${modulePath}",
-      "env": {
-        "MODULE_NAME": "${moduleName}",
-        "MODULE_PATH": "${modulePath}"
-      },
-      "timeout": 0
+      "cwd": "${modulePath}"
     }
   }
 }
 ```
 
+上述例子中：mod1、mod2、mod3 有变更会执行目录中的 webpack.config.js
+
 ### `modules`
 
-设置要构建的模块目录列表。module-watcher 支持多个目录、项目进行集中构建，`module.name` 则是目录名，如果发生修改则会运行目录中的 webpack.config.js，`modules` 支持字符串与对象形式：
+模块列表。模块可以是文件目录或文件名。
+
+基本形式：
+
+```javascript 
+"modules": ["mod1", "mod2", "mod3"]
+```
+
+对象形式：
 
 ```javascript 
 "modules": [
-    "module1",
-    "module2",
+    "mod1",
+    "mod2",
     {
-        "name": "module3",
+        "name": "mod3",
         "dependencies": ["common/v1"],
         "program": {}
-    }
+    },
+    ["mod4", "mod5"]
 ]
 ```
 
-`dependencies` 与 `program` 会继承顶层的配置。`modules` 支持配置并行任务，参考 [多进程并行构建](#多进程并行构建)。
+1. `dependencies` 与 `program` 会继承顶层的配置
+2. `modules` 支持配置并行任务，参考 [多进程并行构建](#多进程并行构建)
 
 ### `assets`
 
@@ -95,7 +103,7 @@ module-watcher.json 文件范例：
 
 ### `dependencies`
 
-如果模块目录依赖了目录外的库，可以在此手动指定依赖，这样外部库更新也可以触发模块构建。
+模块外部依赖列表。如果模块目录依赖了目录外的库，可以在此手动指定依赖，这样外部库更新也可以触发模块构建。
 
 * `dependencies` 使用 Git 或 Svn 来实现变更检测，所以其路径必须已经受版本管理。如果想监控 node_modules 的变更，可以指定：`"dependencies": ["package.json"]`。
 * `dependencies` 路径相对于 module-watcher.json
@@ -134,20 +142,77 @@ module-watcher.json 文件范例：
 * `${modulePath}` 模块绝对路径
 * `${moduleDirname}` 等同于 `path.diranme(modulePath)`，[详情](https://nodejs.org/api/path.html#path_path_dirname_path)
 
-## 多进程并行构建
+## 配置范例
+
+### 多进程并行构建
 
 如果模块之间没有依赖，可以开启多进程构建，这样能够充分利用多核 CPU 加速构建。
 
 modules 最外层的模块名是串行运行，如果遇到数组则会并行运行：
 
 ```javascript
-"modules": ["lib", ["module1", "module2", "module3"]],
-"parallel": 8
+{
+  "modules": ["dll", ["mod1", "mod2", "mod3"]],
+  "assets": "dist/assets.json",
+  "repository": "git",
+  "program": {
+    "command": "webpack --color --config ${modulePath}/webpack.config.js",
+    "options": {
+      "cwd": "${modulePath}"
+    }
+  }
+}
 ```
 
-上述例子中，当 lib 构建完成后，module1、module2、module3 会以多线程的方式并行构建。
+上述例子中：当 dll 构建完成后，mod1、mod2、mod3 会以多线程的方式并行构建。
 
-> `parallel` 默认会设置为当前计算机 CPU 核心数。
+### 依赖变更触发构建
+
+```javascript
+{
+  "modules": ["dll", ["mod1", "mod2", "mod3"]],
+  "dependencies": ["dll"],
+  "assets": "dist/assets.json",
+  "repository": "git",
+  "program": {
+    "command": "webpack --color --config ${modulePath}/webpack.config.js",
+    "options": {
+      "cwd": "${modulePath}"
+    }
+  }
+}
+```
+
+上述例子中：当 dll 变更后，无论其他模块是否有修改都会被强制构建。
+
+### 自动更新项目依赖
+
+```javascript
+{
+  "modules": [{
+    "name": "package.json",
+    "program": {
+      "command": "npm install",
+      "options": {
+        "cwd": "${moduleDirname}"
+      }
+    }
+  }, ["mod1", "mod2", "mod3"]],
+  "dependencies": ["package.json", "dll"],
+  "assets": "dist/assets.json",
+  "repository": "git",
+  "program": {
+    "command": "webpack --color --config ${modulePath}/webpack.config.js",
+    "options": {
+      "cwd": "${modulePath}"
+    }
+  }
+}
+```
+
+上述例子中：如果 package.json 有变更，则会执行 `npm install` 安装项目依赖。
+
+> 注意：package.json 模块不是目录，所以 `cwd` 应该设置为 `${moduleDirname}`。详情请参考[变量](#变量)
 
 ## 集中管理所有编译结果
 
@@ -189,9 +254,12 @@ moduleWatcher.send({
 
 > 每一个任务只能运行一次 `moduleWatcher.send()` 方法，运行后进程将会被强制关闭
 
+
 ## 持续集成
 
-使用 CI 工具来在服务器上运行 module-watcher，前端构建、发布都将无须人工干预。
+使用 CI 工具来在服务器上运行 module-watcher。
+
+持续集成优势：
 
 * 自动：分支推送即自动触发构建、测试、发布
 * 异步：无需等待编译任务、无需中断编码工作
@@ -202,7 +270,7 @@ moduleWatcher.send({
 * gitlab: gitlab-ci
 * github: travis
 
-（使用方法略）
+CI 工具配置请参考相应的文档。
 
 [npm-image]: https://img.shields.io/npm/v/module-watcher.svg
 [npm-url]: https://npmjs.org/package/module-watcher
