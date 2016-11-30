@@ -1,7 +1,7 @@
 {
   "name": "module-watcher",
-  "version": "0.1.4-beta",
-  "description": "支持增量与多进程并行构建任务管理器",
+  "version": "0.1.6",
+  "description": "支持增量构建的任务管理器",
   "main": "src/index.js",
   "bin": "bin/module-watcher",
   "scripts": {
@@ -19,6 +19,9 @@
   },
   "keywords": [
     "webpack",
+    "gulp",
+    "grunt",
+    "ci",
     "git",
     "svn",
     "task",
