@@ -7,7 +7,7 @@
 
 支持增量与多进程并行构建任务管理器。简单的说，它的职责：
 
-1. 观察仓库的目录、文件变更
+1. 观察版本仓库的目录、文件变更
 2. 调用指定程序来构建变更后的文件，如 Webpack、Gulp、Grunt 等
 
 因此，module-watcher 能够在服务端的持续集成系统中实现增量编译。
@@ -15,10 +15,10 @@
 ## 特性
 
 * 标准：支持 Git 或 Svn 仓库
-* 快速：采用多进程并行构建
-* 灵活：适配任意构建器
+* 快速：利用多核 CPU 多进程并行构建
+* 灵活：适配任意构建器与自定义脚本
 * 多例：支持为模块运行不同的构建实例
-* 简单：采用 JSON 配置
+* 简单：采用语义化的 JSON 文件来描述项目
 
 ## 安装
 
@@ -132,7 +132,7 @@ module-watcher.json 文件范例：
 
 * `${moduleName}` 模块名
 * `${modulePath}` 模块绝对路径
-* `${moduleDirname}` 不同于 `${modulePath}`，它内部实现： `path.diranme(modulePath)`，[详情](https://nodejs.org/api/path.html#path_path_dirname_path)
+* `${moduleDirname}` 等同于 `path.diranme(modulePath)`，[详情](https://nodejs.org/api/path.html#path_path_dirname_path)
 
 ## 多进程并行构建
 
@@ -151,9 +151,13 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
 
 ## 集中管理所有编译结果
 
+推荐使用 module-watcher 来管理构建输出的资源索引（可选），它只有所有任务成功结束后才会保存这些索引信息。
+
+默认会保存在 dist/assets.json 中。
+
 ### Webpack
 
-module-watcher 提供了 assets-webpack-plugin 插件，可以统一管理各个模块的资源输出。
+module-watcher 提供了 assets-webpack-plugin 插件。
 
 ```javascript
 // webpack.config.js
@@ -166,9 +170,24 @@ module.exports = {
 
 module-watcher 运行后，此插件会将输出的文件索引保存在 dist/assets.json 中，以便交给发布程序处理。
 
-## Gulp、Grunt
+## Gulp、Grunt …
 
-Gulp、Grunt 需要手动输出资源索引（文档尚未完善）
+构建结束后，手动调用 `moduleWatcher.send()`：
+
+```javascript
+var moduleWatcher = require('module-watcher');
+moduleWatcher.send({
+  chunks: {
+    index: '/Document/aui/dist/index.8a2f3bd013c78d30ee09.js'
+  },
+  assets: [
+    '/Document/aui/dist/index.8a2f3bd013c78d30ee09.js',
+    '/Document/aui/dist/index.8a2f3bd013c78d30ee09.js.map'
+  ]
+});
+```
+
+> 每一个任务只能运行一次 `moduleWatcher.send()` 方法，运行后进程将会被强制关闭
 
 ## 持续集成
 
