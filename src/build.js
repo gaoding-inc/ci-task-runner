@@ -18,7 +18,7 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
     let task = mod => () => {
 
         let date = (new Date()).toLocaleString();
-        let message = `[green]•[/green] module: [green]${mod.name}[/green]`;
+        let message = `[green]•[/green] watcher: [green]${mod.name}[/green]`;
 
         loger.log(`${message} start [gray]${date}[/gray]`);
 

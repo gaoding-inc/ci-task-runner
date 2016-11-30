@@ -72,7 +72,7 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
                 if (mod.dirty) {
                     return true
                 } else {
-                    loger.log(`[gray]•[/gray] module: [green]${mod.name}[/green] ignore`);
+                    loger.log(`[gray]•[/gray] watcher: [green]${mod.name}[/green] no changes`);
                     return false;
                 }
             });
