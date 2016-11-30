@@ -40,7 +40,7 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
     const loger = new Loger();
     const repository = new Repository(assetsPath, options.repository, 'revision');
 
-    return promiseTask.serial([
+    const tasks = [
 
 
         // 将外部输入的配置转换成内部模块描述队列
@@ -136,7 +136,11 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
             return repository.save().then(() => assets);
         }
 
-    ]);
+    ];
+
+    return promiseTask.serial(tasks).then(results => {
+        return results[results.length - 1];
+    });
 };
 
 

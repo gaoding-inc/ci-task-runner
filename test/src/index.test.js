@@ -6,20 +6,30 @@ const moduleWatcher = require('../../src/index');
 describe('#index', () => {
 
     it('moduleWatcher.send()', () => {
+        let name = 'script';
         let options = {
-            modules: ['script'],
+            modules: [name],
             assets: path.join(__dirname, '..', 'dist', 'assets.json'),
             program: {
                 command: 'node ${modulePath}/send.js'
             }
         };
-        let context = path.join(__dirname, '..', 'file', 'script');
+        let context = path.join(__dirname, '..', 'file');
 
         return moduleWatcher(options, context).then(assets => {
+
+            let mod = assets.modules[name];
+
             assert.deepEqual({
-                script: 'index.js'
-            }, assets.modules.chunks);
-            assert.deepEqual(['index.js', 'index.js.map', 'index.css'], assets.modules.assets);
+                index: 'index.js'
+            }, mod.chunks);
+
+            assert.deepEqual([
+                'index.js',
+                'index.js.map',
+                'index.css'
+            ], mod.assets);
+
         });
     });
 
