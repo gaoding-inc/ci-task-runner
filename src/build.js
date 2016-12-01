@@ -13,16 +13,24 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
 
     let tasks = [[]];
     let preOrder = 0;
-    let loger = new Loger();
+
 
     let task = mod => () => {
 
+        let program = mod.program;
         let date = (new Date()).toLocaleString();
-        let message = `[green]•[/green] watcher: [green]${mod.name}[/green]`;
 
-        loger.log(`${message} start [gray]${date}[/gray]`);
+        let loger = new Loger([
+            { color: 'green' },
+            null,
+            { color: 'green', minWidth: 16 },
+            { textDecoration: 'underline' },
+            { color: 'gray' }
+        ]);
 
-        return worker(mod.program.command, mod.program.options).then((buildResult = {
+        loger.log('•', 'watcher:', mod.name, '[task running]', date);
+
+        return worker(program.command, program.options).then((buildResult = {
             chunks: {},
             assets: []
         }) => {
@@ -32,9 +40,13 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
             });
 
             let date = (new Date()).toLocaleString();
-            loger.log(`${message} end [gray]${date}[/gray]`);
+            loger.log('•', 'watcher:', mod.name, '[task success]', date);
 
             return buildResult;
+        }).catch(errors => {
+            let loger = new Loger([{ color: 'red' }, null, { color: 'red', minWidth: 16 }]);
+            loger.error('•', 'watcher:', mod.name, '[task failure]');
+            return errors;
         });
     };
 

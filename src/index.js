@@ -37,7 +37,6 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
     options = defaultsDeep({}, options, DEFAULT);
 
     const assetsPath = path.resolve(context, options.assets);
-    const loger = new Loger();
     const repository = new Repository(assetsPath, options.repository, 'revision');
 
     const tasks = [
@@ -68,11 +67,12 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
 
         // 过滤未修改的版本
         modules => {
+            const loger = new Loger([{color: 'gray'}, null, {color: 'green', minWidth: 16}]);
             return modules.filter(mod => {
                 if (mod.dirty) {
                     return true
                 } else {
-                    loger.log(`[gray]•[/gray] watcher: [green]${mod.name}[/green] no changes`);
+                    loger.log('•', 'watcher:', mod.name, '[no changes]');
                     return false;
                 }
             });
