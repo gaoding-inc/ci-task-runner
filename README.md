@@ -93,7 +93,7 @@ module-watcher.json 文件范例：
 ]
 ```
 
-1. `dependencies` 与 `program` 会继承顶层的配置
+1. [`dependencies`](#dependencies) 与 [`program`](#program) 会继承顶层的配置
 2. `modules` 支持配置并行任务，参考 [多进程并行构建](#多进程并行构建)
 
 ### `assets`
@@ -186,7 +186,7 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
 
 上述例子中：当 dll 变更后，无论其他模块是否有修改都会被强制构建。
 
-### 自动更新项目依赖
+### 自动更新 Npm 包
 
 ```javascript
 {
