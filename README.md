@@ -19,9 +19,10 @@
 1. 观察版本仓库的目录、文件变更
 2. 调用指定程序来构建变更后的文件，如 Webpack、Gulp、Grunt 等
 
-适用场景：
+## 适用场景
 
-前端项目云构建、[持续集成](#持续集成)。
+1. 前端项目云构建、[持续集成](#持续集成)
+2. 按模块构建的中大型项目
 
 ## 安装
 
@@ -118,7 +119,7 @@ module-watcher.json 文件范例：
 
 ## `parallel`
 
-设置最大并行进程数，默认值为 `require('os').cpus().length`。
+设置最大并行进程数。默认值为 `require('os').cpus().length`。
 
 ## `program`
 
@@ -189,15 +190,19 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
 
 ```javascript
 {
-  "modules": [{
-    "name": "package.json",
-    "program": {
-      "command": "npm install",
-      "options": {
-        "cwd": "${moduleDirname}"
+  "modules": [
+    {
+      "name": "package.json",
+      "program": {
+        "command": "npm install",
+        "options": {
+          "cwd": "${moduleDirname}"
+        }
       }
-    }
-  }, ["mod1", "mod2", "mod3"]],
+    },
+    "dll",
+    ["mod1", "mod2", "mod3"]
+  ],
   "dependencies": ["package.json", "dll"],
   "assets": "dist/assets.json",
   "repository": "git",
@@ -210,11 +215,11 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
 }
 ```
 
-上述例子中：如果 package.json 有变更，则会执行 `npm install` 安装项目依赖。
+上述例子中：当 package.json 变更后，则会执行 `npm install` 安装项目依赖，让项目保持最新。
 
-> 注意：package.json 模块不是目录，所以 `cwd` 应该设置为 `${moduleDirname}`。详情请参考[变量](#变量)
+> 注意：package.json 模块不是目录，所以 `cwd` 应该设置为 `${moduleDirname}`。详情请参考[变量](#变量)。
 
-## 集中管理所有编译结果
+## 集中管理所有构建结果
 
 推荐使用 module-watcher 来管理构建输出的资源索引（可选），默认会保存在 dist/assets.json 中。
 
@@ -250,7 +255,7 @@ moduleWatcher.send({
 });
 ```
 
-> 每一个任务只能运行一次 `moduleWatcher.send()` 方法，运行后进程将会被强制关闭
+> 每一个任务只能运行一次 `moduleWatcher.send()` 方法，运行后进程将会被强制关闭。
 
 
 ## 持续集成
@@ -260,7 +265,7 @@ moduleWatcher.send({
 持续集成优势：
 
 * 自动：分支推送即自动触发构建、测试、发布
-* 异步：无需等待编译任务、无需中断编码工作
+* 异步：无须中断编码工作等待构建任务结束
 * 稳定：确保构建源都来自于版本仓库中
 
 相关工具：
