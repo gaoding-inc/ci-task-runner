@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "devDependencies": {
-    "module-watcher": "^0.0.14-beta",
+    "module-watcher": "^0.1.6",
     "webpack": "^1.13.3"
   },
   "scripts": {
