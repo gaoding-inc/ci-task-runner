@@ -20,7 +20,7 @@
 ## 适用场景
 
 1. 前端项目云构建、[持续集成](#持续集成)
-2. 多个模块需要构建的中大型项目
+2. 多个模块需要单独构建的中大型项目
 
 ## 安装
 
@@ -63,12 +63,12 @@ module-watcher.json 文件范例：
 
 ### `modules`
 
-模块列表。模块可以是文件目录或文件名。
+模块列表。模块可以是目录名或文件名。
 
 简写形式：`{string[]}`
 
 ```json
-{ //...
+{
   "modules": ["mod1", "mod2", "mod3"]
 }
 ```
@@ -76,7 +76,7 @@ module-watcher.json 文件范例：
 对象形式：`{Object[]}`
 
 ```json
-{ //...
+{
   "modules": [
       "mod1",
       "mod2",
@@ -124,7 +124,7 @@ module-watcher.json 文件范例：
 简写形式：`{string}`
 
 ```json
-{ //...
+{
   "program": "cd ${modulePath} && node build.js"
 }
 ```
@@ -132,7 +132,7 @@ module-watcher.json 文件范例：
 对象形式：`{Object}`
 
 ```json
-{ //...
+{
   "program": {
     "command": "node build.js",
     "options": {
@@ -224,7 +224,7 @@ module-watcher 提供了 assets-webpack-plugin 插件。
 // webpack.config.js
 var AssetsWebpackPlugin = require('module-watcher/plugin/assets-webpack-plugin');
 module.exports = {
-  //...
+ 
   plugins: [new AssetsWebpackPlugin()]
 };
 ```
