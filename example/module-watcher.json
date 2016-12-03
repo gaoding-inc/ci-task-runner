@@ -4,14 +4,5 @@
   "assets": "dist/assets.json",
   "force": false,
   "repository": "git",
-  "program": {
-    "command": "webpack --color --config ${modulePath}/webpack.config.js",
-    "options": {
-      "env": {
-        "MODULE_WATCHER_NAME": "${moduleName}",
-        "MODULE_WATCHER_PATH": "${modulePath}"
-      },
-      "timeout": 0
-    }
-  }
+  "program": "cd ${modulePath} && webpack --color"
 }
