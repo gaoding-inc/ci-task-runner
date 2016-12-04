@@ -5,7 +5,7 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-支持增量与多进程的构建任务调度器。它所做的事情：
+支持增量与多进程的构建任务调度器。它的职责：
 
 1. 观察版本仓库的目录、文件变更
 2. 调用指定程序来构建变更后的文件，如 Webpack、Gulp、Grunt 等
@@ -104,10 +104,6 @@ module-watcher.json 文件范例：
 模块外部依赖列表。如果模块目录依赖了目录外的库，可以在此手动指定依赖，这样外部库的更新也可以触发模块构建。
 
 > module-watch 使用 Git 或 Svn 来实现变更检测，所以其路径必须已经受版本管理。如果想监控 node_modules 的变更，可以指定：`"dependencies": ["package.json"]`。
-
-### `force`
-
-强制构建所有模块。
 
 ## `repository`
 
@@ -224,7 +220,6 @@ module-watcher 提供了 assets-webpack-plugin 插件。
 // webpack.config.js
 var AssetsWebpackPlugin = require('module-watcher/plugin/assets-webpack-plugin');
 module.exports = {
- 
   plugins: [new AssetsWebpackPlugin()]
 };
 ```
