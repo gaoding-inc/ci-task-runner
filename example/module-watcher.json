@@ -2,7 +2,6 @@
   "modules": ["module-example"],
   "dependencies": ["package.json"],
   "assets": "dist/assets.json",
-  "force": false,
   "repository": "git",
   "program": "cd ${modulePath} && webpack --color"
 }

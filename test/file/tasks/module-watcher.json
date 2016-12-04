@@ -6,6 +6,5 @@
   "dependencies": ["lib"],
   "assets": "dist/assets.json",
   "parallel": 3,
-  "force": false,
   "program": "cd ${modulePath} && webpack -p --color"
 }
