@@ -4,13 +4,35 @@ const worker = require('../../lib/worker');
 
 describe('#worker', () => {
 
-    it('childProcess exec', () => {
-        let target = path.join(__dirname, '..', '..', 'package.json');
-        let data = require(target);
+    it('send', () => {
+        let cwd = path.join(__dirname, '..', 'file', 'script');
+        let TEST_ID = Date.now().toString();
         return worker(`node worker-child.js`, {
-            cwd: path.join(__dirname, '..', 'file', 'script')
-        }).then(packageData => {
-            assert.deepEqual(data.name, packageData.name);
+            cwd,
+            env: {
+                TEST_ID
+            }
+        }).then(data => {
+            assert.deepEqual({
+                cwd,
+                id: TEST_ID
+            }, data);
+        });
+    });
+
+    it('childProcess exec: cwd', () => {
+        let cwd = path.join(__dirname, '..', 'file', 'script');
+        let TEST_ID = Date.now().toString();
+
+        return worker(`cd ${cwd} && node worker-child.js`, {
+            env: {
+                TEST_ID
+            }
+        }).then(data => {
+            assert.deepEqual({
+                cwd,
+                id: TEST_ID
+            }, data);
         });
     });
 
