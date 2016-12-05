@@ -19,15 +19,14 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
 
         let program = mod.program;
         let date = (new Date()).toLocaleString();
-
-        let loger = new Loger([
-            { color: 'green' },
+        let logStyles = [
             null,
-            { color: 'green', minWidth: 16 },
-            { textDecoration: 'underline' },
+            {  minWidth: 16, color: 'green', textDecoration: 'underline' },
+            null,
             { color: 'gray' }
-        ]);
+        ];
 
+        let loger = new Loger([{ color: 'white' }, ...logStyles]);
         loger.log('•', 'watcher:', mod.name, '[task running]', date);
 
         return worker(program.command, program.options).then((buildResult = {
@@ -40,11 +39,12 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
             });
 
             let date = (new Date()).toLocaleString();
+            let loger = new Loger([{ color: 'green' }, ...logStyles]);
             loger.log('•', 'watcher:', mod.name, '[task success]', date);
 
             return buildResult;
         }).catch(errors => {
-            let loger = new Loger([{ color: 'red' }, null, { color: 'red', minWidth: 16 }]);
+            let loger = new Loger([{ color: 'red' }, ...logStyles]);
             loger.error('•', 'watcher:', mod.name, '[task failure]');
             return errors;
         });
