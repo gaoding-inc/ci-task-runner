@@ -6,23 +6,20 @@ const defaultsDeep = require('lodash.defaultsdeep');
 
 describe('#parse', () => {
 
-    const programDefaults = (name, context) => {
-        return defaultsDeep({
+    const programDefaults = (options, context) => {
+        let p = path.resolve(context, options.path || options.name);
+        return {
+            command: '',
             options: {
-                env: process.env
-            }
-        }, {
-                command: '',
-                options: {
-                    timeout: 0,
-                    env: {
-                        'MODULE_WATCHER': '1',
-                        'MODULE_WATCHER_MODULE_NAME': name,
-                        'MODULE_WATCHER_MODULE_PATH': path.resolve(context, name),
-                        'MODULE_WATCHER_MODULE_DIRNAME': context
-                    }
+                timeout: 0,
+                env: {
+                    'MODULE_WATCHER': '1',
+                    'MODULE_WATCHER_MODULE_NAME': options.name,
+                    'MODULE_WATCHER_MODULE_PATH': p,
+                    'MODULE_WATCHER_MODULE_DIRNAME': path.dirname(p)
                 }
-            })
+            }
+        };
     };
 
     it('empty', () => {
@@ -30,6 +27,7 @@ describe('#parse', () => {
             modules: []
         }, __dirname));
     });
+
 
     it('type:string', () => {
         assert.deepEqual([{
@@ -39,7 +37,7 @@ describe('#parse', () => {
                 name: 'lib',
                 path: path.resolve(__dirname, 'lib')
             }],
-            program: programDefaults('mod1', __dirname),
+            program: programDefaults({ name: 'mod1' }, __dirname),
             order: 0,
             dirty: false
         }], parse({
@@ -59,7 +57,7 @@ describe('#parse', () => {
             }],
             program: defaultsDeep({
                 command: 'node build.js'
-            }, programDefaults('mod1', __dirname)),
+            }, programDefaults({ name: 'mod1' }, __dirname)),
             order: 0,
             dirty: false
         }], parse({
@@ -78,7 +76,7 @@ describe('#parse', () => {
                 name: 'lib',
                 path: '/Document/lib'
             }],
-            program: programDefaults('mod1', __dirname),
+            program: programDefaults({ name: 'mod1' }, __dirname),
             order: 0,
             dirty: false
         }], parse({
@@ -100,7 +98,10 @@ describe('#parse', () => {
                 name: 'lib',
                 path: path.resolve(__dirname, 'map', 'lib')
             }],
-            program: programDefaults('mod1', __dirname),
+            program: programDefaults({
+                name: 'mod1',
+                path: path.resolve(__dirname, 'map', 'mod1'),
+            }, __dirname),
             order: 0,
             dirty: false
         }], parse({
@@ -121,21 +122,21 @@ describe('#parse', () => {
             name: 'mod1',
             path: path.resolve(__dirname, 'mod1'),
             dependencies: [],
-            program: programDefaults('mod1', __dirname),
+            program: programDefaults({ name: 'mod1' }, __dirname),
             order: 0,
             dirty: false
         }, {
             name: 'mod2',
             path: path.resolve(__dirname, 'mod2'),
             dependencies: [],
-            program: programDefaults('mod2', __dirname),
+            program: programDefaults({ name: 'mod2' }, __dirname),
             order: 1,
             dirty: false
         }, {
             name: 'mod3',
             path: path.resolve(__dirname, 'mod3'),
             dependencies: [],
-            program: programDefaults('mod3', __dirname),
+            program: programDefaults({ name: 'mod3' }, __dirname),
             order: 2,
             dirty: false
         }], parse({
@@ -148,21 +149,21 @@ describe('#parse', () => {
             name: 'mod1',
             path: path.resolve(__dirname, 'mod1'),
             dependencies: [],
-            program: programDefaults('mod1', __dirname),
+            program: programDefaults({ name: 'mod1' }, __dirname),
             order: 0,
             dirty: false
         }, {
             name: 'mod2',
             path: path.resolve(__dirname, 'mod2'),
             dependencies: [],
-            program: programDefaults('mod2', __dirname),
+            program: programDefaults({ name: 'mod2' }, __dirname),
             order: 1,
             dirty: false
         }, {
             name: 'mod3',
             path: path.resolve(__dirname, 'mod3'),
             dependencies: [],
-            program: programDefaults('mod3', __dirname),
+            program: programDefaults({ name: 'mod3' }, __dirname),
             order: 1,
             dirty: false
         }], parse({
@@ -180,7 +181,7 @@ describe('#parse', () => {
             }],
             program: defaultsDeep({
                 command: 'webpack --config mod1/webpack.config.js',
-            }, programDefaults('mod1', __dirname)),
+            }, programDefaults({ name: 'mod1' }, __dirname)),
             order: 0,
             dirty: false
         }, {
@@ -195,7 +196,7 @@ describe('#parse', () => {
             }],
             program: defaultsDeep({
                 command: 'gulp'
-            }, programDefaults('mod2', __dirname)),
+            }, programDefaults({ name: 'mod2' }, __dirname)),
             order: 1,
             dirty: false
         }], parse({
@@ -207,9 +208,9 @@ describe('#parse', () => {
                 }
             }],
             dependencies: ['lib'],
-            program: defaultsDeep({
+            program: {
                 command: 'webpack --config mod1/webpack.config.js'
-            }, programDefaults('mod2', __dirname))
+            }
         }, __dirname));
     });
 
@@ -228,7 +229,7 @@ describe('#parse', () => {
                         MODULE_NAME: 'mod1'
                     }
                 }
-            }, programDefaults('mod1', __dirname)),
+            }, programDefaults({ name: 'mod1' }, __dirname)),
             order: 0,
             dirty: false
         }], parse({
@@ -241,7 +242,7 @@ describe('#parse', () => {
                         MODULE_NAME: '${moduleName}'
                     }
                 }
-            }, programDefaults('mod1', __dirname))
+            }, programDefaults({ name: 'mod1' }, __dirname))
         }, __dirname));
     });
 

@@ -10,9 +10,7 @@ describe('#index', () => {
         let options = {
             modules: [name],
             assets: path.join(__dirname, '..', 'dist', 'assets.json'),
-            program: {
-                command: 'node ${modulePath}/send.js'
-            }
+            program: 'node ${modulePath}/send.js'
         };
         let context = path.join(__dirname, '..', 'file');
 
