@@ -16,7 +16,7 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
 
 
     let task = mod => () => {
-
+        
         let program = mod.program;
         let date = (new Date()).toLocaleString();
         let logStyles = [

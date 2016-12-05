@@ -34,11 +34,11 @@ const merge = require('./merge');
  * @return  {Promise}
  */
 const moduleWatcher = (options = {}, context = process.cwd()) => {
+    
     options = defaultsDeep({}, options, DEFAULT);
+    options.assets = path.resolve(context, options.assets);
 
-    const assetsPath = path.resolve(context, options.assets);
-    const repository = new Repository(assetsPath, options.repository, 'revision');
-
+    const repository = new Repository(options.assets, options.repository, 'revision');
     const tasks = [
 
 
@@ -88,7 +88,7 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
         // 创建资源描述对象
         buildResults => {
             let now = (new Date()).toLocaleString();
-            let assetsDiranme = path.dirname(assetsPath);
+            let assetsDiranme = path.dirname(options.assets);
             let relative = file => path.relative(assetsDiranme, file);
             let assets = {
                 version: 1,
@@ -119,13 +119,13 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
 
         // 合并资源索引文件
         assets => {
-            return fsp.readFile(assetsPath, 'utf8')
+            return fsp.readFile(options.assets, 'utf8')
                 .then(json => defaultsDeep({}, JSON.parse(json)))
                 .catch(() => defaultsDeep({}, ASSETS_DEFAULT))
-                .then(oldAssets => merge(assets, oldAssets, assetsPath))
+                .then(oldAssets => merge(assets, oldAssets, options.assets))
                 .then(assets => {
                     let json = JSON.stringify(assets, null, 2);
-                    return fsp.writeFile(assetsPath, json, 'utf8').then(() => assets);
+                    return fsp.writeFile(options.assets, json, 'utf8').then(() => assets);
                 });
         },
 

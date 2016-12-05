@@ -1,6 +1,7 @@
 const path = require('path');
 const template = require('../lib/template');
 const defaultsDeep = require('lodash.defaultsdeep');
+const DEFAULT = require('./config/config.program.default.json');
 
 class File {
     constructor({name, path}) {
@@ -63,6 +64,23 @@ module.exports = (options, context) => {
     }
 
 
+    // 设置字符串变量
+    let setVariables = (target, variables) => {
+        let type = typeof target;
+        if (type === 'string') {
+            return template(target, variables);
+        } else if (Array.isArray(target)) {
+            return target.map(target => setVariables(target, variables));
+        } else if (type === 'object' && type !== null) {
+            let object = {};
+            Object.keys(target).forEach(key => object[key] = setVariables(target[key], variables));
+            return object;
+        } else {
+            return target;
+        }
+    };
+
+
     let parseModule = (mod, order) => {
 
         if (typeof mod === 'string') {
@@ -78,35 +96,20 @@ module.exports = (options, context) => {
             name: mod.name,
             path: path.resolve(context, mod.path || mod.name),
             dependencies: [].concat(mod.dependencies || [], options.dependencies || []),
-            program: defaultsDeep({}, parseProgram(mod.program), parseProgram(options.program), {
-                command: '',
-                options: {}
-            })
-        };
-        
-
-        let variables = {
-            moduleName: mod.name,
-            modulePath: mod.path,
-            moduleDirname: path.dirname(mod.path)
-        };
-
-        // 设置字符串变量
-        let setVariables = target => {
-            let type = typeof target;
-            if (type === 'string') {
-                return template(target, variables);
-            } else if (Array.isArray(target)) {
-                return target.map(setVariables);
-            } else if (type === 'object' && type !== null) {
-                let object = {};
-                Object.keys(target).forEach(key => object[key] = setVariables(target[key]));
-                return object;
-            }
+            program: defaultsDeep({},
+                parseProgram(mod.program),
+                parseProgram(options.program),
+                { options: { env: process.env } },
+                DEFAULT
+            )
         };
 
         let dependencies = mod.dependencies.map(parseDependencie);
-        let program = setVariables(mod.program);
+        let program = setVariables(mod.program, {
+            moduleName: mod.name,
+            modulePath: mod.path,
+            moduleDirname: path.dirname(mod.path)
+        });
 
         return new Module({
             name: mod.name,

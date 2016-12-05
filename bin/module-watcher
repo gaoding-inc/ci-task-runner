@@ -18,10 +18,9 @@ program
     .usage('[options]')
     .option('--parallel [number]', '进程最大并发数', parseInt)
     .option('--force', '强制编译所有模块')
-    .option('--config [string]', '外部配置文件路径')
+    .option('--config [path]', '外部配置文件路径')
     .option('--init', '初始化项目，生成配置文件')
     .parse(process.argv);
-
 
 function config(file) {
     let options = {

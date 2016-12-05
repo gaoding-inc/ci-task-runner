@@ -1,0 +1,12 @@
+{
+    "command": "",
+    "options": {
+      "env": {
+        "MODULE_WATCHER": "1",
+        "MODULE_WATCHER_MODULE_NAME": "${moduleName}",
+        "MODULE_WATCHER_MODULE_PATH": "${modulePath}",
+        "MODULE_WATCHER_MODULE_DIRNAME": "${moduleDirname}"
+      },
+      "timeout": 0
+    }
+}
