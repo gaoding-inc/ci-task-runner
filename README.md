@@ -226,6 +226,8 @@ module.exports = {
 
 module-watcher 运行后，此插件会将输出的文件索引保存在 dist/assets.json 中，以便交给发布程序处理。
 
+> 只有 module-watcher 调用 webpack，插件才会生效。
+
 ## Gulp、Grunt …
 
 构建结束后，手动调用 `moduleWatcher.send()`：
