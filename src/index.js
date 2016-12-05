@@ -1,5 +1,3 @@
-'use strict';
-
 const path = require('path');
 const fsp = require('../lib/fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
@@ -16,7 +14,7 @@ const merge = require('./merge');
 
 
 /**
- * 多进程构建任务管理器
+ * 支持增量与多进程的构建任务调度器
  * @param   {Object}            options                         @see config/config.default.json
  * @param   {Object[]|string[]} options.modules                 模块目录列表
  * @param   {Object}            options.modules.name            模块目录名（相对）
