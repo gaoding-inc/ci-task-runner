@@ -210,11 +210,13 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
 
 ## 集中管理所有构建结果
 
-推荐使用 module-watcher 来管理构建输出的资源索引（可选），默认会保存在 dist/assets.json 中。
+推荐使用 module-watcher 来管理构建输出的资源索引（可选）。
+
+所有任务都成功结束后，各个构建器输出的文件索引将写入在 [`assets`](#assets) 中，以便发布程序处理这些文件。
 
 ### Webpack
 
-module-watcher 提供了 assets-webpack-plugin 插件。
+module-watcher 提供了 Webpack 插件来与自己通讯。
 
 ```javascript
 // webpack.config.js
@@ -224,13 +226,9 @@ module.exports = {
 };
 ```
 
-module-watcher 运行后，此插件会将输出的文件索引保存在 dist/assets.json 中，以便交给发布程序处理。
-
-> 只有 module-watcher 调用 webpack，插件才会生效。
-
 ## Gulp、Grunt …
 
-构建结束后，手动调用 `moduleWatcher.send()`：
+手动调用 `moduleWatcher.send()`：
 
 ```javascript
 var moduleWatcher = require('module-watcher');
@@ -246,7 +244,6 @@ moduleWatcher.send({
 ```
 
 > 每一个任务只能运行一次 `moduleWatcher.send()` 方法，运行后进程将会被强制关闭。
-
 
 ## 持续集成
 
