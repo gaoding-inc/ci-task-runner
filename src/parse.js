@@ -99,7 +99,6 @@ module.exports = (options, context) => {
             program: defaultsDeep({},
                 parseProgram(mod.program),
                 parseProgram(options.program),
-                { options: { env: process.env } },
                 DEFAULT
             )
         };
