@@ -1,6 +1,6 @@
 {
   "name": "module-watcher",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "支持增量与多进程的构建任务调度器",
   "main": "src/index.js",
   "bin": "bin/module-watcher",

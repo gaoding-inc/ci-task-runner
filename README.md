@@ -95,7 +95,7 @@ module-watcher.json 文件范例：
 
 ### `assets`
 
-设置构建后文件索引表输出路径。构建任务结束后它会输出结果，以供其他程序调用。
+设置构建后文件索引表输出路径。构建任务结束后它会输出结果，以供其他程序调用。参考：[集中管理所有构建结果](#集中管理所有构建结果)。
 
 > 请在版本库中忽略 `assets` 的文件路径。
 
@@ -140,7 +140,9 @@ module-watcher.json 文件范例：
 
 ### `program.command`
 
-设置执行的构建命令。（程序会将 node_modules/.bin 会自动加入到环境变量 `PATH` 中）
+设置执行的构建命令。
+
+> 程序会将 node_modules/.bin 加入到环境变量 `PATH` 中。
 
 ### `program.options`
 
@@ -249,13 +251,13 @@ moduleWatcher.send({
 
 使用 CI 工具来在服务器上运行 module-watcher。
 
-持续集成优势：
+**持续集成优势：**
 
 * 自动：分支推送即自动触发构建、测试、发布
 * 异步：无须中断编码工作等待构建任务结束
 * 稳定：确保构建源都来自于版本仓库中
 
-相关工具：
+**相关工具：**
 
 * gitlab: gitlab-ci
 * github: travis
