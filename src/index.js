@@ -32,7 +32,7 @@ const merge = require('./merge');
  * @return  {Promise}
  */
 const moduleWatcher = (options = {}, context = process.cwd()) => {
-    
+
     options = defaultsDeep({}, options, DEFAULT);
     options.assets = path.resolve(context, options.assets);
 
@@ -65,7 +65,11 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
 
         // 过滤未修改的版本
         modules => {
-            const loger = new Loger([{color: 'gray'}, null, {color: 'green', minWidth: 16}]);
+            const loger = new Loger([
+                { color: 'gray' },
+                null,
+                { minWidth: 16, color: 'green', textDecoration: 'underline' }
+            ]);
             return modules.filter(mod => {
                 if (mod.dirty) {
                     return true
