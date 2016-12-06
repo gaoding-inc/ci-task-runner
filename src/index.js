@@ -17,15 +17,15 @@ const merge = require('./merge');
  * 支持增量与多进程的构建任务调度器
  * @param   {Object}            options                         @see config/config.default.json
  * @param   {Object[]|string[]} options.modules                 模块目录列表
- * @param   {Object}            options.modules.name            模块目录名（相对）
- * @param   {string[]}          options.modules.dependencies    模块依赖目录（相对），继承 options.dependencies
- * @param   {Object}            options.modules.program         模块构建器设置，继承 options.program
+ * @param   {string}            options.modules[].name          模块目录名（相对）
+ * @param   {string[]}          options.modules[].dependencies  模块依赖目录（相对），继承 options.dependencies
+ * @param   {Object}            options.modules[].program       模块构建器设置，继承 options.program
  * @param   {string[]}          options.dependencies            模块组公共依赖（相对）
  * @param   {string}            options.assets                  构建后文件索引表输出路径（相对）
  * @param   {string}            options.repository              仓库类型，可选 git|svn
  * @param   {number}            options.parallel                最大并发进程数
  * @param   {boolean}           options.force                   是否强制全部构建
- * @param   {Object}            options.program                 构建器设置
+ * @param   {Object|string}     options.program                 构建器设置
  * @param   {string}            options.program.command         构建器运行命令
  * @param   {string}            options.program.options         构建器子进程配置 @see childProcess.exec() options 
  * @param   {string}            context                         工作目录（绝对路径）
@@ -74,7 +74,7 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
                 if (mod.dirty) {
                     return true
                 } else {
-                    loger.log('•', 'watcher:', mod.name, '[no changes]');
+                    loger.log('░░', 'watcher:', mod.name, '[no changes]');
                     return false;
                 }
             });
