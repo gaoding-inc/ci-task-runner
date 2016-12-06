@@ -10,6 +10,12 @@ class File {
     }
 }
 
+class Dependencie extends File {
+    constructor({name, path}) {
+        super({ name, path });
+    }
+}
+
 class Program {
     constructor({command, options}) {
         this.command = command;
@@ -20,16 +26,16 @@ class Program {
 class Module extends File {
     constructor({name, path, dependencies, program, order, dirty}) {
         super({ name, path });
-        this.dependencies = dependencies.map(library => new File(library));
+        this.dependencies = dependencies.map(lib => new Dependencie(lib));
         this.program = new Program(program);
         this.order = order;
         this.dirty = dirty;
     }
-};
+}
 
 
 /**
- * 构建 Module 对象
+ * 创建 Module 模型
  * @param   {Object}    options
  * @param   {string}    context     上下文路径
  * @return  {Module[]}
