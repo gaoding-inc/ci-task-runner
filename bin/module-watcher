@@ -16,10 +16,10 @@ process.env.LOGER_DISPLAY_COLOR = 1;
 program
     .version(require('../package.json').version)
     .usage('[options]')
-    .option('--parallel [number]', '进程最大并发数', parseInt)
-    .option('--force', '强制编译所有模块')
-    .option('--config [path]', '外部配置文件路径')
-    .option('--init', '初始化项目，生成配置文件')
+    .option('--parallel [number]', 'the maximum number of concurrent processes', parseInt)
+    .option('--force', 'forces all tasks to run')
+    .option('--config [path]', 'the configuration file path')
+    .option('--init', 'initialize the project')
     .parse(process.argv);
 
 function config(file) {
@@ -40,7 +40,8 @@ function config(file) {
             let config = require(configFile);
             options = Object.assign(config, options);
         } catch (e) {
-            throw new Error(`找不到配置文件 "${configFile}"`);
+            console.error(`configuration not found: "${configFile}"`);
+            process.exit(1);
         }
     }
 
