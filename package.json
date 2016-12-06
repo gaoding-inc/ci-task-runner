@@ -1,7 +1,7 @@
 {
   "name": "module-watcher",
-  "version": "0.1.6",
-  "description": "支持增量构建的任务管理器",
+  "version": "0.1.7",
+  "description": "支持增量与多进程的构建任务调度器",
   "main": "src/index.js",
   "bin": "bin/module-watcher",
   "scripts": {
@@ -17,6 +17,9 @@
     "type": "git",
     "url": "git+https://github.com/aui/module-watcher.git"
   },
+  "engines": {
+    "node": ">= 6.0.0"
+  },
   "keywords": [
     "webpack",
     "gulp",
@@ -27,7 +30,7 @@
     "task",
     "build"
   ],
-  "author": "",
+  "author": "糖饼",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/aui/module-watcher/issues"

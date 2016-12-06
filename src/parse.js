@@ -1,11 +1,18 @@
 const path = require('path');
 const template = require('../lib/template');
 const defaultsDeep = require('lodash.defaultsdeep');
+const DEFAULT = require('./config/config.program.default.json');
 
 class File {
     constructor({name, path}) {
         this.name = name;
         this.path = path;
+    }
+}
+
+class Dependencie extends File {
+    constructor({name, path}) {
+        super({ name, path });
     }
 }
 
@@ -19,16 +26,16 @@ class Program {
 class Module extends File {
     constructor({name, path, dependencies, program, order, dirty}) {
         super({ name, path });
-        this.dependencies = dependencies.map(library => new File(library));
+        this.dependencies = dependencies.map(lib => new Dependencie(lib));
         this.program = new Program(program);
         this.order = order;
         this.dirty = dirty;
     }
-};
+}
 
 
 /**
- * 构建 Module 对象
+ * 创建 Module 模型
  * @param   {Object}    options
  * @param   {string}    context     上下文路径
  * @return  {Module[]}
@@ -63,6 +70,23 @@ module.exports = (options, context) => {
     }
 
 
+    // 设置字符串变量
+    let setVariables = (target, variables) => {
+        let type = typeof target;
+        if (type === 'string') {
+            return template(target, variables);
+        } else if (Array.isArray(target)) {
+            return target.map(target => setVariables(target, variables));
+        } else if (type === 'object' && type !== null) {
+            let object = {};
+            Object.keys(target).forEach(key => object[key] = setVariables(target[key], variables));
+            return object;
+        } else {
+            return target;
+        }
+    };
+
+
     let parseModule = (mod, order) => {
 
         if (typeof mod === 'string') {
@@ -78,35 +102,19 @@ module.exports = (options, context) => {
             name: mod.name,
             path: path.resolve(context, mod.path || mod.name),
             dependencies: [].concat(mod.dependencies || [], options.dependencies || []),
-            program: defaultsDeep({}, parseProgram(mod.program), parseProgram(options.program), {
-                command: '',
-                options: {}
-            })
-        };
-        
-
-        let variables = {
-            moduleName: mod.name,
-            modulePath: mod.path,
-            moduleDirname: path.dirname(mod.path)
-        };
-
-        // 设置字符串变量
-        let setVariables = target => {
-            let type = typeof target;
-            if (type === 'string') {
-                return template(target, variables);
-            } else if (Array.isArray(target)) {
-                return target.map(setVariables);
-            } else if (type === 'object' && type !== null) {
-                let object = {};
-                Object.keys(target).forEach(key => object[key] = setVariables(target[key]));
-                return object;
-            }
+            program: defaultsDeep({},
+                parseProgram(mod.program),
+                parseProgram(options.program),
+                DEFAULT
+            )
         };
 
         let dependencies = mod.dependencies.map(parseDependencie);
-        let program = setVariables(mod.program);
+        let program = setVariables(mod.program, {
+            moduleName: mod.name,
+            modulePath: mod.path,
+            moduleDirname: path.dirname(mod.path)
+        });
 
         return new Module({
             name: mod.name,

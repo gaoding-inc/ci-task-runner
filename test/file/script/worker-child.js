@@ -1,4 +1,5 @@
 const worker = require('../../../lib/worker');
-const packageData = require('../../../package.json');
-console.log('worker');
-worker.send(packageData, process.pid);
+worker.send({
+    id: process.env.TEST_ID,
+    cwd: process.cwd()
+});

@@ -1,5 +1,3 @@
-'use strict';
-
 const path = require('path');
 const fsp = require('../lib/fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
@@ -16,30 +14,29 @@ const merge = require('./merge');
 
 
 /**
- * 多进程构建任务管理器
- * @param   {Object}            options                 @see config/config.default.json
- * @param   {Object[]|string[]} options.modules         模块目录列表
- * @param   {Object}            options.modules.name    模块目录名（相对）
- * @param   {string[]}          options.modules.dependencies   模块依赖目录（相对），继承 options.dependencies
- * @param   {Object}            options.modules.program    模块构建器设置，继承 options.program
- * @param   {string[]}          options.dependencies           模块组公共依赖（相对）
- * @param   {string}            options.assets          构建后文件索引表输出路径（相对）
- * @param   {string}            options.repository      仓库类型，可选 git|svn
- * @param   {number}            options.parallel        最大进程数
- * @param   {boolean}           options.force           是否强制全部构建
- * @param   {Object}            options.program         构建器设置
- * @param   {string}            options.program.command 构建器运行命令
- * @param   {string}            options.program.options 构建器子进程配置 @see childProcess.exec() options 
- * @param   {string}            context                 工作目录（绝对路径）
+ * 支持增量与多进程的构建任务调度器
+ * @param   {Object}            options                         @see config/config.default.json
+ * @param   {Object[]|string[]} options.modules                 模块目录列表
+ * @param   {Object}            options.modules.name            模块目录名（相对）
+ * @param   {string[]}          options.modules.dependencies    模块依赖目录（相对），继承 options.dependencies
+ * @param   {Object}            options.modules.program         模块构建器设置，继承 options.program
+ * @param   {string[]}          options.dependencies            模块组公共依赖（相对）
+ * @param   {string}            options.assets                  构建后文件索引表输出路径（相对）
+ * @param   {string}            options.repository              仓库类型，可选 git|svn
+ * @param   {number}            options.parallel                最大并发进程数
+ * @param   {boolean}           options.force                   是否强制全部构建
+ * @param   {Object}            options.program                 构建器设置
+ * @param   {string}            options.program.command         构建器运行命令
+ * @param   {string}            options.program.options         构建器子进程配置 @see childProcess.exec() options 
+ * @param   {string}            context                         工作目录（绝对路径）
  * @return  {Promise}
  */
 const moduleWatcher = (options = {}, context = process.cwd()) => {
+
     options = defaultsDeep({}, options, DEFAULT);
+    options.assets = path.resolve(context, options.assets);
 
-    const assetsPath = path.resolve(context, options.assets);
-    const loger = new Loger();
-    const repository = new Repository(assetsPath, options.repository, 'revision');
-
+    const repository = new Repository(options.assets, options.repository, 'revision');
     const tasks = [
 
 
@@ -68,11 +65,16 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
 
         // 过滤未修改的版本
         modules => {
+            const loger = new Loger([
+                { color: 'gray' },
+                null,
+                { minWidth: 16, color: 'green', textDecoration: 'underline' }
+            ]);
             return modules.filter(mod => {
                 if (mod.dirty) {
                     return true
                 } else {
-                    loger.log(`[gray]•[/gray] watcher: [green]${mod.name}[/green] no changes`);
+                    loger.log('•', 'watcher:', mod.name, '[no changes]');
                     return false;
                 }
             });
@@ -88,7 +90,7 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
         // 创建资源描述对象
         buildResults => {
             let now = (new Date()).toLocaleString();
-            let assetsDiranme = path.dirname(assetsPath);
+            let assetsDiranme = path.dirname(options.assets);
             let relative = file => path.relative(assetsDiranme, file);
             let assets = {
                 version: 1,
@@ -119,13 +121,13 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
 
         // 合并资源索引文件
         assets => {
-            return fsp.readFile(assetsPath, 'utf8')
+            return fsp.readFile(options.assets, 'utf8')
                 .then(json => defaultsDeep({}, JSON.parse(json)))
                 .catch(() => defaultsDeep({}, ASSETS_DEFAULT))
-                .then(oldAssets => merge(assets, oldAssets, assetsPath))
+                .then(oldAssets => merge(assets, oldAssets, options.assets))
                 .then(assets => {
                     let json = JSON.stringify(assets, null, 2);
-                    return fsp.writeFile(assetsPath, json, 'utf8').then(() => assets);
+                    return fsp.writeFile(options.assets, json, 'utf8').then(() => assets);
                 });
         },
 

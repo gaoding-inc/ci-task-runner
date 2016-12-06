@@ -13,16 +13,23 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
 
     let tasks = [[]];
     let preOrder = 0;
-    let loger = new Loger();
+
 
     let task = mod => () => {
-
+        
+        let program = mod.program;
         let date = (new Date()).toLocaleString();
-        let message = `[green]•[/green] watcher: [green]${mod.name}[/green]`;
+        let logStyles = [
+            null,
+            {  minWidth: 16, color: 'green', textDecoration: 'underline' },
+            null,
+            { color: 'gray' }
+        ];
 
-        loger.log(`${message} start [gray]${date}[/gray]`);
+        let loger = new Loger([{ color: 'white' }, ...logStyles]);
+        loger.log('•', 'watcher:', mod.name, '[task running]', date);
 
-        return worker(mod.program.command, mod.program.options).then((buildResult = {
+        return worker(program.command, program.options).then((buildResult = {
             chunks: {},
             assets: []
         }) => {
@@ -32,9 +39,14 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
             });
 
             let date = (new Date()).toLocaleString();
-            loger.log(`${message} end [gray]${date}[/gray]`);
+            let loger = new Loger([{ color: 'green' }, ...logStyles]);
+            loger.log('•', 'watcher:', mod.name, '[task success]', date);
 
             return buildResult;
+        }).catch(errors => {
+            let loger = new Loger([{ color: 'red' }, ...logStyles]);
+            loger.error('•', 'watcher:', mod.name, '[task failure]');
+            return errors;
         });
     };
 
