@@ -14,7 +14,7 @@
 
 * 标准：使用 Git 或 Svn 仓库来检测变更
 * 快速：利用多核 CPU 多进程并行加速构建
-* 灵活：适配任意构建器或自定义脚本
+* 灵活：兼容任意构建器或自定义脚本
 * 简单：采用语义化的 JSON 文件来描述项目
 
 ## 适用场景
@@ -224,6 +224,7 @@ module-watcher 提供了 Webpack 插件来与自己通讯。
 // webpack.config.js
 var AssetsWebpackPlugin = require('module-watcher/plugin/assets-webpack-plugin');
 module.exports = {
+  // ...
   plugins: [new AssetsWebpackPlugin()]
 };
 ```

@@ -46,7 +46,7 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
         }).catch(errors => {
             let loger = new Loger([{ color: 'red' }, ...logStyles]);
             loger.error('░░', 'watcher:', mod.name, '[task failure]');
-            return errors;
+            throw errors;
         });
     };
 
