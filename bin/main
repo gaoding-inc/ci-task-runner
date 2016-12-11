@@ -8,7 +8,8 @@ const gulp = require('gulp');
 
 
 const taskRunner = require('../');
-const CONFIG_PATH_NAME = '.ci-task-runner.json';
+const PACKAGE = require('../package.json');
+const CONFIG_PATH_NAME = `.${PACKAGE.anme}.json`;
 let CONTEXT = process.cwd();
 
 process.env.LOGER_DISPLAY_COLOR = 1;

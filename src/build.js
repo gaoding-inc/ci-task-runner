@@ -1,6 +1,7 @@
 const promiseTask = require('../lib/promise-task');
 const Loger = require('../lib/loger');
 const worker = require('../lib/worker');
+const PACKAGE = require('../package.json');
 
 
 /**
@@ -27,7 +28,7 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
         ];
 
         let loger = new Loger([null, ...logStyles]);
-        loger.log('░░', 'ci-task-runner:', mod.name, '[running]');
+        loger.log('░░', `${PACKAGE.name}:`, mod.name, '[running]');
 
         return worker(program.command, program.options).then((buildResult = {
             chunks: {},
@@ -40,12 +41,12 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
 
             let loger = new Loger([{ color: 'green' }, ...logStyles]);
             let timeEnd = Date.now() - time;
-            loger.log('░░', 'ci-task-runner:', mod.name, '[success]', `${timeEnd}ms`);
+            loger.log('░░', `${PACKAGE.name}:`, mod.name, '[success]', `${timeEnd}ms`);
 
             return buildResult;
         }).catch(errors => {
             let loger = new Loger([{ color: 'red' }, ...logStyles]);
-            loger.error('░░', 'ci-task-runner:', mod.name, '[failure]');
+            loger.error('░░', `${PACKAGE.name}:`, mod.name, '[failure]');
             throw errors;
         });
     };
