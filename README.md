@@ -219,7 +219,7 @@ ci-task-runner 提供了 Webpack 插件来与自己通讯。
 
 ```javascript
 // webpack.config.js
-var AssetsWebpackPlugin = require('ci-task-runner/plugin/assets-webpack-plugin');
+var AssetsWebpackPlugin = require('ci-task-runner/plugin/webpack');
 module.exports = {
   // ...
   plugins: [new AssetsWebpackPlugin()]
