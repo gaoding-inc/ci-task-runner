@@ -231,11 +231,11 @@ module.exports = {
 
 ## Gulp、Grunt …
 
-手动调用 `moduleWatcher.send()`：
+手动调用 `taskRunner.send()`：
 
 ```javascript
-var moduleWatcher = require('ci-task-runner');
-moduleWatcher.send({
+var taskRunner = require('ci-task-runner');
+taskRunner.send({
   chunks: {
     index: '/Document/aui/dist/index.8a2f3bd013c78d30ee09.js'
   },
@@ -246,7 +246,7 @@ moduleWatcher.send({
 });
 ```
 
-> 每一个任务只能运行一次 `moduleWatcher.send()` 方法，运行后进程将会被强制关闭。
+> 每一个任务只能运行一次 `taskRunner.send()` 方法，运行后进程将会被强制关闭。
 
 ## 持续集成
 

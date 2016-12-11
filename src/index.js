@@ -31,7 +31,7 @@ const merge = require('./merge');
  * @param   {string}            context                         工作目录（绝对路径）
  * @return  {Promise}
  */
-const moduleWatcher = (options = {}, context = process.cwd()) => {
+const taskRunner = (options = {}, context = process.cwd()) => {
 
     options = defaultsDeep({}, options, DEFAULT);
     options.assets = path.resolve(context, options.assets);
@@ -74,7 +74,7 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
                 if (mod.dirty) {
                     return true
                 } else {
-                    loger.log('░░', 'watcher:', mod.name, '[no changes]');
+                    loger.log('░░', 'ci-task-runner:', mod.name, '[no changes]');
                     return false;
                 }
             });
@@ -147,12 +147,12 @@ const moduleWatcher = (options = {}, context = process.cwd()) => {
 
 
 /**
- * 向 moduleWatcher 发送消息
+ * 向 taskRunner 发送消息
  * 构建器可以调用此方法，以便集中管理构建输出的资源（可选）
  * @param   {Object}    data            JSON 数据
  * @param   {Object}    data.chunks     入口文件映射表
  * @param   {string[]}  data.assets     所有构建输出的资源绝对路径列表
  */
-moduleWatcher.send = worker.send;
+taskRunner.send = worker.send;
 
-module.exports = moduleWatcher;
+module.exports = taskRunner;

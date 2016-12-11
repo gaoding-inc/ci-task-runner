@@ -27,7 +27,7 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
         ];
 
         let loger = new Loger([null, ...logStyles]);
-        loger.log('░░', 'watcher:', mod.name, '[task running]');
+        loger.log('░░', 'ci-task-runner:', mod.name, '[running]');
 
         return worker(program.command, program.options).then((buildResult = {
             chunks: {},
@@ -40,12 +40,12 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
 
             let loger = new Loger([{ color: 'green' }, ...logStyles]);
             let timeEnd = Date.now() - time;
-            loger.log('░░', 'watcher:', mod.name, '[task success]', `${timeEnd}ms`);
+            loger.log('░░', 'ci-task-runner:', mod.name, '[success]', `${timeEnd}ms`);
 
             return buildResult;
         }).catch(errors => {
             let loger = new Loger([{ color: 'red' }, ...logStyles]);
-            loger.error('░░', 'watcher:', mod.name, '[task failure]');
+            loger.error('░░', 'ci-task-runner:', mod.name, '[failure]');
             throw errors;
         });
     };

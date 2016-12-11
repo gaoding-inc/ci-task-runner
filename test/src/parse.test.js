@@ -13,10 +13,10 @@ describe('#parse', () => {
             options: {
                 timeout: 0,
                 env: {
-                    'MODULE_WATCHER': '1',
-                    'MODULE_WATCHER_MODULE_NAME': options.name,
-                    'MODULE_WATCHER_MODULE_PATH': p,
-                    'MODULE_WATCHER_MODULE_DIRNAME': path.dirname(p)
+                    'TASK_RUNNER': '1',
+                    'TASK_RUNNER_MODULE_NAME': options.name,
+                    'TASK_RUNNER_MODULE_PATH': p,
+                    'TASK_RUNNER_MODULE_DIRNAME': path.dirname(p)
                 }
             }
         };
