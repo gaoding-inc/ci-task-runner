@@ -18,7 +18,7 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
     let task = mod => () => {
 
         let program = mod.program;
-        let date = (new Date()).toLocaleString();
+        let time = Date.now();
         let logStyles = [
             null,
             {  minWidth: 16, color: 'green', textDecoration: 'underline' },
@@ -27,7 +27,7 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
         ];
 
         let loger = new Loger([null, ...logStyles]);
-        loger.log('░░', 'watcher:', mod.name, '[task running]', date);
+        loger.log('░░', 'watcher:', mod.name, '[task running]');
 
         return worker(program.command, program.options).then((buildResult = {
             chunks: {},
@@ -38,9 +38,9 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
                 name: mod.name
             });
 
-            let date = (new Date()).toLocaleString();
             let loger = new Loger([{ color: 'green' }, ...logStyles]);
-            loger.log('░░', 'watcher:', mod.name, '[task success]', date);
+            let timeEnd = Date.now() - time;
+            loger.log('░░', 'watcher:', mod.name, '[task success]', `${timeEnd}ms`);
 
             return buildResult;
         }).catch(errors => {
