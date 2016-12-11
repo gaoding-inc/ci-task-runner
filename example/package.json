@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "devDependencies": {
-    "module-watcher": "^0.1.8",
+    "ci-task-runner": "^0.1.8",
     "webpack": "^1.13.3"
   },
   "scripts": {
     "dev": "webpack --config module-example/webpack.config.js",
-    "build": "module-watcher",
+    "build": "ci-task-runner",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
