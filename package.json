@@ -5,9 +5,9 @@
   "main": "src/index.js",
   "bin": "bin/main",
   "scripts": {
-    "example": "ci-task-runner --config example/ci-task-runner.json",
+    "example": "ci-task-runner --config example/.ci-task-runner.json",
     "parallel-test": "node test/file/parallel/index.js",
-    "tasks-test": "ci-task-runner --config test/file/tasks/ci-task-runner.json",
+    "tasks-test": "ci-task-runner --config test/file/tasks/.ci-task-runner.json",
     "test": "mocha --recursive --bail 'test/**/*test.js'",
     "posttest": "npm run example && npm run tasks-test",
     "clear": "rm -rf example/dist & rm -rf test/file/parallel/dist & rm -rf test/file/tasks/dist",
