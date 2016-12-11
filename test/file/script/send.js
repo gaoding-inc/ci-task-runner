@@ -1,8 +1,8 @@
 const path = require('path');
-const moduleWatcher = require('../../../src/index');
+const taskRunner = require('../../../src/index');
 
 setTimeout(() => {
-    moduleWatcher.send({
+    taskRunner.send({
         chunks: {
             index: path.join(__dirname, '..', '..', 'dist', 'index.js')
         },

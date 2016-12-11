@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const moduleWatcher = require('../src/index');
+const taskRunner = require('../src/index');
 
 class AssetsWebpackPlugin {
 
@@ -14,7 +14,7 @@ class AssetsWebpackPlugin {
 
     send(result) {
         process.nextTick(() => {
-            moduleWatcher.send(result);
+            taskRunner.send(result);
         });
     }
 
@@ -64,7 +64,7 @@ class noopWebpackPlugin {
     apply(){}
 }
 
-if (process.env.MODULE_WATCHER) {
+if (process.env.TASK_RUNNER) {
     module.exports = AssetsWebpackPlugin;
 } else {
     module.exports = noopWebpackPlugin;

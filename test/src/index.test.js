@@ -1,11 +1,11 @@
 const assert = require('assert');
 const path = require('path');
-const moduleWatcher = require('../../src/index');
+const taskRunner = require('../../src/index');
 
 
 describe('#index', () => {
 
-    it('moduleWatcher.send()', () => {
+    it('taskRunner.send()', () => {
         let name = 'script';
         let options = {
             modules: [name],
@@ -14,7 +14,7 @@ describe('#index', () => {
         };
         let context = path.join(__dirname, '..', 'file');
 
-        return moduleWatcher(options, context).then(assets => {
+        return taskRunner(options, context).then(assets => {
 
             let mod = assets.modules[name];
 
@@ -34,7 +34,7 @@ describe('#index', () => {
         });
     });
 
-    it('moduleWatcher.send(): program.command', () => {
+    it('taskRunner.send(): program.command', () => {
         let name = 'script';
         let options = {
             modules: [name],
@@ -45,7 +45,7 @@ describe('#index', () => {
         };
         let context = path.join(__dirname, '..', 'file');
 
-        return moduleWatcher(options, context).then(assets => {
+        return taskRunner(options, context).then(assets => {
 
             let mod = assets.modules[name];
 

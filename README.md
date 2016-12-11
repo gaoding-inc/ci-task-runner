@@ -1,4 +1,4 @@
-# module-watcher
+# ci-task-runner
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
@@ -14,7 +14,7 @@
 
 * 标准：使用 Git 或 Svn 仓库来检测变更
 * 快速：利用多核 CPU 多进程并行加速构建
-* 灵活：适配任意构建器或自定义脚本
+* 灵活：兼容任意构建器或自定义脚本
 * 简单：采用语义化的 JSON 文件来描述项目
 
 ## 适用场景
@@ -25,7 +25,7 @@
 ## 安装
 
 ```shell
-npm install module-watcher -g
+npm install ci-task-runner -g
 ```
 
 ## 使用
@@ -33,22 +33,22 @@ npm install module-watcher -g
 1\. 切换到项目目录，运行：
 
 ```shell
-module-watcher --init
+ci-task-runner --init
 ```
 
-会在当前目录创建 module-watcher.json 文件以及演示模块目录（演示依赖 Webpack）。
+程序会在当前目录创建 .ci-task-runner.json 文件以及演示模块目录（演示依赖 Webpack）。
 
-2\. 运行 module-watcher
+2\. 运行 ci-task-runner
 
 ```shell
-module-watcher
+ci-task-runner
 ```
 
-> 在服务器上可以使用 CI 工具启动 module-watcher，参考： [持续集成](#持续集成)。
+> 在服务器上可以使用 CI 工具启动 ci-task-runner，参考： [持续集成](#持续集成)。
 
 ## 配置
 
-module-watcher.json 文件范例：
+.ci-task-runner.json 文件范例：
 
 ```json
 {
@@ -212,29 +212,30 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
 
 ## 集中管理所有构建结果
 
-推荐使用 module-watcher 来管理构建输出的资源索引（可选）。
+推荐使用 ci-task-runner 来管理构建输出的资源索引（可选）。
 
 所有任务都成功结束后，各个构建器输出的文件索引将写入在 [`assets`](#assets) 中，以便发布程序处理这些文件。
 
 ### Webpack
 
-module-watcher 提供了 Webpack 插件来与自己通讯。
+ci-task-runner 提供了 Webpack 插件来与自己通讯。
 
 ```javascript
 // webpack.config.js
-var AssetsWebpackPlugin = require('module-watcher/plugin/assets-webpack-plugin');
+var AssetsWebpackPlugin = require('ci-task-runner/plugin/assets-webpack-plugin');
 module.exports = {
+  // ...
   plugins: [new AssetsWebpackPlugin()]
 };
 ```
 
 ## Gulp、Grunt …
 
-手动调用 `moduleWatcher.send()`：
+手动调用 `taskRunner.send()`：
 
 ```javascript
-var moduleWatcher = require('module-watcher');
-moduleWatcher.send({
+var taskRunner = require('ci-task-runner');
+taskRunner.send({
   chunks: {
     index: '/Document/aui/dist/index.8a2f3bd013c78d30ee09.js'
   },
@@ -245,11 +246,11 @@ moduleWatcher.send({
 });
 ```
 
-> 每一个任务只能运行一次 `moduleWatcher.send()` 方法，运行后进程将会被强制关闭。
+> 每一个任务只能运行一次 `taskRunner.send()` 方法，运行后进程将会被强制关闭。
 
 ## 持续集成
 
-使用 CI 工具来在服务器上运行 module-watcher。
+使用 CI 工具来在服务器上运行 ci-task-runner。
 
 **持续集成优势：**
 
@@ -264,11 +265,11 @@ moduleWatcher.send({
 
 CI 工具配置请参考相应的文档。
 
-[npm-image]: https://img.shields.io/npm/v/module-watcher.svg
-[npm-url]: https://npmjs.org/package/module-watcher
-[node-version-image]: https://img.shields.io/node/v/module-watcher.svg
+[npm-image]: https://img.shields.io/npm/v/ci-task-runner.svg
+[npm-url]: https://npmjs.org/package/ci-task-runner
+[node-version-image]: https://img.shields.io/node/v/ci-task-runner.svg
 [node-version-url]: http://nodejs.org/download/
-[downloads-image]: https://img.shields.io/npm/dm/module-watcher.svg
-[downloads-url]: https://npmjs.org/package/module-watcher
-[travis-ci-image]: https://travis-ci.org/aui/module-watcher.svg?branch=master
-[travis-ci-url]: https://travis-ci.org/aui/module-watcher
+[downloads-image]: https://img.shields.io/npm/dm/ci-task-runner.svg
+[downloads-url]: https://npmjs.org/package/ci-task-runner
+[travis-ci-image]: https://travis-ci.org/aui/ci-task-runner.svg?branch=master
+[travis-ci-url]: https://travis-ci.org/aui/ci-task-runner

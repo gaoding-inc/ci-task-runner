@@ -7,8 +7,8 @@ const program = require('commander');
 const gulp = require('gulp');
 
 
-const moduleWatcher = require('../');
-const CONFIG_PATH_NAME = 'module-watcher.json';
+const taskRunner = require('../');
+const CONFIG_PATH_NAME = '.ci-task-runner.json';
 let CONTEXT = process.cwd();
 
 process.env.LOGER_DISPLAY_COLOR = 1;
@@ -76,7 +76,7 @@ if (program.init) {
     init();
 } else {
     let options = config(program.config);
-    moduleWatcher(options, CONTEXT).catch(errors => process.nextTick(() => {
+    taskRunner(options, CONTEXT).catch(errors => process.nextTick(() => {
         console.error(errors);
         process.exit(1);
     }));

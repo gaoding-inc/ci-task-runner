@@ -1,13 +1,13 @@
 {
-  "name": "module-watcher",
-  "version": "0.1.8",
+  "name": "ci-task-runner",
+  "version": "0.1.9",
   "description": "支持增量与多进程的构建任务调度器",
   "main": "src/index.js",
-  "bin": "bin/module-watcher",
+  "bin": "bin/main",
   "scripts": {
-    "example": "module-watcher --config example/module-watcher.json",
+    "example": "ci-task-runner --config example/.ci-task-runner.json",
     "parallel-test": "node test/file/parallel/index.js",
-    "tasks-test": "module-watcher --config test/file/tasks/module-watcher.json",
+    "tasks-test": "ci-task-runner --config test/file/tasks/.ci-task-runner.json",
     "test": "mocha --recursive --bail 'test/**/*test.js'",
     "posttest": "npm run example && npm run tasks-test",
     "clear": "rm -rf example/dist & rm -rf test/file/parallel/dist & rm -rf test/file/tasks/dist",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aui/module-watcher.git"
+    "url": "git+https://github.com/aui/ci-task-runner.git"
   },
   "engines": {
     "node": ">= 6.0.0"
@@ -33,9 +33,9 @@
   "author": "糖饼",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/aui/module-watcher/issues"
+    "url": "https://github.com/aui/ci-task-runner/issues"
   },
-  "homepage": "https://github.com/aui/module-watcher#readme",
+  "homepage": "https://github.com/aui/ci-task-runner#readme",
   "dependencies": {
     "commander": "^2.9.0",
     "gulp": "^3.9.1",
