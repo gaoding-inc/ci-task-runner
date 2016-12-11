@@ -13,10 +13,10 @@ describe('#parse', () => {
             options: {
                 timeout: 0,
                 env: {
-                    'TASK_RUNNER': '1',
-                    'TASK_RUNNER_MODULE_NAME': options.name,
-                    'TASK_RUNNER_MODULE_PATH': p,
-                    'TASK_RUNNER_MODULE_DIRNAME': path.dirname(p)
+                    'CI_TASK_RUNNER': '1',
+                    'CI_TASK_RUNNER_MODULE_NAME': options.name,
+                    'CI_TASK_RUNNER_MODULE_PATH': p,
+                    'CI_TASK_RUNNER_MODULE_DIRNAME': path.dirname(p)
                 }
             }
         };
