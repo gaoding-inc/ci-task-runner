@@ -249,7 +249,7 @@ taskRunner.send({
 
 使用 CI 工具来在服务器上运行 ci-task-runner。
 
-![持续集成架构图](https://cloud.githubusercontent.com/assets/1791748/21080792/470338c8-bff3-11e6-92bd-42f420b8bb8b.png)
+<img src="https://cloud.githubusercontent.com/assets/1791748/21080792/470338c8-bff3-11e6-92bd-42f420b8bb8b.png" alt="持续集成架构图" width="654">
 
 **相关工具：**
 
