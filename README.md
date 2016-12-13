@@ -143,7 +143,7 @@ ci-task-runner
 
 ### `program.options`
 
-构建器进程配置。构建器会在子进程中运行，在这里设置进程的选项。参考：[child_process.exec] (https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)。
+构建器进程配置。构建器会在子进程中运行，在这里设置进程的选项。参考：[child_process.exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)。
 
 ### 变量
 
