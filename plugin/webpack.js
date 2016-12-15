@@ -64,7 +64,7 @@ class noopWebpackPlugin {
     apply(){}
 }
 
-if (process.env.TASK_RUNNER) {
+if (process.env.CI_TASK_RUNNER) {
     module.exports = AssetsWebpackPlugin;
 } else {
     module.exports = noopWebpackPlugin;

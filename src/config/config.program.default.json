@@ -2,10 +2,10 @@
     "command": "",
     "options": {
       "env": {
-        "TASK_RUNNER": "1",
-        "TASK_RUNNER_MODULE_NAME": "${moduleName}",
-        "TASK_RUNNER_MODULE_PATH": "${modulePath}",
-        "TASK_RUNNER_MODULE_DIRNAME": "${moduleDirname}"
+        "CI_TASK_RUNNER": "1",
+        "CI_TASK_RUNNER_MODULE_NAME": "${moduleName}",
+        "CI_TASK_RUNNER_MODULE_PATH": "${modulePath}",
+        "CI_TASK_RUNNER_MODULE_DIRNAME": "${moduleDirname}"
       },
       "timeout": 0
     }

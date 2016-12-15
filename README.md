@@ -5,16 +5,13 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-支持增量与多进程的构建任务调度器。它的职责：
-
-1. 观察版本仓库的目录、文件变更
-2. 调用指定程序来构建变更后的文件，如 Webpack、Gulp、Grunt 等
+支持增量与多进程的构建任务调度器，大幅度提升 CI 服务器构建速度。
 
 ## 特性
 
-* 标准：使用 Git 或 Svn 仓库来检测变更
+* 标准：基于 Git 或 Svn 提交记录按需构建
 * 快速：利用多核 CPU 多进程并行加速构建
-* 灵活：兼容任意构建器或自定义脚本
+* 灵活：兼容 Webpack、Gulp、Grunt 等构建程序
 * 简单：采用语义化的 JSON 文件来描述项目
 
 ## 适用场景
@@ -105,15 +102,15 @@ ci-task-runner
 
 > module-watch 使用 Git 或 Svn 来实现变更检测，所以其路径必须已经受版本管理。如果想监控 node_modules 的变更，可以指定：`"dependencies": ["package.json"]`。
 
-## `repository`
+### `repository`
 
 设置仓库的类型。支持 git 与 svn。
 
-## `parallel`
+### `parallel`
 
 设置最大并行进程数。默认值为 `require('os').cpus().length`。
 
-## `program`
+### `program`
 
 构建器配置。
 
@@ -138,17 +135,17 @@ ci-task-runner
 }
 ```
 
-### `program.command`
+#### `program.command`
 
 设置执行的构建命令。
 
 > 程序会将 node_modules/.bin 加入到环境变量 `PATH` 中。
 
-### `program.options`
+#### `program.options`
 
-构建器进程配置。构建器会在子进程中运行，在这里设置进程的选项。参考：[child_process.exec] (https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)。
+构建器进程配置。构建器会在子进程中运行，在这里设置进程的选项。参考：[child_process.exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)。
 
-### 变量
+#### 变量
 
 `program` 支持的字符串变量：
 
@@ -222,7 +219,7 @@ ci-task-runner 提供了 Webpack 插件来与自己通讯。
 
 ```javascript
 // webpack.config.js
-var AssetsWebpackPlugin = require('ci-task-runner/plugin/assets-webpack-plugin');
+var AssetsWebpackPlugin = require('ci-task-runner/plugin/webpack');
 module.exports = {
   // ...
   plugins: [new AssetsWebpackPlugin()]
@@ -252,11 +249,7 @@ taskRunner.send({
 
 使用 CI 工具来在服务器上运行 ci-task-runner。
 
-**持续集成优势：**
-
-* 自动：分支推送即自动触发构建、测试、发布
-* 异步：无须中断编码工作等待构建任务结束
-* 稳定：确保构建源都来自于版本仓库中
+<img src="https://cloud.githubusercontent.com/assets/1791748/21080792/470338c8-bff3-11e6-92bd-42f420b8bb8b.png" alt="持续集成架构图" width="654">
 
 **相关工具：**
 

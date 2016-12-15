@@ -7,6 +7,7 @@ const worker = require('../lib/worker');
 const Loger = require('../lib/loger');
 const DEFAULT = require('./config/config.default.json');
 const ASSETS_DEFAULT = require('./config/assets.default.json');
+const PACKAGE = require('../package.json');
 
 const parse = require('./parse');
 const build = require('./build');
@@ -35,6 +36,10 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
     options = defaultsDeep({}, options, DEFAULT);
     options.assets = path.resolve(context, options.assets);
+
+    const time = Date.now();
+    const loger = new Loger([{ color: 'gray' }]);
+    loger.log('░░', `${PACKAGE.name}:`, `v${PACKAGE.version}`);
 
     const repository = new Repository(options.assets, options.repository, 'revision');
     const tasks = [
@@ -74,7 +79,7 @@ const taskRunner = (options = {}, context = process.cwd()) => {
                 if (mod.dirty) {
                     return true
                 } else {
-                    loger.log('░░', 'ci-task-runner:', mod.name, '[no changes]');
+                    loger.log('░░', `${PACKAGE.name}:`, mod.name, '[no changes]');
                     return false;
                 }
             });
@@ -141,6 +146,8 @@ const taskRunner = (options = {}, context = process.cwd()) => {
     ];
 
     return promiseTask.serial(tasks).then(results => {
+        let timeEnd = Date.now() - time;
+        loger.log('░░', `${PACKAGE.name}:`, `${timeEnd}ms`);
         return results[results.length - 1];
     });
 };
