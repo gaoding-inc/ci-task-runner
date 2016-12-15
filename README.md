@@ -5,7 +5,7 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-支持增量与多进程的构建任务调度器，提升 CI 构建速度。
+支持增量与多进程的构建任务调度器，大幅度提升 CI 服务器构建速度。
 
 ## 特性
 
@@ -102,15 +102,15 @@ ci-task-runner
 
 > module-watch 使用 Git 或 Svn 来实现变更检测，所以其路径必须已经受版本管理。如果想监控 node_modules 的变更，可以指定：`"dependencies": ["package.json"]`。
 
-## `repository`
+### `repository`
 
 设置仓库的类型。支持 git 与 svn。
 
-## `parallel`
+### `parallel`
 
 设置最大并行进程数。默认值为 `require('os').cpus().length`。
 
-## `program`
+### `program`
 
 构建器配置。
 
@@ -135,17 +135,17 @@ ci-task-runner
 }
 ```
 
-### `program.command`
+#### `program.command`
 
 设置执行的构建命令。
 
 > 程序会将 node_modules/.bin 加入到环境变量 `PATH` 中。
 
-### `program.options`
+#### `program.options`
 
 构建器进程配置。构建器会在子进程中运行，在这里设置进程的选项。参考：[child_process.exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)。
 
-### 变量
+#### 变量
 
 `program` 支持的字符串变量：
 
