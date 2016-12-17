@@ -127,12 +127,12 @@ describe('#loger', () => {
 
     it('all', () => {
         let loger = new Loger([{
-            // minWidth: 20,
-            // textAlign: 'center',
-            // textDecoration: 'underline',
-            // color: 'green',
+            minWidth: 20,
+            textAlign: 'center',
+            textDecoration: 'underline',
+            color: 'green',
             fontStyle: 'italic',
-            //fontWeight: 'bold'
+            fontWeight: 'bold'
         }]);
         loger.log('😐hello world😐');
     });
