@@ -38,7 +38,7 @@ const taskRunner = (options = {}, context = process.cwd()) => {
     options.assets = path.resolve(context, options.assets);
 
     const time = Date.now();
-    const loger = new Loger([{ color: 'gray' }]);
+    const loger = new Loger();
     loger.log('░░', `${PACKAGE.name}:`, `v${PACKAGE.version}`);
 
     const repository = new Repository(options.assets, options.repository, 'revision');
