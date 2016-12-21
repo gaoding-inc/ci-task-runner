@@ -139,7 +139,7 @@ ci-task-runner
 
 设置执行的构建命令。
 
-> 程序会将 node_modules/.bin 加入到环境变量 `PATH` 中。
+> 程序会将 `${moduleName}/node_modules/.bin` 与 `node_modules/.bin` 加入到环境变量 `PATH` 中。
 
 #### `program.options`
 
@@ -250,6 +250,8 @@ taskRunner.send({
 使用 CI 工具来在服务器上运行 ci-task-runner。
 
 <img src="https://cloud.githubusercontent.com/assets/1791748/21080792/470338c8-bff3-11e6-92bd-42f420b8bb8b.png" alt="持续集成架构图" width="654">
+
+> Webpack 遇到编译错误没有退出的问题参考：[Webpack configuration.bail](http://webpack.github.io/docs/configuration.html#bail)
 
 **相关工具：**
 
