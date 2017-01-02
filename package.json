@@ -1,6 +1,6 @@
 {
   "name": "ci-task-runner",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "支持增量与多进程的构建任务调度器",
   "main": "src/index.js",
   "bin": "bin/main",
