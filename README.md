@@ -243,8 +243,6 @@ taskRunner.send({
 });
 ```
 
-> 每一个任务只能运行一次 `taskRunner.send()` 方法，运行后进程将会被强制关闭。
-
 ## 持续集成
 
 使用 CI 工具来在服务器上运行 ci-task-runner。
