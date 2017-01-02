@@ -8,11 +8,11 @@ class AssetsWebpackPlugin {
     apply(compiler) {
         compiler.plugin('done', stats => {
             let result = this.assets(stats);
-            this.send(result);
+            this.postMessage(result);
         });
     }
 
-    send(result) {
+    postMessage(result) {
         process.nextTick(() => {
             taskRunner.send(result);
         });
