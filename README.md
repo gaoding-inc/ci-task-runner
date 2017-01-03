@@ -207,42 +207,6 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
 
 上述例子中：当 package.json 变更后，则会执行 `npm install` 安装项目依赖，让项目保持最新。
 
-## 集中管理所有构建结果
-
-推荐使用 ci-task-runner 来管理构建输出的资源索引（可选）。
-
-所有任务都成功结束后，各个构建器输出的文件索引将写入在 [`assets`](#assets) 中，以便发布程序处理这些文件。
-
-### Webpack
-
-ci-task-runner 提供了 Webpack 插件来与自己通讯。
-
-```javascript
-// webpack.config.js
-var AssetsWebpackPlugin = require('ci-task-runner/plugin/webpack');
-module.exports = {
-  // ...
-  plugins: [new AssetsWebpackPlugin()]
-};
-```
-
-## Gulp、Grunt …
-
-手动调用 `taskRunner.send()`：
-
-```javascript
-var taskRunner = require('ci-task-runner');
-taskRunner.send({
-  chunks: {
-    index: '/Document/aui/dist/index.8a2f3bd013c78d30ee09.js'
-  },
-  assets: [
-    '/Document/aui/dist/index.8a2f3bd013c78d30ee09.js',
-    '/Document/aui/dist/index.8a2f3bd013c78d30ee09.js.map'
-  ]
-});
-```
-
 ## 持续集成
 
 使用 CI 工具来在服务器上运行 ci-task-runner。

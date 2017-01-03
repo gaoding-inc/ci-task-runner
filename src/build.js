@@ -31,19 +31,17 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
         loger.log('░░', `${PACKAGE.name}:`, mod.name, '[running]');
 
         return worker(program.command, program.options).then((buildResult = {
-            chunks: {},
-            assets: []
+            date: (new Date()).toLocaleString()
         }) => {
-
-            Object.assign(buildResult, {
-                name: mod.name
-            });
-
+            
             let loger = new Loger([{ color: 'green' }, ...logStyles]);
             let timeEnd = Date.now() - time;
             loger.log('░░', `${PACKAGE.name}:`, mod.name, '[success]', `${timeEnd}ms`);
 
-            return buildResult;
+            return {
+                name: mod.name,
+                buildResult: buildResult
+            };
         }).catch(errors => {
             let loger = new Loger([{ color: 'red' }, ...logStyles]);
             loger.error('░░', `${PACKAGE.name}:`, mod.name, '[failure]');

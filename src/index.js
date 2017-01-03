@@ -11,7 +11,6 @@ const PACKAGE = require('../package.json');
 
 const parse = require('./parse');
 const build = require('./build');
-const merge = require('./merge');
 
 
 /**
@@ -94,42 +93,26 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
         // 创建资源描述对象
         buildResults => {
-            let now = (new Date()).toLocaleString();
-            let assetsDiranme = path.dirname(options.assets);
-            let relative = file => path.relative(assetsDiranme, file);
             let assets = {
-                version: 1,
-                date: now,
                 latest: [],
                 modules: {}
             };
 
             buildResults.forEach(buildResult => {
-                let aChunks = buildResult.chunks;
-                let aAssets = buildResult.assets;
-
-                // 转换为相对路径
-                Object.keys(aChunks).forEach(name => aChunks[name] = relative(aChunks[name]));
-                aAssets.forEach((file, index) => aAssets[index] = relative(file));
-
-                buildResult.version = 1;
-                buildResult.date = now;
-                buildResult.chunks = aChunks;
-                buildResult.assets = aAssets;
                 assets.latest.push(buildResult.name);
-                assets.modules[buildResult.name] = buildResult;
+                assets.modules[buildResult.name] = buildResult.buildResult;
             });
 
             return assets;
         },
 
 
-        // 合并资源索引文件
+        // 更新资源索引文件
         assets => {
             return fsp.readFile(options.assets, 'utf8')
                 .then(json => defaultsDeep({}, JSON.parse(json)))
                 .catch(() => defaultsDeep({}, ASSETS_DEFAULT))
-                .then(oldAssets => merge(assets, oldAssets, options.assets))
+                .then(oldAssets => defaultsDeep(assets, oldAssets))
                 .then(assets => {
                     let json = JSON.stringify(assets, null, 2);
                     return fsp.writeFile(options.assets, json, 'utf8').then(() => assets);
