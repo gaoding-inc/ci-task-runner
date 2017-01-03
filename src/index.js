@@ -137,9 +137,8 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
 
 /**
- * 向 taskRunner 发送消息
- * 构建器可以调用此方法，将会讲构建结果写入到 cache 文件中
- * @param   {Object}    data            JSON 数据
+ * 子进程可以使用此方法向 taskRunner 发送消息告知编译结果
+ * 编译结果会写入到 cache 文件中的 modules 字段
  */
 taskRunner.send = worker.send;
 
