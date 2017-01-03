@@ -3,7 +3,7 @@ const assert = require('assert');
 const fsPromise = require('../../lib/fs-promise');
 
 describe('#fs-promise', () => {
-    const dist = path.join(__dirname, 'dist', 'test', 'test.json');
+    const dist = path.join(process.env.TEST_DIST, 'lib', 'fs-promise', 'test.json');
     const json = { type: 'test' };
 
     it('write file && read file', () => {

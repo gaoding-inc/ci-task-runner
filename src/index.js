@@ -6,7 +6,7 @@ const Repository = require('../lib/repository');
 const worker = require('../lib/worker');
 const Loger = require('../lib/loger');
 const DEFAULT = require('./config/config.default.json');
-const ASSETS_DEFAULT = require('./config/assets.default.json');
+const CACHE_DEFAULT = require('./config/cache.default.json');
 const PACKAGE = require('../package.json');
 
 const parse = require('./parse');
@@ -21,7 +21,7 @@ const build = require('./build');
  * @param   {string[]}          options.modules[].dependencies  模块依赖目录（相对），继承 options.dependencies
  * @param   {Object}            options.modules[].program       模块构建器设置，继承 options.program
  * @param   {string[]}          options.dependencies            模块组公共依赖（相对）
- * @param   {string}            options.assets                  构建后文件索引表输出路径（相对）
+ * @param   {string}            options.cache                   缓存文件输出路径（相对）
  * @param   {string}            options.repository              仓库类型，可选 git|svn
  * @param   {number}            options.parallel                最大并发进程数
  * @param   {boolean}           options.force                   是否强制全部构建
@@ -34,13 +34,13 @@ const build = require('./build');
 const taskRunner = (options = {}, context = process.cwd()) => {
 
     options = defaultsDeep({}, options, DEFAULT);
-    options.assets = path.resolve(context, options.assets);
+    options.cache = path.resolve(context, options.cache);
 
     const time = Date.now();
     const loger = new Loger();
     loger.log('░░', `${PACKAGE.name}:`, `v${PACKAGE.version}`);
 
-    const repository = new Repository(options.assets, options.repository, 'revision');
+    const repository = new Repository(options.cache, options.repository, 'revision');
     const tasks = [
 
 
@@ -93,37 +93,37 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
         // 创建资源描述对象
         buildResults => {
-            let assets = {
+            let cache = {
                 latest: [],
                 modules: {}
             };
 
             buildResults.forEach(buildResult => {
-                assets.latest.push(buildResult.name);
-                assets.modules[buildResult.name] = buildResult.buildResult;
+                cache.latest.push(buildResult.name);
+                cache.modules[buildResult.name] = buildResult.buildResult;
             });
 
-            return assets;
+            return cache;
         },
 
 
         // 更新资源索引文件
-        assets => {
-            return fsp.readFile(options.assets, 'utf8')
+        cache => {
+            return fsp.readFile(options.cache, 'utf8')
                 .then(json => defaultsDeep({}, JSON.parse(json)))
-                .catch(() => defaultsDeep({}, ASSETS_DEFAULT))
-                .then(oldAssets => defaultsDeep(assets, oldAssets))
-                .then(assets => {
-                    let json = JSON.stringify(assets, null, 2);
-                    return fsp.writeFile(options.assets, json, 'utf8').then(() => assets);
+                .catch(() => defaultsDeep({}, CACHE_DEFAULT))
+                .then(oldAssets => defaultsDeep(cache, oldAssets))
+                .then(cache => {
+                    let json = JSON.stringify(cache, null, 2);
+                    return fsp.writeFile(options.cache, json, 'utf8').then(() => cache);
                 });
         },
 
 
         // 保存当前已编译的版本信息
         // 必须构建完才保存版本信息，否则构建失败后下一次可能不会重新构建
-        assets => {
-            return repository.save().then(() => assets);
+        cache => {
+            return repository.save().then(() => cache);
         }
 
     ];
@@ -138,10 +138,8 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
 /**
  * 向 taskRunner 发送消息
- * 构建器可以调用此方法，以便集中管理构建输出的资源（可选）
+ * 构建器可以调用此方法，将会讲构建结果写入到 cache 文件中
  * @param   {Object}    data            JSON 数据
- * @param   {Object}    data.chunks     入口文件映射表
- * @param   {string[]}  data.assets     所有构建输出的资源绝对路径列表
  */
 taskRunner.send = worker.send;
 

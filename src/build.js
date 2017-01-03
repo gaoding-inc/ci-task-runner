@@ -30,9 +30,7 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
         let loger = new Loger([null, ...logStyles]);
         loger.log('░░', `${PACKAGE.name}:`, mod.name, '[running]');
 
-        return worker(program.command, program.options).then((buildResult = {
-            date: (new Date()).toLocaleString()
-        }) => {
+        return worker(program.command, program.options).then((buildResult) => {
             
             let loger = new Loger([{ color: 'green' }, ...logStyles]);
             let timeEnd = Date.now() - time;

@@ -4,7 +4,7 @@ const Repository = require('../../lib/repository');
 
 describe('#repository', () => {
 
-    const dbPath = path.join(__dirname, 'dist', '.watch-commit.json');
+    const dbPath = path.join(process.env.TEST_DIST, 'lib', 'repository', '.watch-commit.json');
     const repository = new Repository(dbPath);
 
     it('watch one file', () => {

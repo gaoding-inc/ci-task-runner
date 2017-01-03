@@ -50,7 +50,7 @@ ci-task-runner
 ```json
 {
   "modules": ["mod1", "mod2", "mod3"],
-  "assets": "dist/assets.json",
+  "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${modulePath} && webpack --color"
 }
@@ -90,11 +90,11 @@ ci-task-runner
 1. [`dependencies`](#dependencies) 与 [`program`](#program) 会继承顶层的配置
 2. `modules` 支持配置并行任务，参考 [多进程并行构建](#多进程并行构建)
 
-### `assets`
+### `cache`
 
-设置构建后文件索引表输出路径。构建任务结束后它会输出结果，以供其他程序调用。参考：[集中管理所有构建结果](#集中管理所有构建结果)。
+ci-task-runner 缓存文件保存路径。
 
-> 请在版本库中忽略 `assets` 的文件路径。
+> 请在版本库中忽略 `cache` 的文件路径。
 
 ### `dependencies`
 
@@ -164,7 +164,7 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
 ```json
 {
   "modules": ["dll", ["mod1", "mod2", "mod3"]],
-  "assets": "dist/assets.json",
+  "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${modulePath} && webpack --color"
 }
@@ -178,7 +178,7 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
 {
   "modules": ["dll", ["mod1", "mod2", "mod3"]],
   "dependencies": ["dll", "package.json"],
-  "assets": "dist/assets.json",
+  "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${modulePath} && webpack --color"
 }
@@ -199,7 +199,7 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
     ["mod1", "mod2", "mod3"]
   ],
   "dependencies": ["package.json", "dll"],
-  "assets": "dist/assets.json",
+  "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${modulePath} && webpack --color"
 }

@@ -1,8 +1,7 @@
 {
   "modules": [],
   "dependencies": [],
-  "assets": "dist/assets.json",
-  "force": false,
+  "cache": ".ci-task-runner-cache.json",
   "repository": "git",
   "program": {}
 }
