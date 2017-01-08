@@ -33,7 +33,7 @@ npm install ci-task-runner -g
 ci-task-runner --init
 ```
 
-程序会在当前目录创建 .ci-task-runner.json 文件以及演示模块目录（演示依赖 Webpack）。
+程序会在当前目录生成配置文件：.ci-task-runner.json。
 
 2\. 运行 ci-task-runner
 

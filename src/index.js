@@ -3,7 +3,6 @@ const fsp = require('../lib/fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('../lib/promise-task');
 const Repository = require('../lib/repository');
-const worker = require('../lib/worker');
 const Loger = require('../lib/loger');
 const DEFAULT = require('./config/config.default.json');
 const CACHE_DEFAULT = require('./config/cache.default.json');
@@ -52,7 +51,7 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
         // 检查模块是否有变更
         modules => {
-            cache.modules = modules;
+            cache.modules = {};
             return Promise.all(modules.map(mod => {
                 return Promise.all([
 
@@ -64,6 +63,12 @@ const taskRunner = (options = {}, context = process.cwd()) => {
                     let modChanged = modCommit[0] !== modCommit[1];
                     let libChanged = libCommits.filter(libCommit => libCommit[0] !== libCommit[1]).length !== 0;
                     mod.dirty = options.force || modChanged || libChanged;
+
+                    cache.modules[mod.name] = {
+                        path: path.relative(options.cache, mod.path),
+                        dirty: mod.dirty
+                    };
+
                     return mod;
                 });
             }));
