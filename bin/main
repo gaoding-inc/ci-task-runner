@@ -4,8 +4,6 @@
 const fs = require('fs');
 const path = require('path');
 const program = require('commander');
-const gulp = require('gulp');
-
 
 const taskRunner = require('../');
 const PACKAGE = require('../package.json');
@@ -51,25 +49,24 @@ function config(file) {
 
 
 function init() {
-    fs.access(path.resolve(CONTEXT, CONFIG_PATH_NAME), errors => {
 
-        if (!errors) {
-            return;
-        }
+    try {
+        fs.access(path.resolve(CONTEXT, CONFIG_PATH_NAME))
+    } catch(e) {
+        let config = {
+            "modules": [{
+                "name": "package.json",
+                "program": "npm install"
+            }],
+            "dependencies": ["package.json"],
+            "cache": ".ci-task-runner-cache.json",
+            "repository": "git",
+            "program": "cd ${modulePath}"
+        };
 
-        let example = path.resolve(__dirname, '..', 'example');
-
-        gulp.src([
-            path.resolve(example, '**/*'),
-            '!' + path.resolve(example, 'package.json')
-        ]).pipe(gulp.dest('./')).on('end', function (errors) {
-            if (errors) {
-                throw errors;
-            }
-            console.log(`"${CONFIG_PATH_NAME}" has been created.`);
-        });
-
-    });
+        fs.writeFileSync(`./.ci-task-runner.json'`, JSON.stringify(config, null, 2), 'utf8');
+        console.log(`".ci-task-runner.json" has been created.`);
+    }
 }
 
 
