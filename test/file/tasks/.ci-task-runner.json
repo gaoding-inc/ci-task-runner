@@ -4,7 +4,6 @@
     "program": "node ${modulePath}/builder.js"
   }]],
   "dependencies": ["lib"],
-  "cache": "dist/.ci-task-runner-cache.json",
-  "parallel": 3,
+  "cache": "../../dist/.ci-task-runner-cache.json",
   "program": "cd ${modulePath} && webpack -p --color"
 }

@@ -30,16 +30,12 @@ module.exports = (modules, parallel = require('os').cpus().length) => {
         let loger = new Loger([null, ...logStyles]);
         loger.log('░░', `${PACKAGE.name}:`, mod.name, '[running]');
 
-        return worker(program.command, program.options).then((buildResult) => {
+        return worker(program.command, program.options).then(() => {
             
             let loger = new Loger([{ color: 'green' }, ...logStyles]);
             let timeEnd = Date.now() - time;
             loger.log('░░', `${PACKAGE.name}:`, mod.name, '[success]', `${timeEnd}ms`);
 
-            return {
-                name: mod.name,
-                buildResult: buildResult
-            };
         }).catch(errors => {
             let loger = new Loger([{ color: 'red' }, ...logStyles]);
             loger.error('░░', `${PACKAGE.name}:`, mod.name, '[failure]');

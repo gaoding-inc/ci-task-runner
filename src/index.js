@@ -32,12 +32,14 @@ const build = require('./build');
  * @return  {Promise}
  */
 const taskRunner = (options = {}, context = process.cwd()) => {
-
+    const time = Date.now();
+    
     options = defaultsDeep({}, options, DEFAULT);
     options.cache = path.resolve(context, options.cache);
 
-    const time = Date.now();
     const loger = new Loger();
+    const cache = {};
+
     loger.log('░░', `${PACKAGE.name}:`, `v${PACKAGE.version}`);
 
     const repository = new Repository(options.cache, options.repository, 'revision');
@@ -50,6 +52,7 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
         // 检查模块是否有变更
         modules => {
+            cache.modules = modules;
             return Promise.all(modules.map(mod => {
                 return Promise.all([
 
@@ -91,24 +94,8 @@ const taskRunner = (options = {}, context = process.cwd()) => {
         },
 
 
-        // 创建资源描述对象
-        buildResults => {
-            let cache = {
-                latest: [],
-                modules: {}
-            };
-
-            buildResults.forEach(buildResult => {
-                cache.latest.push(buildResult.name);
-                cache.modules[buildResult.name] = buildResult.buildResult;
-            });
-
-            return cache;
-        },
-
-
         // 更新资源索引文件
-        cache => {
+        () => {
             return fsp.readFile(options.cache, 'utf8')
                 .then(json => defaultsDeep({}, JSON.parse(json)))
                 .catch(() => defaultsDeep({}, CACHE_DEFAULT))
@@ -134,12 +121,5 @@ const taskRunner = (options = {}, context = process.cwd()) => {
         return results[results.length - 1];
     });
 };
-
-
-/**
- * 子进程可以使用此方法向 taskRunner 发送消息告知编译结果
- * 编译结果会写入到 cache 文件中的 modules 字段
- */
-taskRunner.send = worker.send;
 
 module.exports = taskRunner;
