@@ -129,7 +129,7 @@ ci-task-runner 缓存文件保存路径。
   "program": {
     "command": "node build.js",
     "options": {
-      "cwd": "${modulePath}"
+      "timeout": 360000
     }
   }
 }
@@ -144,6 +144,8 @@ ci-task-runner 缓存文件保存路径。
 #### `program.options`
 
 构建器进程配置。构建器会在子进程中运行，在这里设置进程的选项。参考：[child_process.exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)。
+
+> `program.options` 中的 `timeout` 字段生效后会终止进程，并且抛出错误。这点和 `child_process.exec` 不一样，它只抛出错误。
 
 #### 变量
 
