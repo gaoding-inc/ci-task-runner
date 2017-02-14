@@ -15,11 +15,11 @@ const build = require('./build');
 /**
  * 支持增量与多进程的构建任务调度器
  * @param   {Object}            options                         @see config/config.default.json
- * @param   {Object[]|string[]} options.modules                 模块目录列表
- * @param   {string}            options.modules[].name          模块目录名（相对）
- * @param   {string[]}          options.modules[].dependencies  模块依赖目录（相对），继承 options.dependencies
- * @param   {Object}            options.modules[].program       模块构建器设置，继承 options.program
- * @param   {string[]}          options.dependencies            模块组公共依赖（相对）
+ * @param   {Object[]|string[]} options.tasks                   任务目录列表
+ * @param   {string}            options.tasks[].name            任务目标名（相对）
+ * @param   {string[]}          options.tasks[].dependencies    任务依赖目录或文件（相对），继承 options.dependencies
+ * @param   {Object}            options.tasks[].program         任务构建器设置，继承 options.program
+ * @param   {string[]}          options.dependencies            任务公共依赖（相对）
  * @param   {string}            options.cache                   缓存文件输出路径（相对）
  * @param   {string}            options.repository              仓库类型，可选 git|svn
  * @param   {number}            options.parallel                最大并发进程数
@@ -32,7 +32,7 @@ const build = require('./build');
  */
 const taskRunner = (options = {}, context = process.cwd()) => {
     const time = Date.now();
-    
+
     options = defaultsDeep({}, options, DEFAULT);
     options.cache = path.resolve(context, options.cache);
 
@@ -42,51 +42,52 @@ const taskRunner = (options = {}, context = process.cwd()) => {
     loger.log('░░', `${PACKAGE.name}:`, `v${PACKAGE.version}`);
 
     const repository = new Repository(options.cache, options.repository, 'revision');
-    const tasks = [
+
+    return promiseTask.serial([
 
 
-        // 将外部输入的配置转换成内部模块描述队列
+        // 将外部输入的配置转换成内部任务描述队列
         parse(options, context),
 
 
-        // 检查模块是否有变更
-        modules => {
-            cache.modules = {};
-            return Promise.all(modules.map(mod => {
+        // 检查任务是否有变更
+        tasks => {
+            cache.tasks = {};
+            return Promise.all(tasks.map(task => {
                 return Promise.all([
 
-                    repository.watch(mod.path),
-                    ...mod.dependencies.map(lib => repository.watch(lib.path))
+                    repository.watch(task.path),
+                    ...task.dependencies.map(lib => repository.watch(lib.path))
 
                 ]).then(([modCommit, ...libCommits]) => {
 
                     let modChanged = modCommit[0] !== modCommit[1];
                     let libChanged = libCommits.filter(libCommit => libCommit[0] !== libCommit[1]).length !== 0;
-                    mod.dirty = options.force || modChanged || libChanged;
+                    task.dirty = options.force || modChanged || libChanged;
 
-                    cache.modules[mod.name] = {
-                        path: path.relative(options.cache, mod.path),
-                        dirty: mod.dirty
+                    cache.tasks[task.name] = {
+                        path: path.relative(options.cache, task.path),
+                        dirty: task.dirty
                     };
 
-                    return mod;
+                    return task;
                 });
             }));
         },
 
 
         // 过滤未修改的版本
-        modules => {
+        tasks => {
             const loger = new Loger([
                 { color: 'gray' },
                 null,
                 { minWidth: 16, color: 'green', textDecoration: 'underline' }
             ]);
-            return modules.filter(mod => {
-                if (mod.dirty) {
+            return tasks.filter(task => {
+                if (task.dirty) {
                     return true
                 } else {
-                    loger.log('░░', `${PACKAGE.name}:`, mod.name, '[no changes]');
+                    loger.log('░░', `${PACKAGE.name}:`, task.name, '[no changes]');
                     return false;
                 }
             });
@@ -94,8 +95,8 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
 
         // 运行构建器
-        modules => {
-            return build(modules, options.parallel);
+        tasks => {
+            return build(tasks, options.parallel);
         },
 
 
@@ -118,9 +119,7 @@ const taskRunner = (options = {}, context = process.cwd()) => {
             return repository.save().then(() => cache);
         }
 
-    ];
-
-    return promiseTask.serial(tasks).then(results => {
+    ]).then(results => {
         let timeEnd = Date.now() - time;
         loger.log('░░', `${PACKAGE.name}:`, `${timeEnd}ms`);
         return results[results.length - 1];

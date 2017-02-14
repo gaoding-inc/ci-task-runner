@@ -5,56 +5,56 @@ const PACKAGE = require('../package.json');
 
 
 /**
- * 启动模块设置的构建器
- * @param  {Object[]}  modules          模块列表
+ * 启动任务设置的构建器
+ * @param  {Object[]}  tasks            任务列表
  * @param  {number}    parallel         最大并发数
  * @return {Promise}
  */
-module.exports = (modules, parallel = require('os').cpus().length) => {
+module.exports = (tasks, parallel = require('os').cpus().length) => {
 
-    let tasks = [[]];
+    let taskFucs = [[]];
     let preOrder = 0;
 
 
-    let task = mod => () => {
+    let taskFuc = task => () => {
 
-        let program = mod.program;
+        let program = task.program;
         let time = Date.now();
         let logStyles = [
             null,
-            {  minWidth: 16, color: 'green', textDecoration: 'underline' },
+            { minWidth: 16, color: 'green', textDecoration: 'underline' },
             null,
             { color: 'gray' }
         ];
 
         let loger = new Loger([null, ...logStyles]);
-        loger.log('░░', `${PACKAGE.name}:`, mod.name, '[running]');
+        loger.log('░░', `${PACKAGE.name}:`, task.name, '[running]');
 
         return worker(program.command, program.options).then(() => {
-            
+
             let loger = new Loger([{ color: 'green' }, ...logStyles]);
             let timeEnd = Date.now() - time;
-            loger.log('░░', `${PACKAGE.name}:`, mod.name, '[success]', `${timeEnd}ms`);
+            loger.log('░░', `${PACKAGE.name}:`, task.name, '[success]', `${timeEnd}ms`);
 
         }).catch(errors => {
             let loger = new Loger([{ color: 'red' }, ...logStyles]);
-            loger.error('░░', `${PACKAGE.name}:`, mod.name, '[failure]');
+            loger.error('░░', `${PACKAGE.name}:`, task.name, '[failure]');
             throw errors;
         });
     };
 
-    modules.sort((a, b) => a.order - b.order).forEach(mod => {
-        if (mod.order === preOrder) {
-            tasks[tasks.length - 1].push(task(mod));
+    tasks.sort((a, b) => a.order - b.order).forEach(task => {
+        if (task.order === preOrder) {
+            taskFucs[taskFucs.length - 1].push(taskFuc(task));
         } else {
-            tasks.push([task(mod)]);
+            taskFucs.push([taskFuc(task)]);
         }
-        preOrder = mod.order;
+        preOrder = task.order;
     });
 
 
-    return promiseTask.serial(tasks.map(tasks => () => {
-        return promiseTask.parallel(tasks, parallel);
+    return promiseTask.serial(taskFucs.map(taskFucs => () => {
+        return promiseTask.parallel(taskFucs, parallel);
     })).then(buildResults => {
         return [].concat(...buildResults);
     });

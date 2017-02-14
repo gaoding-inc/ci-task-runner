@@ -49,24 +49,24 @@ ci-task-runner
 
 ```json
 {
-  "modules": ["mod1", "mod2", "mod3"],
+  "tasks": ["mod1", "mod2", "mod3"],
   "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
-  "program": "cd ${modulePath} && webpack --color"
+  "program": "cd ${taskPath} && webpack --color"
 }
 ```
 
 上述例子中：mod1、mod2、mod3 有变更会执行目录中的 webpack.config.js。
 
-### `modules`
+### `tasks`
 
-模块列表。模块可以是目录名或文件名。
+任务目标列表。目标可以是目录名或文件名。
 
 简写形式：`{string[]}`
 
 ```json
 {
-  "modules": ["mod1", "mod2", "mod3"]
+  "tasks": ["mod1", "mod2", "mod3"]
 }
 ```
 
@@ -74,13 +74,13 @@ ci-task-runner
 
 ```json
 {
-  "modules": [
+  "tasks": [
       "mod1",
       "mod2",
       {
           "name": "mod3",
           "dependencies": ["common/v1"],
-          "program": "cd ${modulePath} && gulp"
+          "program": "cd ${taskPath} && gulp"
       },
       ["mod4", "mod5"]
   ]
@@ -88,7 +88,7 @@ ci-task-runner
 ```
 
 1. [`dependencies`](#dependencies) 与 [`program`](#program) 会继承顶层的配置
-2. `modules` 支持配置并行任务，参考 [多进程并行构建](#多进程并行构建)
+2. `tasks` 支持配置并行任务，参考 [多进程并行构建](#多进程并行构建)
 
 ### `cache`
 
@@ -98,9 +98,9 @@ ci-task-runner 缓存文件保存路径。
 
 ### `dependencies`
 
-模块外部依赖列表。如果模块目录依赖了目录外的库，可以在此手动指定依赖，这样外部库的更新也可以触发模块构建。
+任务目标外部依赖列表。如果任务目标依赖了目录外的库，可以在此手动指定依赖，这样外部库的更新也可以触发任务构建。
 
-> module-watch 使用 Git 或 Svn 来实现变更检测，所以其路径必须已经受版本管理。如果想监控 node_modules 的变更，可以指定：`"dependencies": ["package.json"]`。
+> ci-task-runner 使用 Git 或 Svn 来实现变更检测，所以其路径必须已经受版本管理。如果想监控 node_modules 的变更，可以指定：`"dependencies": ["package.json"]`。
 
 ### `repository`
 
@@ -118,7 +118,7 @@ ci-task-runner 缓存文件保存路径。
 
 ```json
 {
-  "program": "cd ${modulePath} && node build.js"
+  "program": "cd ${taskPath} && node build.js"
 }
 ```
 
@@ -139,7 +139,7 @@ ci-task-runner 缓存文件保存路径。
 
 设置执行的构建命令。
 
-> 程序会将 `${moduleName}/node_modules/.bin` 与 `node_modules/.bin` 加入到环境变量 `PATH` 中。
+> 程序会将 `${taskName}/node_modules/.bin` 与 `node_modules/.bin` 加入到环境变量 `PATH` 中。
 
 #### `program.options`
 
@@ -151,24 +151,24 @@ ci-task-runner 缓存文件保存路径。
 
 `program` 支持的字符串变量：
 
-* `${moduleName}` 模块名
-* `${modulePath}` 模块绝对路径
-* `${moduleDirname}` 等同于 `path.diranme(modulePath)`，[详情](https://nodejs.org/api/path.html#path_path_dirname_path)
+* `${taskName}` 任务名称
+* `${taskPath}` 任务目标绝对路径
+* `${taskDirname}` 等同于 `path.diranme(taskPath)`，[详情](https://nodejs.org/api/path.html#path_path_dirname_path)
 
 ## 配置范例
 
 ### 多进程并行构建
 
-如果模块之间没有依赖，可以开启多进程构建，这样能够充分利用多核 CPU 加速构建。
+如果任务之间没有依赖，可以开启多进程构建，这样能够充分利用多核 CPU 加速构建。
 
-modules 最外层的模块名是串行运行，如果遇到数组则会并行运行：
+tasks 最外层的任务名是串行运行，如果遇到数组则会并行运行：
 
 ```json
 {
-  "modules": ["dll", ["mod1", "mod2", "mod3"]],
+  "tasks": ["dll", ["mod1", "mod2", "mod3"]],
   "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
-  "program": "cd ${modulePath} && webpack --color"
+  "program": "cd ${taskPath} && webpack --color"
 }
 ```
 
@@ -178,21 +178,21 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
 
 ```json
 {
-  "modules": ["dll", ["mod1", "mod2", "mod3"]],
+  "tasks": ["dll", ["mod1", "mod2", "mod3"]],
   "dependencies": ["dll", "package.json"],
   "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
-  "program": "cd ${modulePath} && webpack --color"
+  "program": "cd ${taskPath} && webpack --color"
 }
 ```
 
-上述例子中：当 dll 和 package.json 变更后，无论其他模块是否有修改都会被强制构建。
+上述例子中：当 dll 和 package.json 变更后，无论其他任务目标是否有修改都会被强制构建。
 
 ### 自动更新 Npm 包
 
 ```json
 {
-  "modules": [
+  "tasks": [
     {
       "name": "package.json",
       "program": "npm install"
@@ -203,7 +203,7 @@ modules 最外层的模块名是串行运行，如果遇到数组则会并行运
   "dependencies": ["package.json", "dll"],
   "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
-  "program": "cd ${modulePath} && webpack --color"
+  "program": "cd ${taskPath} && webpack --color"
 }
 ```
 

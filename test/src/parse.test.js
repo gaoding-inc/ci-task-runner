@@ -14,9 +14,9 @@ describe('#parse', () => {
                 timeout: 0,
                 env: {
                     'CI_TASK_RUNNER': '1',
-                    'CI_TASK_RUNNER_MODULE_NAME': options.name,
-                    'CI_TASK_RUNNER_MODULE_PATH': p,
-                    'CI_TASK_RUNNER_MODULE_DIRNAME': path.dirname(p)
+                    'CI_TASK_RUNNER_TASK_NAME': options.name,
+                    'CI_TASK_RUNNER_TASK_PATH': p,
+                    'CI_TASK_RUNNER_TASK_DIRNAME': path.dirname(p)
                 }
             }
         };
@@ -24,7 +24,7 @@ describe('#parse', () => {
 
     it('empty', () => {
         assert.deepEqual([], parse({
-            modules: []
+            tasks: []
         }, __dirname));
     });
 
@@ -41,7 +41,7 @@ describe('#parse', () => {
             order: 0,
             dirty: false
         }], parse({
-            modules: ['mod1'],
+            tasks: ['mod1'],
             dependencies: ['lib']
         }, __dirname));
     });
@@ -61,7 +61,7 @@ describe('#parse', () => {
             order: 0,
             dirty: false
         }], parse({
-            modules: ['mod1'],
+            tasks: ['mod1'],
             dependencies: ['lib'],
             program: 'node build.js'
         }, __dirname));
@@ -80,7 +80,7 @@ describe('#parse', () => {
             order: 0,
             dirty: false
         }], parse({
-            modules: [{
+            tasks: [{
                 name: 'mod1'
             }],
             dependencies: [{
@@ -105,7 +105,7 @@ describe('#parse', () => {
             order: 0,
             dirty: false
         }], parse({
-            modules: [{
+            tasks: [{
                 name: 'mod1',
                 path: 'map/mod1'
             }],
@@ -140,7 +140,7 @@ describe('#parse', () => {
             order: 2,
             dirty: false
         }], parse({
-            modules: ['mod1', 'mod2', 'mod3']
+            tasks: ['mod1', 'mod2', 'mod3']
         }, __dirname));
     });
 
@@ -167,7 +167,7 @@ describe('#parse', () => {
             order: 1,
             dirty: false
         }], parse({
-            modules: ['mod1', ['mod2', 'mod3']]
+            tasks: ['mod1', ['mod2', 'mod3']]
         }, __dirname));
     });
 
@@ -200,7 +200,7 @@ describe('#parse', () => {
             order: 1,
             dirty: false
         }], parse({
-            modules: ['mod1', {
+            tasks: ['mod1', {
                 name: 'mod2',
                 dependencies: ['lib2'],
                 program: {
@@ -226,20 +226,20 @@ describe('#parse', () => {
                 command: 'echo "mod1:' + path.resolve(__dirname, 'mod1') + '"',
                 options: {
                     env: {
-                        MODULE_NAME: 'mod1'
+                        TASK_NAME: 'mod1'
                     }
                 }
             }, programDefaults({ name: 'mod1' }, __dirname)),
             order: 0,
             dirty: false
         }], parse({
-            modules: ['mod1'],
+            tasks: ['mod1'],
             dependencies: ['lib'],
             program: defaultsDeep({
-                command: 'echo "${moduleName}:${modulePath}"',
+                command: 'echo "${taskName}:${taskPath}"',
                 options: {
                     env: {
-                        MODULE_NAME: '${moduleName}'
+                        TASK_NAME: '${taskName}'
                     }
                 }
             }, programDefaults({ name: 'mod1' }, __dirname))

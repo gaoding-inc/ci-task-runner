@@ -1,14 +1,14 @@
 {
-  "modules": [["mod1", "mod2", "mod3", "mod4", "mod5", "mod6", "mod7", "mod8"]],
+  "tasks": [["mod1", "mod2", "mod3", "mod4", "mod5", "mod6", "mod7", "mod8"]],
   "dependencies": ["package.json"],
   "cache": "dist/.ci-task-runner-cache.json",
   "program": {
-    "command": "webpack -p --color --config ${modulePath}/webpack.config.js",
+    "command": "webpack -p --color --config ${taskPath}/webpack.config.js",
     "options": {
-      "cwd": "${modulePath}",
+      "cwd": "${taskPath}",
       "env": {
-        "MODULE_NAME": "${moduleName}",
-        "MODULE_PATH": "${modulePath}"
+        "TASK_NAME": "${taskName}",
+        "TASK_PATH": "${taskPath}"
       },
       "timeout": 0
     }
