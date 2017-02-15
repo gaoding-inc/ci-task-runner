@@ -9,9 +9,8 @@
 
 ## 特性
 
-* 标准：基于 Git 或 Svn 提交记录按需构建
-* 快速：利用多核 CPU 多进程并行加速构建
-* 灵活：兼容 Webpack、Gulp、Grunt 等构建程序
+* 快速：基于代码提交记录按需构建、支持多核 CPU 多进程加速构建
+* 灵活：支持 Webpack、Gulp、Grunt、Npm Scripts 等任意构建方式
 * 简单：采用语义化的 JSON 文件来描述项目
 
 ## 适用场景
@@ -50,17 +49,17 @@ ci-task-runner
 ```json
 {
   "tasks": ["mod1", "mod2", "mod3"],
-  "cache": "dist/.ci-task-runner-cache.json",
+  "cache": ".ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${taskPath} && webpack --color"
 }
 ```
 
-上述例子中：mod1、mod2、mod3 有变更会执行目录中的 webpack.config.js。
+上述例子中：仓库中的 mod1、mod2、mod3 有变更则会执行 `cd ${taskPath} && webpack --color`。
 
 ### `tasks`
 
-任务目标列表。目标可以是目录名或文件名。
+任务目标列表。目标可以是仓库中的任意目录或文件。
 
 简写形式：`{string[]}`
 
@@ -88,13 +87,13 @@ ci-task-runner
 ```
 
 1. [`dependencies`](#dependencies) 与 [`program`](#program) 会继承顶层的配置
-2. `tasks` 支持配置并行任务，参考 [多进程并行构建](#多进程并行构建)
+2. [`tasks`](#tasks) 支持配置并行任务，参考 [多进程并行构建](#多进程并行构建)
 
 ### `cache`
 
-ci-task-runner 缓存文件保存路径。
+ci-task-runner 缓存文件保存路径，用来保存上一次构建的信息。默认为：`.ci-task-runner-cache.json`
 
-> 请在版本库中忽略 `cache` 的文件路径。
+> 请在版本库中忽略 `.ci-task-runner-cache.json`。
 
 ### `dependencies`
 
@@ -139,7 +138,7 @@ ci-task-runner 缓存文件保存路径。
 
 设置执行的构建命令。
 
-> 程序会将 `${taskName}/node_modules/.bin` 与 `node_modules/.bin` 加入到环境变量 `PATH` 中。
+> 程序会将 `${options.cwd}/node_modules/.bin` 与 `${process.cwd()}/node_modules/.bin` 加入到环境变量 `PATH` 中，因此可以像 `npm scripts` 一样运行安装在本地的命令。
 
 #### `program.options`
 
@@ -213,16 +212,15 @@ tasks 最外层的任务名是串行运行，如果遇到数组则会并行运�
 
 使用 CI 工具来在服务器上运行 ci-task-runner。
 
-<img src="https://cloud.githubusercontent.com/assets/1791748/21080792/470338c8-bff3-11e6-92bd-42f420b8bb8b.png" alt="持续集成架构图" width="654">
-
-> Webpack 遇到编译错误没有退出的问题参考：[Webpack configuration.bail](http://webpack.github.io/docs/configuration.html#bail)
-
 **相关工具：**
 
 * gitlab: gitlab-ci
 * github: travis
+* Jenkins
 
 CI 工具配置请参考相应的文档。
+
+> Webpack 遇到错误没退出的问题：[Webpack configuration.bail](http://webpack.github.io/docs/configuration.html#bail)
 
 [npm-image]: https://img.shields.io/npm/v/ci-task-runner.svg
 [npm-url]: https://npmjs.org/package/ci-task-runner
