@@ -75,15 +75,14 @@ ci-task-runner
 ```json
 {
   "tasks": [
-      "mod1",
-      "mod2",
       {
-          "name": "mod3",
-          "path": "path/mod3",
+          "name": "mod1",
+          "path": "path/mod1",
           "dependencies": ["common/v1"],
           "program": "cd ${taskPath} && gulp"
       },
-      ["mod4", "mod5"]
+      "mod2",
+      "mod3"
   ]
 }
 ```
@@ -130,6 +129,7 @@ ci-task-runner 缓存文件保存路径，用来保存上一次构建的信息�
   "program": {
     "command": "node build.js",
     "options": {
+      "cwd": "${taskPath}",
       "timeout": 360000
     }
   }
