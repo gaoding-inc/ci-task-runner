@@ -25,27 +25,9 @@ ci-task-runner 作为一个通用的任务调度器，它并不是为了取代 J
 npm install ci-task-runner -g
 ```
 
-## 使用
+## 入门
 
-1\. 切换到项目目录，运行：
-
-```shell
-ci-task-runner --init
-```
-
-程序会在当前目录生成配置文件：.ci-task-runner.json。
-
-2\. 运行 ci-task-runner
-
-```shell
-ci-task-runner
-```
-
-> 在服务器上可以使用 CI 工具启动 ci-task-runner，参考： [持续集成](#持续集成)。
-
-## 配置
-
-.ci-task-runner.json 文件范例：
+在项目中创建配置文件 .ci-task-runner.json，范例：
 
 ```json
 {
@@ -56,7 +38,19 @@ ci-task-runner
 }
 ```
 
-上述例子中：仓库中的 mod1、mod2、mod3 有变更则会执行 `cd ${taskPath} && webpack --color`。
+在项目目录运行：
+
+```shell
+ci-task-runner
+```
+
+上述例子中：仓库中的 mod1、mod2、mod3 有变更则会依次执行 `cd ${taskPath} && webpack --color`。
+
+可以看到，ci-task-runner 的任务概念与其他任务运行器最大的不同是：每一个任务都是基于代码仓库中的文件或文件夹。
+
+> 在服务器上可以使用 CI 工具启动 ci-task-runner，参考： [持续集成](#持续集成)。
+
+## 配置
 
 ### `tasks`
 
