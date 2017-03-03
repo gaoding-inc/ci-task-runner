@@ -1,9 +1,9 @@
 {
-  "modules": ["lib", ["mod1", "mod2", {
+  "tasks": ["lib", ["mod1", "mod2", {
     "name": "mod3",
-    "program": "node ${modulePath}/builder.js"
+    "program": "node ${taskPath}/builder.js"
   }]],
   "dependencies": ["lib"],
   "cache": "../../dist/.ci-task-runner-cache.json",
-  "program": "cd ${modulePath} && webpack -p --color"
+  "program": "cd ${taskPath} && webpack -p --color"
 }

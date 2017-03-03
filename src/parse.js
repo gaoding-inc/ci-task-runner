@@ -23,7 +23,7 @@ class Program {
     }
 }
 
-class Module extends File {
+class Task extends File {
     constructor({name, path, dependencies, program, order, dirty}) {
         super({ name, path });
         this.dependencies = dependencies.map(lib => new Dependencie(lib));
@@ -35,13 +35,13 @@ class Module extends File {
 
 
 /**
- * 创建 Module 模型
+ * 创建 Task 模型
  * @param   {Object}    options
  * @param   {string}    context     上下文路径
- * @return  {Module[]}
+ * @return  {Task[]}
  */
 module.exports = (options, context) => {
-    let modules = [];
+    let tasks = [];
 
 
     let parseDependencie = lib => {
@@ -87,38 +87,38 @@ module.exports = (options, context) => {
     };
 
 
-    let parseModule = (mod, order) => {
+    let parseTask = (task, order) => {
 
-        if (typeof mod === 'string') {
-            mod = {
-                name: mod,
+        if (typeof task === 'string') {
+            task = {
+                name: task,
                 dependencies: [],
                 program: {}
             };
         }
 
 
-        mod = {
-            name: mod.name,
-            path: path.resolve(context, mod.path || mod.name),
-            dependencies: [].concat(mod.dependencies || [], options.dependencies || []),
+        task = {
+            name: task.name,
+            path: path.resolve(context, task.path || task.name),
+            dependencies: [].concat(task.dependencies || [], options.dependencies || []),
             program: defaultsDeep({},
-                parseProgram(mod.program),
+                parseProgram(task.program),
                 parseProgram(options.program),
                 DEFAULT
             )
         };
 
-        let dependencies = mod.dependencies.map(parseDependencie);
-        let program = setVariables(mod.program, {
-            moduleName: mod.name,
-            modulePath: mod.path,
-            moduleDirname: path.dirname(mod.path)
+        let dependencies = task.dependencies.map(parseDependencie);
+        let program = setVariables(task.program, {
+            taskName: task.name,
+            taskPath: task.path,
+            taskDirname: path.dirname(task.path)
         });
 
-        return new Module({
-            name: mod.name,
-            path: mod.path,
+        return new Task({
+            name: task.name,
+            path: task.path,
             dependencies,
             program,
             order,
@@ -126,15 +126,15 @@ module.exports = (options, context) => {
         });
     };
 
-    let each = (mod, index) => {
-        if (Array.isArray(mod)) {
-            mod.forEach(mod => each(mod, index));
+    let each = (task, index) => {
+        if (Array.isArray(task)) {
+            task.forEach(task => each(task, index));
         } else {
-            modules.push(parseModule(mod, index));
+            tasks.push(parseTask(task, index));
         }
     };
 
-    options.modules.forEach(each);
+    options.tasks.forEach(each);
 
-    return modules;
+    return tasks;
 };

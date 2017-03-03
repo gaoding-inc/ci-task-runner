@@ -1,7 +1,7 @@
 'use strict';
 const path = require('path');
-const moduleName = path.basename(__dirname);
-const dist = path.resolve(__dirname, '../dist', moduleName);
+const taskName = path.basename(__dirname);
+const dist = path.resolve(__dirname, '../dist', taskName);
 const webpackConfig = {
     context: __dirname,
     entry: {

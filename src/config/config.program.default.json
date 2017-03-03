@@ -3,9 +3,9 @@
     "options": {
       "env": {
         "CI_TASK_RUNNER": "1",
-        "CI_TASK_RUNNER_MODULE_NAME": "${moduleName}",
-        "CI_TASK_RUNNER_MODULE_PATH": "${modulePath}",
-        "CI_TASK_RUNNER_MODULE_DIRNAME": "${moduleDirname}"
+        "CI_TASK_RUNNER_TASK_NAME": "${taskName}",
+        "CI_TASK_RUNNER_TASK_PATH": "${taskPath}",
+        "CI_TASK_RUNNER_TASK_DIRNAME": "${taskDirname}"
       },
       "timeout": 0
     }
