@@ -7,17 +7,17 @@
 
 这是一个基于 NodeJS 编写的多进程构建任务调度器，它支持增量与并行构建，可以大幅度提高服务器端构建速度。
 
-ci-task-runner 作为一个通用的任务调度器，它并不是为了取代 Jenkins、Gitlab-ci 等持续集成工具或 Webpack、Gulp 等构建程序，而是提高它们运行任务的速度。
+ci-task-runner 作为一个通用的任务调度器，它并不是为了取代 Jenkins、Gitlab-CI 等持续集成工具或 Webpack、Gulp 等构建程序，而是提高它们运行任务的速度。
 
 ## 原理
 
 1\. **增量构建**：
 
-在中大型项目中，如果因为修改一个小文件就引起全量构建，这样必然会非常慢。为了解决这个问题，ci-task-runner 会对比 Git 或 Svn 的提交记录，只构建有差异的文件。
+在中大型项目中，如果因为修改一个小文件就需要全量构建，这样构建速度必然会非常慢。为了解决这个问题，ci-task-runner 会对比 Git 或 Svn 的提交记录，只构建有差异的文件。
 
 2\. **并行构建**：
 
-如果有多个任务需要执行，ci-task-runner 会根据当前服务器 CPU 核心的数量启动多个进程来加快构建。
+如果有多个任务需要执行，ci-task-runner 会根据当前服务器 CPU 核心的数量启动新的进程，以多进程并行运行的方式加快任务完成。
 
 ## 安装
 
@@ -27,7 +27,7 @@ npm install ci-task-runner -g
 
 ## 入门
 
-在项目中创建配置文件 .ci-task-runner.json，范例：
+ci-task-runner 的任务都是在 JSON 配置文件定义的，在项目中新建一个 `.ci-task-runner.json` 配置，范例：
 
 ```json
 {
@@ -38,15 +38,15 @@ npm install ci-task-runner -g
 }
 ```
 
-在项目目录运行：
+然后在项目目录运行命令即可执行 `.ci-task-runner.json` 定义的任务：
 
 ```shell
 ci-task-runner
 ```
 
-上述例子中：仓库中的 mod1、mod2、mod3 有变更则会依次执行 `cd ${taskPath} && webpack --color`。
+上述例子中：仓库中的 mod1、mod2、mod3 目录有变更则会依次执行 `cd ${taskPath} && webpack --color`。
 
-可以看到，ci-task-runner 的任务概念与其他任务运行器最大的不同是：每一个任务都是基于代码仓库中的文件或文件夹。
+通过入门教程可以看到，ci-task-runner 的任务概念与其他任务运行器最大的不同是：每一个任务都是基于代码仓库中的文件或文件夹。
 
 > 在服务器上可以使用 CI 工具启动 ci-task-runner，参考： [持续集成](#持续集成)。
 
@@ -64,7 +64,7 @@ ci-task-runner
 }
 ```
 
-对象形式：`{Object[]}`
+进阶形式：`{Object[]}`
 
 ```json
 {
@@ -81,20 +81,20 @@ ci-task-runner
 }
 ```
 
-1. [`dependencies`](#dependencies) 与 [`program`](#program) 会继承顶层的配置
-2. [`tasks`](#tasks) 支持配置并行任务，参考 [多进程并行构建](#多进程并行构建)
+1. [`dependencies`](#dependencies) 与 [`program`](#program) 会继承顶层的配置，也可以覆盖它们
+2. [`tasks`](#tasks) 支持配置并行任务，参考 [多进程并行任务](#多进程并行任务)
 
 ### `cache`
 
-ci-task-runner 缓存文件保存路径，用来保存上一次构建的信息。默认为：`.ci-task-runner-cache.json`
+ci-task-runner 缓存文件写入路径，用来保存上一次任务的信息。默认为：`.ci-task-runner-cache.json`
 
-> 请在版本库中忽略 `.ci-task-runner-cache.json`。
+> 请在代码仓库库中忽略 `.ci-task-runner-cache.json`。
 
 ### `dependencies`
 
-任务目标外部依赖列表。如果任务目标依赖了目录外的库，可以在此手动指定依赖，这样外部库的更新也可以触发任务构建。
+任务目标外部依赖列表。如果任务目标依赖了目录外的库，可以在此手动指定依赖，这样外部库的变更也可以触发任务运行。
 
-> ci-task-runner 使用 Git 或 Svn 来实现变更检测，所以其路径必须已经受版本管理。如果想监控 node_modules 的变更，可以指定：`"dependencies": ["package.json"]`。
+> ci-task-runner 使用 Git 或 Svn 来实现变更检测，所以其路径必须已经受版本管理。
 
 ### `repository`
 
@@ -106,7 +106,7 @@ ci-task-runner 缓存文件保存路径，用来保存上一次构建的信息�
 
 ### `program`
 
-构建器配置。
+执行任务的程序配置。
 
 简写形式：`{string}`
 
@@ -116,7 +116,7 @@ ci-task-runner 缓存文件保存路径，用来保存上一次构建的信息�
 }
 ```
 
-对象形式：`{Object}`
+进阶形式：`{Object}`
 
 ```json
 {
@@ -132,13 +132,13 @@ ci-task-runner 缓存文件保存路径，用来保存上一次构建的信息�
 
 #### `program.command`
 
-设置执行的构建命令。
+设置执行的命令。
 
 > 程序会将 `${options.cwd}/node_modules/.bin` 与 `${process.cwd()}/node_modules/.bin` 加入到环境变量 `PATH` 中，因此可以像 `npm scripts` 一样运行安装在本地的命令。
 
 #### `program.options`
 
-构建器进程配置。构建器会在子进程中运行，在这里设置进程的选项。参考：[child_process.exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)。
+进程配置。参考：[child_process.exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)。
 
 > `program.options` 中的 `timeout` 字段生效后会终止进程，并且抛出错误。这点和 `child_process.exec` 不一样，它只抛出错误。
 
@@ -152,9 +152,9 @@ ci-task-runner 缓存文件保存路径，用来保存上一次构建的信息�
 
 ## 配置范例
 
-### 多进程并行构建
+### 多进程并行任务
 
-如果任务之间没有依赖，可以开启多进程构建，这样能够充分利用多核 CPU 加速构建。
+如果任务之间没有依赖，可以开启多进程运行任务，这样能够充分利用多核 CPU 加速运行。
 
 tasks 最外层的任务名是串行运行，如果遇到数组则会并行运行：
 
