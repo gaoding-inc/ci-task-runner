@@ -30,6 +30,7 @@ Medium and large project needs full dose building if a little file has changed, 
 **Parallel Building**:
 
 如果有多个任务需要执行，ci-task-runner 会根据当前服务器 CPU 核心的数量启动新的进程，以多进程并行运行的方式加快任务完成。
+
 When multiple tasks need run, ci-task-runner will run a new process according to current server's CPU quantities, using mutiprocess parallel building to finish tasks quickly.
 
 ## 安装
