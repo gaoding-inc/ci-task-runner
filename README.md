@@ -7,13 +7,15 @@
 
 这是一个基于 NodeJS 编写的多进程构建任务调度器，它支持增量与并行构建，可以大幅度提高服务器端构建速度。
 
-This is a building multiprocess tasks dispatcher base on NodeJS, supporting increment and building parallel, can improve speed of server building largely.
+This is a multiprocess building tasks dispatcher base on NodeJS, support increment and parallel building, can improve speed of server building largely.
 
 ci-task-runner 作为一个通用的任务调度器，它并不是为了取代 Jenkins、Gitlab-CI 等持续集成工具或 Webpack、Gulp 等构建程序，而是提高它们运行任务的速度。
 
-ci-task-runner as an usual tasks dispatcher, it rather than improves these tools like Jenkins、Gitlab-CI or Webpack、Gulp tasks running speed than takes place of them.
+ci-task-runner as an usual tasks dispatcher, it improves these tools such as Jenkins、Gitlab-CI or Webpack、Gulp these tools running speed, rather than takes place of them.
 
 > “我们将一个大型前端项目迁移到持续集成系统进行构建后，每修改一个小文件都需要近 10 分钟的时间才能完成构建完成，于是我们开发了 ci-task-runner，将这个过程缩短到 10 秒左右”
+
+> "We move a large frond-end project to continuous integration for building, every small change need almost 10 minutes to finish building, so we develop ci-task-runner, and reduce this process to 10 seconds."
 
 ## 原理
 
@@ -33,7 +35,7 @@ Medium and large project needs full dose building if a little file has changed, 
 
 如果有多个任务需要执行，ci-task-runner 会根据当前服务器 CPU 核心的数量启动新的进程，以多进程并行运行的方式加快任务完成。
 
-When multiple tasks need run, ci-task-runner will run a new process according to current server's CPU quantities, using mutiprocess parallel building to finish tasks quickly.
+When multiple tasks need execute, ci-task-runner will run a new process according to current server's CPU quantities, using mutiprocess parallel building to finish tasks quickly.
 
 ## 安装
 
@@ -140,7 +142,7 @@ ci-task-runner cache files write in path, to use save the last task info. Defaul
 
 任务目标外部依赖列表。如果任务目标依赖了目录外的库，可以在此手动指定依赖，这样外部库的变更也可以触发任务运行。
 
-Tasks target outside's dependencies list. If task target depends on except category's repository, can add manully assign dependency, then outside's repository can trigger task run.
+Tasks target outside's dependencies list. If task target depends on repository outside category's, can add manully dependency, then outside's repository can trigger task run.
 
 > ci-task-runner 使用 Git 或 Svn 来实现变更检测，所以其路径必须已经受版本管理。
 
@@ -150,7 +152,7 @@ Tasks target outside's dependencies list. If task target depends on except categ
 
 设置仓库的类型。支持 git 与 svn。
 
-Setting type of reposity. Support Git and Svn.
+Setting type of repository. Support Git and Svn.
 
 ### `parallel`
 
@@ -198,7 +200,7 @@ Setting start command.
 
 > 程序会将 `${options.cwd}/node_modules/.bin` 与 `${process.cwd()}/node_modules/.bin` 加入到环境变量 `PATH` 中，因此可以像 `npm scripts` 一样运行安装在本地的命令。
 
-> program will put `${options.cwd}/node_modules/.bin` and `${process.cwd()}/node_modules/.bin` in environment variable `PATH`, like `npm scripts` run command on local. 
+> program will put `${options.cwd}/node_modules/.bin` and `${process.cwd()}/node_modules/.bin` in environment variable `PATH`, like `npm scripts` install on local. 
 
 #### `program.options`
 
@@ -208,7 +210,7 @@ Progress configuration. Reference: [child_process.exec](https://nodejs.org/api/c
 
 > `program.options` 中的 `timeout` 字段生效后会终止进程，并且抛出错误。这点和 `child_process.exec` 不一样，它只抛出错误。
 
-> `timeout` in `program.options` will terminate progress, and throw error. It's different with `child_process.exec`, it only throw error.
+> `timeout` in `program.options` will terminate progress, and throw error. `child_process.exec` only throw error.
 
 #### 变量
 
@@ -228,7 +230,7 @@ Progress configuration. Reference: [child_process.exec](https://nodejs.org/api/c
 
 ## 配置范例
 
-## Example
+## Configuration Example
 
 ### 多进程并行任务
 
@@ -240,7 +242,7 @@ If tasks have no dependencies in each other, it can open mutiprocess run task, t
 
 tasks 最外层的任务名是串行运行，如果遇到数组则会并行运行：
 
-Tasks outside task name is serial run, if array will parallel run:
+Tasks outside task name is serial run, if array will parallel running:
 
 ```json
 {
