@@ -1,48 +1,48 @@
 {
-  "name": "ci-task-runner",
-  "version": "1.0.0-beta",
-  "description": "支持增量与多进程的构建任务调度器",
-  "main": "src/index.js",
-  "bin": "bin/main",
-  "scripts": {
-    "example": "ci-task-runner --config example/.ci-task-runner.json",
-    "parallel-test": "node test/file/parallel/index.js",
-    "tasks-test": "ci-task-runner --config test/file/tasks/.ci-task-runner.json",
-    "test": "export TEST_DIST=$PWD/test/dist && mocha --recursive --bail 'test/**/*test.js'",
-    "posttest": "npm run example && npm run tasks-test",
-    "clear": "rm -rf example/dist & rm -rf test/dist",
-    "new-test": "npm run clear && npm run test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/aui/ci-task-runner.git"
-  },
-  "engines": {
-    "node": ">= 6.0.0"
-  },
-  "keywords": [
-    "webpack",
-    "gulp",
-    "grunt",
-    "ci",
-    "git",
-    "svn",
-    "task",
-    "build"
-  ],
-  "author": "糖饼",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/aui/ci-task-runner/issues"
-  },
-  "homepage": "https://github.com/aui/ci-task-runner#readme",
-  "dependencies": {
-    "commander": "^2.9.0",
-    "lodash.defaultsdeep": "^4.6.0"
-  },
-  "devDependencies": {
-    "jquery": "^3.1.1",
-    "mocha": "^3.1.2",
-    "webpack": "^1.13.3"
-  }
+    "name": "ci-task-runner",
+    "version": "1.0.0-beta2",
+    "description": "支持增量与多进程的构建任务调度器",
+    "main": "src/index.js",
+    "bin": "bin/ci-task-runner",
+    "scripts": {
+        "example": "bin/ci-task-runner --config example/.ci-task-runner.json",
+        "parallel-test": "node test/file/parallel/index.js",
+        "tasks-test": "bin/ci-task-runner --config test/file/tasks/.ci-task-runner.json",
+        "test": "export TEST_DIST=$PWD/test/dist && mocha --recursive --bail 'test/**/*test.js'",
+        "posttest": "npm run example && npm run tasks-test",
+        "clear": "rm -rf example/dist & rm -rf test/dist",
+        "new-test": "npm run clear && npm run test"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/aui/ci-task-runner.git"
+    },
+    "engines": {
+        "node": ">= 6.0.0"
+    },
+    "keywords": [
+        "webpack",
+        "gulp",
+        "grunt",
+        "ci",
+        "git",
+        "svn",
+        "task",
+        "build"
+    ],
+    "author": "糖饼",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/aui/ci-task-runner/issues"
+    },
+    "homepage": "https://github.com/aui/ci-task-runner#readme",
+    "dependencies": {
+        "commander": "^2.9.0",
+        "lodash.defaultsdeep": "^4.6.0"
+    },
+    "devDependencies": {
+        "jquery": "^3.1.1",
+        "mocha": "^3.1.2",
+        "webpack": "^1.13.3"
+    }
 }
