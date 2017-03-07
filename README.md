@@ -24,7 +24,7 @@ ci-task-runner 作为一个通用的任务调度器，它并不是为了取代 J
 ## 安装
 
 ```shell
-npm install ci-task-runner@1.0.0-beta -g
+npm install ci-task-runner@1.0.0-beta2 -g
 ```
 
 ## 入门
