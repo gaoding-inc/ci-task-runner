@@ -13,6 +13,8 @@ ci-task-runner 作为一个通用的任务调度器，它并不是为了取代 J
 
 ci-task-runner as an usual tasks dispatcher, it rather than improves these tools like Jenkins、Gitlab-CI or Webpack、Gulp tasks running speed than takes place of them.
 
+> “我们将一个大型前端项目迁移到持续集成系统进行构建后，每修改一个小文件都需要近 10 分钟的时间才能完成构建完成，于是我们开发了 ci-task-runner，将这个过程缩短到 10 秒左右”
+
 ## 原理
 
 ## Principle
@@ -38,7 +40,7 @@ When multiple tasks need run, ci-task-runner will run a new process according to
 ## Installation
 
 ```shell
-npm install ci-task-runner@1.0.0-beta -g
+npm install ci-task-runner@1.0.0-beta2 -g
 ```
 
 ## 入门
@@ -58,7 +60,7 @@ Ci-task-runner's configuration file type is JSON, mkdir a new `.ci-task-runner.j
 }
 ```
 
-然后在项目目录运行命令即可执行 `.ci-task-runner.json` 定义的任务：
+然后在项目目录运行命令即可执行上述定义的 `tasks`：
 
 Run `.ci-task-runner.json`:
 
