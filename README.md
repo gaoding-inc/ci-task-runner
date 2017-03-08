@@ -5,7 +5,7 @@
 [![Node.js Version][node-version-image]][node-version-url]
 [![Build Status][travis-ci-image]][travis-ci-url]
 
-[[English]](./README.md) | [[简体中文]](./README.ZH-CN.md) 
+[[简体中文]](./README.ZH-CN.md) 
 
 This is a multiprocess building tasks dispatcher base on NodeJS, support increment and parallel building, can improve speed of server building largely.
 
