@@ -228,5 +228,5 @@ CI configuration can refer to relative API.
 [node-version-url]: http://nodejs.org/download/
 [downloads-image]: https://img.shields.io/npm/dm/ci-task-runner.svg
 [downloads-url]: https://npmjs.org/package/ci-task-runner
-[travis-ci-image]: https://travis-ci.org/aui/ci-task-runner.svg?branch=master
-[travis-ci-url]: https://travis-ci.org/aui/ci-task-runner
+[travis-ci-image]: https://travis-ci.org/huanleguang/ci-task-runner.svg?branch=master
+[travis-ci-url]: https://travis-ci.org/huanleguang/ci-task-runner
