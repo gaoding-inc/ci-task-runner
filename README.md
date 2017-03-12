@@ -9,19 +9,19 @@
 
 This is a multiprocess building tasks scheduler, which is written based on NodeJS. It supports the increment and parallel building and can improve the speed of server building largely.
 
-As a common task scheduler, Ci-task-runner is not to replace Jenkins, Gitlab-CI and other continuous integration tools or Webpack, Gulp and other construction procedures, but to improve their speed of running the task.
+As a common task scheduler, Ci-task-runner enhances the running speed of the tools such as Jenkins, Gitlab-CI or Webpack, Gulp rather than take place of them.
 
-> "When we build a large front-end project after moving it into continuous intergration system, it will take nearly 10 minutes to complete the construction of every small modified file, so we have developed ci-task-runner, which will shorten this process to about 10 seconds."
+> "After moving a large frond-end program to this continuous integration system for building, we took around 10 minutes to modify every minor file. We had to develop this ci-task-runner which reduces the time to 10 seconds."
 
 ## Principle
 
 1\. **Incremental Building**:
 
-In medium and large projects, the building speed will definitely be very slow if full dose building is required due to the change of a small file. To solve this problem, ci-task-runner will compare commit logs of Git or Svn and only builds the changed file.
+Medium and large project needs full dose building if a little file has changed, in this way the building speed will be very slow. For sloving this problem, ci-task-runner diff commit logs of Git or Svn and building changed file.
 
 2\. **Parallel Building**:
 
-When the execution of multiple tasks is needed, ci-task-runner will run a new process according to current server's CPU quantities and finish the tasks quickly by using multi-process parallel building.
+If multiple tasks be executed, ci-task-runner will initiate a new process according to current server's CPU quantities, using mutiprocess parallel building to finish tasks quickly.
 
 ## Installation
 
@@ -50,7 +50,7 @@ ci-task-runner
 
 Above-mentioned: mod1、mod2、mod3 will run `cd ${taskPath} && webpack --color` ordered by catelogue changed.
 
-Through the introductory tutorial, you can see that the biggest difference between the task concept of ci-task-runner and other task executors is that each task is based on a file or folder in the code repository.
+According basic usage, the most difference between the task concept of ci-task-runner and other task executors is that each task is based on a file or folder in the code repository.
 
 > Using CI tools run ci-task-runner On the server, reference: [Continuous integration](#continuous-integration).
 
@@ -85,11 +85,11 @@ Advanced: `{Object[]}`
 }
 ```
 
-1. [`dependencies`](#dependencies) and [`program`](#program) will inherit the top of the configuration, you can also cover them.
+1. [`dependencies`](#dependencies) and [`program`](#program) will inherit the top of the configuration, or cover it.
 2. [`tasks`](#tasks) support configure parallel tasks, reference: [Mutiprocess Parallel Tasks](#mutiprocess-parallel-tasks).
 
 ### `cache`
-ci-task-runner cache file write path, used to save the last task information. Default: `ci-task-runner-cache.json`
+ci-task-runner cache files write path, used to save the last task info. Default: `ci-task-runner-cache.json`
 
 > Ignore `.ci-task-runner-cache.json` in repository.
 
@@ -143,7 +143,7 @@ Setting start command.
 
 Progress configuration. Reference: [child_process.exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback).
 
-> The `timeout` field in `program.options` takes effect and terminates the process and throws an error.This is not the same as `child_process.exec`, it only throws an error. `child_process.exec` only throw error.
+> The `timeout` field in `program.options` takes effect and terminates the process and throws an error. `child_process.exec` only throw error.
 
 #### Variable
 
@@ -157,7 +157,7 @@ Progress configuration. Reference: [child_process.exec](https://nodejs.org/api/c
 
 ### Mutiprocess Parallel Tasks
 
-If there is no dependency between tasks, you can open mutiprocess to run the task, so that you can take full advantage of multi-core CPU to speed up the operation.
+If tasks have no dependencies in each other, it can open mutiprocess run task, then take full advantage of multi-core CPU accelerating running.
 
 Tasks outside task name is serial run, if array will parallel running:
 
@@ -170,7 +170,7 @@ Tasks outside task name is serial run, if array will parallel running:
 }
 ```
 
-Above-mentioned: when dll has build, mod1、mod2、mod3 will be built in a multi-threaded manner in parallel.
+Above-mentioned: when dll has build, mod1、mod2、mod3 will parallel building by multi-thread.
 
 ### Change Dependencies Trigger Buliding
 
