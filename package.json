@@ -1,13 +1,13 @@
 {
     "name": "ci-task-runner",
-    "version": "1.0.0-beta2",
+    "version": "1.0.0-beta3",
     "description": "支持增量与多进程的构建任务调度器",
     "main": "src/index.js",
     "bin": "bin/ci-task-runner",
     "scripts": {
-        "example": "bin/ci-task-runner --config example/.ci-task-runner.json",
+        "example": "node bin/ci-task-runner --config example/.ci-task-runner.json",
         "parallel-test": "node test/file/parallel/index.js",
-        "tasks-test": "bin/ci-task-runner --config test/file/tasks/.ci-task-runner.json",
+        "tasks-test": "node bin/ci-task-runner --config test/file/tasks/.ci-task-runner.json",
         "test": "export TEST_DIST=$PWD/test/dist && mocha --recursive --bail 'test/**/*test.js'",
         "posttest": "npm run example && npm run tasks-test",
         "clear": "rm -rf example/dist & rm -rf test/dist",
@@ -31,7 +31,7 @@
         "build"
     ],
     "author": "糖饼",
-    "license": "ISC",
+    "license": "MIT",
     "bugs": {
         "url": "https://github.com/aui/ci-task-runner/issues"
     },
