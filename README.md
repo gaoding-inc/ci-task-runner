@@ -6,7 +6,7 @@
 [![Travis-ci](https://travis-ci.org/huanleguang/ci-task-runner.svg?branch=master)](https://travis-ci.org/huanleguang/ci-task-runner)
 [![Coverage Status](https://coveralls.io/repos/github/huanleguang/ci-task-runner/badge.svg)](https://coveralls.io/github/huanleguang/ci-task-runner)
 
-[[简体中文]](./README.ZH-CN.md)
+[[English]](./README.md) - [[简体中文]](./README.ZH-CN.md)
 
 This is a multiprocess building tasks scheduler, which is written based on NodeJS. It supports the increment and parallel building and can improve the speed of server building largely.
 
@@ -221,3 +221,7 @@ Using CI tool to run ci-task-runner on server-site.
 CI configuration can refer to relative API.
 
 > Webpack throw error but didn't exit: [Webpack configuration.bail](http://webpack.github.io/docs/configuration.html#bail)
+
+## License
+
+[MIT](./LICENSE)

@@ -6,7 +6,7 @@
 [![Travis-ci](https://travis-ci.org/huanleguang/ci-task-runner.svg?branch=master)](https://travis-ci.org/huanleguang/ci-task-runner)
 [![Coverage Status](https://coveralls.io/repos/github/huanleguang/ci-task-runner/badge.svg)](https://coveralls.io/github/huanleguang/ci-task-runner)
 
-[[English]](./README.md) 
+[[English]](./README.md) - [[简体中文]](./README.ZH-CN.md)
 
 这是一个基于 NodeJS 编写的多进程构建任务调度器，它支持增量与并行构建，可以大幅度提高服务器端构建速度。
 
