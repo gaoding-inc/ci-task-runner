@@ -4,7 +4,7 @@
 [![NPM Downloads](http://img.shields.io/npm/dm/ci-task-runner.svg)](https://npmjs.org/package/ci-task-runner)
 [![Node.js Version](https://img.shields.io/node/v/ci-task-runner.svg)](http://nodejs.org/download/)
 [![Travis-ci](https://travis-ci.org/huanleguang/ci-task-runner.svg?branch=master)](https://travis-ci.org/huanleguang/ci-task-runner)
-[![Coverage Status](https://coveralls.io/repos/github/huanleguang/ci-task-runner/badge.svg?branch=master)](https://coveralls.io/github/huanleguang/ci-task-runner?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/huanleguang/ci-task-runner/badge.svg)](https://coveralls.io/github/huanleguang/ci-task-runner)
 
 [[English]](./README.md) 
 
