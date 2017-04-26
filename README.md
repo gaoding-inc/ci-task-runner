@@ -1,9 +1,10 @@
 # ci-task-runner
 
-[![NPM Version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][downloads-url]
-[![Node.js Version][node-version-image]][node-version-url]
-[![Build Status][travis-ci-image]][travis-ci-url]
+[![NPM Version](https://img.shields.io/npm/v/ci-task-runner.svg)](https://npmjs.org/package/ci-task-runner)
+[![NPM Downloads](http://img.shields.io/npm/dm/ci-task-runner.svg)](https://npmjs.org/package/ci-task-runner)
+[![Node.js Version](https://img.shields.io/node/v/ci-task-runner.svg)](http://nodejs.org/download/)
+[![Travis-ci](https://travis-ci.org/huanleguang/ci-task-runner.svg?branch=master)](https://travis-ci.org/huanleguang/ci-task-runner)
+[![Coverage Status](https://coveralls.io/repos/github/huanleguang/ci-task-runner/badge.svg?branch=master)](https://coveralls.io/github/huanleguang/ci-task-runner?branch=master)
 
 [[简体中文]](./README.ZH-CN.md)
 
@@ -26,7 +27,7 @@ If multiple tasks be executed, ci-task-runner will initiate a new process accord
 ## Installation
 
 ```shell
-npm install ci-task-runner@1.0.0-beta2 -g
+npm install ci-task-runner@1.0.0-beta3 -g
 ```
 
 ## Basic Usage
@@ -220,12 +221,3 @@ Using CI tool to run ci-task-runner on server-site.
 CI configuration can refer to relative API.
 
 > Webpack throw error but didn't exit: [Webpack configuration.bail](http://webpack.github.io/docs/configuration.html#bail)
-
-[npm-image]: https://img.shields.io/npm/v/ci-task-runner.svg
-[npm-url]: https://npmjs.org/package/ci-task-runner
-[node-version-image]: https://img.shields.io/node/v/ci-task-runner.svg
-[node-version-url]: http://nodejs.org/download/
-[downloads-image]: https://img.shields.io/npm/dm/ci-task-runner.svg
-[downloads-url]: https://npmjs.org/package/ci-task-runner
-[travis-ci-image]: https://travis-ci.org/huanleguang/ci-task-runner.svg?branch=master
-[travis-ci-url]: https://travis-ci.org/huanleguang/ci-task-runner
