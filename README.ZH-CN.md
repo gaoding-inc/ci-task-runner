@@ -6,7 +6,7 @@
 [![Travis-ci](https://travis-ci.org/huanleguang/ci-task-runner.svg?branch=master)](https://travis-ci.org/huanleguang/ci-task-runner)
 [![Coverage Status](https://coveralls.io/repos/github/huanleguang/ci-task-runner/badge.svg)](https://coveralls.io/github/huanleguang/ci-task-runner)
 
-[[English]](./README.md) 
+[[English]](./README.md) - [[简体中文]](./README.ZH-CN.md)
 
 这是一个基于 NodeJS 编写的多进程构建任务调度器，它支持增量与并行构建，可以大幅度提高服务器端构建速度。
 
@@ -222,3 +222,7 @@ tasks 最外层的任务名是串行运行，如果遇到数组则会并行运�
 CI 工具配置请参考相应的文档。
 
 > Webpack 遇到错误没退出的问题解决方案：[Webpack configuration.bail](http://webpack.github.io/docs/configuration.html#bail)
+
+## 授权协议
+
+[MIT](./LICENSE)
