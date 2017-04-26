@@ -222,3 +222,7 @@ tasks 最外层的任务名是串行运行，如果遇到数组则会并行运�
 CI 工具配置请参考相应的文档。
 
 > Webpack 遇到错误没退出的问题解决方案：[Webpack configuration.bail](http://webpack.github.io/docs/configuration.html#bail)
+
+## 授权协议
+
+[MIT](./LICENSE)
