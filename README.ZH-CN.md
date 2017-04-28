@@ -12,7 +12,7 @@
 
 ci-task-runner 作为一个通用的任务调度器，它并不是为了取代 Jenkins、Gitlab-CI 等持续集成工具或 Webpack、Gulp 等构建程序，而是提高它们运行任务的速度。
 
-> “我们将一个大型前端项目迁移到持续集成系统进行构建后，每修改一个小文件都需要近 10 分钟的时间才能完成构建完成，于是我们开发了 ci-task-runner，将这个过程缩短到 10 秒左右”
+> “我们将一个大型前端项目迁移到持续集成系统进行构建后，每修改一个小文件都需要近 10 分钟的时间才能完成构建完成，于是我们开发了 ci-task-runner，将这个过程缩短到 1 分钟左右”。[详情](https://github.com/huanleguang/ci-task-runner/issues/7)
 
 ## 原理
 
@@ -27,7 +27,7 @@ ci-task-runner 作为一个通用的任务调度器，它并不是为了取代 J
 ## 安装
 
 ```shell
-npm install ci-task-runner@1.0.0-beta3 -g
+npm install ci-task-runner -g
 ```
 
 ## 入门

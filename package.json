@@ -1,6 +1,6 @@
 {
   "name": "ci-task-runner",
-  "version": "1.0.0-beta4",
+  "version": "1.0.0",
   "description": "在 CI 上运行的、支持增量与多进程并行构建任务调度程序",
   "main": "src/index.js",
   "bin": "bin/ci-task-runner",
