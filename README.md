@@ -12,7 +12,7 @@ This is a multiprocess building tasks scheduler, which is written based on NodeJ
 
 As a common task scheduler, Ci-task-runner enhances the running speed of the tools such as Jenkins, Gitlab-CI or Webpack, Gulp rather than take place of them.
 
-> "After moving a large frond-end program to this continuous integration system for building, we took around 10 minutes to modify every minor file. We had to develop this ci-task-runner which reduces the time to 10 seconds."
+> "After moving a large frond-end program to this continuous integration system for building, we took around 10 minutes to modify every minor file. We had to develop this ci-task-runner which reduces the time to 1 minutes."
 
 ## Principle
 
@@ -27,7 +27,7 @@ If multiple tasks be executed, ci-task-runner will initiate a new process accord
 ## Installation
 
 ```shell
-npm install ci-task-runner@1.0.0-beta3 -g
+npm install ci-task-runner -g
 ```
 
 ## Basic Usage
