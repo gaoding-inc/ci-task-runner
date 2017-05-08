@@ -171,7 +171,7 @@ Tasks outside task name is serial run, if array will parallel running:
 }
 ```
 
-Above-mentioned: when dll has build, mod1、mod2、mod3 will parallel building by multi-thread.
+Above-mentioned: when dll has build, mod1、mod2、mod3 will parallel building by mutiprocess.
 
 ### Change Dependencies Trigger Buliding
 
