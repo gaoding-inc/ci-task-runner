@@ -1,6 +1,6 @@
 {
   "name": "ci-task-runner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "在 CI 上运行的、支持增量与多进程并行构建任务调度程序",
   "main": "src/index.js",
   "bin": "bin/ci-task-runner",
@@ -39,7 +39,8 @@
   "homepage": "https://github.com/aui/ci-task-runner#readme",
   "dependencies": {
     "commander": "^2.9.0",
-    "lodash.defaultsdeep": "^4.6.0"
+    "lodash.defaultsdeep": "^4.6.0",
+    "npm-run-path": "^2.0.2"
   },
   "devDependencies": {
     "jquery": "^3.1.1",
