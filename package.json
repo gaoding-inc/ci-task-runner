@@ -1,7 +1,7 @@
 {
   "name": "ci-task-runner",
   "version": "1.0.1",
-  "description": "在 CI 上运行的、支持增量与多进程并行构建任务调度程序",
+  "description": "this is a multiprocess building tasks scheduler",
   "main": "src/index.js",
   "bin": "bin/ci-task-runner",
   "scripts": {
