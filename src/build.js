@@ -33,8 +33,8 @@ module.exports = (tasks, parallel = require('os').cpus().length) => {
         return worker(program.command, program.options).then(() => {
 
             let loger = new Loger([{ color: 'green' }, ...logStyles]);
-            let timeEnd = Date.now() - time;
-            loger.log('░░', `${PACKAGE.name}:`, task.name, '[success]', `${timeEnd}ms`);
+            let timeEnd = Math.round((Date.now() - time) / 1000)
+            loger.log('░░', `${PACKAGE.name}:`, task.name, '[success]', `${timeEnd}s`);
 
         }).catch(errors => {
             let loger = new Loger([{ color: 'red' }, ...logStyles]);

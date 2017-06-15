@@ -1,7 +1,6 @@
 {
   "tasks": ["module-example"],
   "dependencies": ["package.json"],
-  "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${taskPath} && webpack --color"
 }

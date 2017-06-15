@@ -37,7 +37,6 @@ ci-task-runner 的任务都是在 JSON 配置文件定义的，在项目中新�
 ```json
 {
   "tasks": ["mod1", "mod2", "mod3"],
-  "cache": ".ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${taskPath} && webpack --color"
 }
@@ -91,9 +90,7 @@ ci-task-runner
 
 ### `cache`
 
-ci-task-runner 缓存文件写入路径，用来保存上一次任务的信息。默认为：`.ci-task-runner-cache.json`
-
-> 请在代码仓库库中忽略 `.ci-task-runner-cache.json`。
+ci-task-runner 缓存文件写入路径，用来保存上一次任务的信息。默认为：`node_modules/.cache/ci-task-runner/${Package.version}.json`
 
 ### `dependencies`
 
@@ -166,7 +163,6 @@ tasks 最外层的任务名是串行运行，如果遇到数组则会并行运�
 ```json
 {
   "tasks": ["dll", ["mod1", "mod2", "mod3"]],
-  "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${taskPath} && webpack --color"
 }
@@ -180,7 +176,6 @@ tasks 最外层的任务名是串行运行，如果遇到数组则会并行运�
 {
   "tasks": ["dll", ["mod1", "mod2", "mod3"]],
   "dependencies": ["dll", "package.json"],
-  "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${taskPath} && webpack --color"
 }
@@ -201,7 +196,6 @@ tasks 最外层的任务名是串行运行，如果遇到数组则会并行运�
     ["mod1", "mod2", "mod3"]
   ],
   "dependencies": ["package.json", "dll"],
-  "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${taskPath} && webpack --color"
 }

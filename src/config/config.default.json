@@ -1,7 +1,6 @@
 {
   "tasks": [],
   "dependencies": [],
-  "cache": ".ci-task-runner-cache.json",
   "repository": "git",
   "program": {}
 }
