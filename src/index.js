@@ -1,4 +1,5 @@
 const path = require('path');
+const findCacheDir = require('find-cache-dir');
 const fsp = require('../lib/fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
 const promiseTask = require('../lib/promise-task');
@@ -34,7 +35,12 @@ const taskRunner = (options = {}, context = process.cwd()) => {
     const time = Date.now();
 
     options = defaultsDeep({}, options, DEFAULT);
-    options.cache = path.resolve(context, options.cache);
+
+    if (typeof options.cache === 'string') {
+        options.cache = path.resolve(context, options.cache);
+    } else {
+        options.cache = path.resolve(findCacheDir({name: PACKAGE.name}), PACKAGE.version + '.json');
+    }
 
     const loger = new Loger();
     const cache = {};
