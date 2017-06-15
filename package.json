@@ -1,6 +1,6 @@
 {
   "name": "ci-task-runner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "在 CI 上运行的、支持增量与多进程并行构建任务调度程序",
   "main": "src/index.js",
   "bin": "bin/ci-task-runner",
@@ -10,7 +10,7 @@
     "tasks-test": "node bin/ci-task-runner --config test/file/tasks/.ci-task-runner.json",
     "test": "export TEST_DIST=$PWD/test/dist && istanbul cover node_modules/mocha/bin/_mocha -- --recursive --bail 'test/**/*test.js'",
     "posttest": "npm run example && npm run tasks-test",
-    "clear": "rm -rf example/dist & rm -rf test/dist",
+    "clear": "rm -rf node_modules/.cache/ci-task-runner",
     "new-test": "npm run clear && npm run test",
     "coverage": "cat ./coverage/lcov.info | coveralls"
   },
@@ -39,7 +39,9 @@
   "homepage": "https://github.com/aui/ci-task-runner#readme",
   "dependencies": {
     "commander": "^2.9.0",
-    "lodash.defaultsdeep": "^4.6.0"
+    "find-cache-dir": "^1.0.0",
+    "lodash.defaultsdeep": "^4.6.0",
+    "npm-run-path": "^2.0.2"
   },
   "devDependencies": {
     "jquery": "^3.1.1",

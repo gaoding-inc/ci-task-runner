@@ -36,7 +36,6 @@ Ci-task-runner's tasks are defined in the JSON, in the project to create a new `
 ```json
 {
   "tasks": ["mod1", "mod2", "mod3"],
-  "cache": ".ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${taskPath} && webpack --color"
 }
@@ -90,9 +89,7 @@ Advanced: `{Object[]}`
 2. [`tasks`](#tasks) support configure parallel tasks, reference: [Mutiprocess Parallel Tasks](#mutiprocess-parallel-tasks).
 
 ### `cache`
-ci-task-runner cache files write path, used to save the last task info. Default: `ci-task-runner-cache.json`
-
-> Ignore `.ci-task-runner-cache.json` in repository.
+ci-task-runner cache files write path, used to save the last task info. Default: `node_modules/.cache/ci-task-runner/${Package.version}.json`
 
 ### `dependencies`
 
@@ -165,13 +162,12 @@ Tasks outside task name is serial run, if array will parallel running:
 ```json
 {
   "tasks": ["dll", ["mod1", "mod2", "mod3"]],
-  "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${taskPath} && webpack --color"
 }
 ```
 
-Above-mentioned: when dll has build, mod1、mod2、mod3 will parallel building by multi-thread.
+Above-mentioned: when dll has build, mod1、mod2、mod3 will parallel building by mutiprocess.
 
 ### Change Dependencies Trigger Buliding
 
@@ -179,7 +175,6 @@ Above-mentioned: when dll has build, mod1、mod2、mod3 will parallel building b
 {
   "tasks": ["dll", ["mod1", "mod2", "mod3"]],
   "dependencies": ["dll", "package.json"],
-  "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${taskPath} && webpack --color"
 }
@@ -200,7 +195,6 @@ Above-mentioned: when dll and package.json has changed, whatever other task's ta
     ["mod1", "mod2", "mod3"]
   ],
   "dependencies": ["package.json", "dll"],
-  "cache": "dist/.ci-task-runner-cache.json",
   "repository": "git",
   "program": "cd ${taskPath} && webpack --color"
 }

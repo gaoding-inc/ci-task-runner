@@ -59,7 +59,6 @@ function init() {
                 "program": "npm install"
             }],
             "dependencies": ["package.json"],
-            "cache": ".ci-task-runner-cache.json",
             "repository": "git",
             "program": "cd ${taskPath}"
         };
