@@ -126,8 +126,8 @@ const taskRunner = (options = {}, context = process.cwd()) => {
         }
 
     ]).then(results => {
-        let timeEnd = Date.now() - time;
-        loger.log('░░', `${PACKAGE.name}:`, `${timeEnd}ms`);
+        let timeEnd = Math.round((Date.now() - time) / 1000);
+        loger.log('░░', `${PACKAGE.name}:`, `${timeEnd}s`);
         return results[results.length - 1];
     });
 };
