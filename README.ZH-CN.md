@@ -140,9 +140,13 @@ ci-task-runner 缓存文件写入路径，用来保存上一次任务的信息�
 
 #### `program.options`
 
-进程配置。参考：[child_process.exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)。
+设置进程的选项。
 
-> `program.options` 中的 `timeout` 字段生效后会终止进程，并且抛出错误。这点和 `child_process.exec` 不一样，它只抛出错误。
+* `cwd` 当前子进程的工作目录
+* `env` 环境变量
+* `timeout` 超时时间
+* `uid` 设置进程的用户标识
+* `gid` 设置进程的组标识
 
 #### 变量
 
