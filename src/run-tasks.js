@@ -1,4 +1,4 @@
-const promiseTask = require('./promise-task');
+const queue = require('./queue');
 const Loger = require('./loger');
 const worker = require('./run-cmd');
 const PACKAGE = require('../package.json');
@@ -53,8 +53,8 @@ module.exports = (tasks, parallel = require('os').cpus().length) => {
     });
 
 
-    return promiseTask.serial(taskFucs.map(taskFucs => () => {
-        return promiseTask.parallel(taskFucs, parallel);
+    return queue.serial(taskFucs.map(taskFucs => () => {
+        return queue.parallel(taskFucs, parallel);
     })).then(buildResults => {
         return [].concat(...buildResults);
     });

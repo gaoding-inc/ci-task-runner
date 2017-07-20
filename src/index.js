@@ -1,15 +1,14 @@
 const path = require('path');
 const findCacheDir = require('find-cache-dir');
-const fsp = require('./fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
-const promiseTask = require('./promise-task');
+const fsp = require('./fs-promise');
+const queue = require('./queue');
 const Repository = require('./repository');
 const Loger = require('./loger');
 const DEFAULT = require('./config/config.default.json');
 const CACHE_DEFAULT = require('./config/cache.default.json');
 const PACKAGE = require('../package.json');
-
-const parse = require('./parse');
+const createTasks = require('./create-tasks');
 const runTasks = require('./run-tasks');
 
 
@@ -49,11 +48,11 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
     const repository = new Repository(options.cache, options.repository, 'revision');
 
-    return promiseTask.serial([
+    return queue.serial([
 
 
         // 将外部输入的配置转换成内部任务描述队列
-        parse(options, context),
+        createTasks(options, context),
 
 
         // 检查任务是否有变更
