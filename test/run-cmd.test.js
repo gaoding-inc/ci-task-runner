@@ -1,5 +1,5 @@
 const assert = require('assert');
-const worker = require('../../lib/run-cmd');
+const worker = require('../src/run-cmd');
 
 describe('#worker', () => {
     it('exec script', () => {

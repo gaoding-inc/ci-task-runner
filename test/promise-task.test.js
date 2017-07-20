@@ -1,5 +1,5 @@
 const assert = require('assert');
-const promiseTask = require('../../lib/promise-task');
+const promiseTask = require('../src/promise-task');
 
 describe('#promise-task', () => {
 

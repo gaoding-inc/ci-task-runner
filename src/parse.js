@@ -1,5 +1,5 @@
 const path = require('path');
-const template = require('../lib/template');
+const template = require('./template');
 const defaultsDeep = require('lodash.defaultsdeep');
 const DEFAULT = require('./config/config.program.default.json');
 

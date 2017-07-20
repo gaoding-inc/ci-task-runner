@@ -1,16 +1,16 @@
 const path = require('path');
 const findCacheDir = require('find-cache-dir');
-const fsp = require('../lib/fs-promise');
+const fsp = require('./fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
-const promiseTask = require('../lib/promise-task');
-const Repository = require('../lib/repository');
-const Loger = require('../lib/loger');
+const promiseTask = require('./promise-task');
+const Repository = require('./repository');
+const Loger = require('./loger');
 const DEFAULT = require('./config/config.default.json');
 const CACHE_DEFAULT = require('./config/cache.default.json');
 const PACKAGE = require('../package.json');
 
 const parse = require('./parse');
-const build = require('./build');
+const runTasks = require('./run-tasks');
 
 
 /**
@@ -102,7 +102,7 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
         // 运行构建器
         tasks => {
-            return build(tasks, options.parallel);
+            return runTasks(tasks, options.parallel);
         },
 
 

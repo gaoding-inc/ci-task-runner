@@ -1,3 +1,7 @@
+## v1.0.4
+
+1. 修复日志太多可能产生的溢出问题 [#11](https://github.com/huanleguang/ci-task-runner/issues/11)
+
 ## v1.0.3
 
 1. 修复子进程意外退出后的错误信息显示

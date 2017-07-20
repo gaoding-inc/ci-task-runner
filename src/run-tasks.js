@@ -1,6 +1,6 @@
-const promiseTask = require('../lib/promise-task');
-const Loger = require('../lib/loger');
-const worker = require('../lib/run-cmd');
+const promiseTask = require('./promise-task');
+const Loger = require('./loger');
+const worker = require('./run-cmd');
 const PACKAGE = require('../package.json');
 
 
