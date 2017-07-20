@@ -20,7 +20,7 @@ class StringStyle {
         Object.keys(TYPES).filter(key => {
             return this[key] !== undefined;
         }).forEach(key => {
-            let value = this[key];
+            const value = this[key];
             this[TYPES[key]](value);
         });
 
@@ -41,7 +41,7 @@ class StringStyle {
     }
 
     [textAlign](value) {
-        let content = this.string.join('');
+        const content = this.string.join('');
         let str;
         let length;
         switch (value) {
@@ -66,7 +66,7 @@ class StringStyle {
 
     [color](value) {
         if (this.displayColor && StringStyle.colors[value]) {
-            let style = StringStyle.colors[value];
+            const style = StringStyle.colors[value];
             this.string.unshift(style[0]);
             this.string.push(style[1]);
         }
@@ -74,7 +74,7 @@ class StringStyle {
 
     [fontWeight](value) {
         if (this.displayColor && value === 'bold') {
-            let style = ['\x1B[1m', '\x1B[22m'];
+            const style = ['\x1B[1m', '\x1B[22m'];
             this.string.unshift(style[0]);
             this.string.push(style[1]);
         }
@@ -82,7 +82,7 @@ class StringStyle {
 
     [fontStyle](value) {
         if (this.displayColor && value === 'italic') {
-            let style = ['\x1B[3m', '\x1B[23m'];
+            const style = ['\x1B[3m', '\x1B[23m'];
             this.string.unshift(style[0]);
             this.string.push(style[1]);
         }
@@ -90,7 +90,7 @@ class StringStyle {
 
     [textDecoration](value) {
         if (this.displayColor && value === 'underline') {
-            let style = ['\x1B[4m', '\x1B[24m'];
+            const style = ['\x1B[4m', '\x1B[24m'];
             this.string.unshift(style[0]);
             this.string.push(style[1])
         }
@@ -136,8 +136,8 @@ class Loger {
 
     setStyles(messages) {
         return messages.map((message, index) => {
-            let stringStyle = new StringStyle(message, this.displayColor);
-            let style = this.styles[index];
+            const stringStyle = new StringStyle(message, this.displayColor);
+            const style = this.styles[index];
 
             Object.keys(style || {}).forEach(name => {
                 stringStyle[name] = style[name];

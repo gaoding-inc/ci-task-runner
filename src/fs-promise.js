@@ -21,8 +21,8 @@ const mkdirs = (dirname, callback) => {
  * @return  {Promise}
  */
 const writeFile = promiseify((...params) => {
-    let file = params[0];
-    let dirname = path.dirname(file);
+    const file = params[0];
+    const dirname = path.dirname(file);
     mkdirs(dirname, ()=> {
         fs.writeFile(...params);
     });

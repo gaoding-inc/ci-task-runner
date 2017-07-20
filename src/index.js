@@ -67,8 +67,8 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
                 ]).then(([modCommit, ...libCommits]) => {
 
-                    let modChanged = modCommit[0] !== modCommit[1];
-                    let libChanged = libCommits.filter(libCommit => libCommit[0] !== libCommit[1]).length !== 0;
+                    const modChanged = modCommit[0] !== modCommit[1];
+                    const libChanged = libCommits.filter(libCommit => libCommit[0] !== libCommit[1]).length !== 0;
                     task.dirty = options.force || modChanged || libChanged;
 
                     cache.tasks[task.name] = {
@@ -113,7 +113,7 @@ const taskRunner = (options = {}, context = process.cwd()) => {
                 .catch(() => defaultsDeep({}, CACHE_DEFAULT))
                 .then(oldAssets => defaultsDeep(cache, oldAssets))
                 .then(cache => {
-                    let json = JSON.stringify(cache, null, 2);
+                    const json = JSON.stringify(cache, null, 2);
                     return fsp.writeFile(options.cache, json, 'utf8').then(() => cache);
                 });
         },
@@ -126,7 +126,7 @@ const taskRunner = (options = {}, context = process.cwd()) => {
         }
 
     ]).then(results => {
-        let timeEnd = Math.round((Date.now() - time) / 1000);
+        const timeEnd = Math.round((Date.now() - time) / 1000);
         loger.log('░░', `${PACKAGE.name}:`, `${timeEnd}s`);
         return results[results.length - 1];
     });
