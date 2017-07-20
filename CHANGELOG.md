@@ -1,3 +1,7 @@
+## v1.0.3
+
+1. 修复子进程意外退出后的错误信息显示
+
 ## v1.0.2
 
 1. 修复运行 `npm` 命令可能报 “Maximum call stack size exceeded” 问题
