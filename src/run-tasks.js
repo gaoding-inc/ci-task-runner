@@ -1,6 +1,6 @@
 const queue = require('./queue');
 const Loger = require('./loger');
-const worker = require('./run-cmd');
+const runCmd = require('./run-cmd');
 const PACKAGE = require('../package.json');
 
 
@@ -30,7 +30,7 @@ module.exports = (tasks, parallel = require('os').cpus().length) => {
         const loger = new Loger([null, ...logStyles]);
         loger.log('░░', `${PACKAGE.name}:`, task.name, '[running]');
 
-        return worker(program.command, program.options).then(() => {
+        return runCmd(program.command, program.options).then(() => {
 
             const loger = new Loger([{ color: 'green' }, ...logStyles]);
             const timeEnd = Math.round((Date.now() - time) / 1000)

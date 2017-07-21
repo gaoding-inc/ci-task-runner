@@ -18,11 +18,10 @@ const run = (cmd, { env, cwd, uid, gid }, callback) => {
 
     proc.on('error', procError);
     proc.on('close', function (code, signal) {
-        let er;
         if (signal) {
             process.kill(process.pid, signal);
         } else if (code) {
-            er = new Error('Exit status ' + code);
+            const er = new Error(`child process exited with code ${code}`);
             er.errno = code;
             procError(er)
         } else {
@@ -89,7 +88,7 @@ module.exports = (command, options = {}) => {
             clearTimeout(timer);
 
             if (errors) {
-                errors.messsage = `"${command}": ${errors.messsage}`;
+                errors.message = `run "${command}" failed: ${errors.message}`;
                 reject(errors);
             } else {
                 resolve(data);

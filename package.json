@@ -1,6 +1,6 @@
 {
   "name": "ci-task-runner",
-  "version": "1.0.4-beta",
+  "version": "1.0.4",
   "description": "this is a multiprocess building tasks scheduler",
   "main": "src/index.js",
   "bin": "bin/ci-task-runner",
