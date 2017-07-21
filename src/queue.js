@@ -5,9 +5,9 @@
  */
 const serial = tasks => {
     let p = Promise.resolve();
-    let results = [];
+    const results = [];
 
-    let each = task => {
+    const each = task => {
         if (typeof task === 'function') {
             p = p.then(task).then(result => {
                 results.push(result);
@@ -39,7 +39,7 @@ const parallel = (tasks, limit = tasks.length) => {
             }
         }));
     } else {
-        let chunks = [];
+        const chunks = [];
         tasks = [...tasks];
 
         for (let i = 0, len = tasks.length; i < len; i += limit) {

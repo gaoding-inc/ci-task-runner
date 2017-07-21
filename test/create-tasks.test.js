@@ -1,10 +1,10 @@
 const assert = require('assert');
 const path = require('path');
-const parse = require('../../src/parse');
+const createTasks = require('../src/create-tasks');
 const defaultsDeep = require('lodash.defaultsdeep');
 
 
-describe('#parse', () => {
+describe('#create-tasks', () => {
 
     const programDefaults = (options, context) => {
         let p = path.resolve(context, options.path || options.name);
@@ -23,7 +23,7 @@ describe('#parse', () => {
     };
 
     it('empty', () => {
-        assert.deepEqual([], parse({
+        assert.deepEqual([], createTasks({
             tasks: []
         }, __dirname));
     });
@@ -40,7 +40,7 @@ describe('#parse', () => {
             program: programDefaults({ name: 'mod1' }, __dirname),
             order: 0,
             dirty: false
-        }], parse({
+        }], createTasks({
             tasks: ['mod1'],
             dependencies: ['lib']
         }, __dirname));
@@ -60,7 +60,7 @@ describe('#parse', () => {
             }, programDefaults({ name: 'mod1' }, __dirname)),
             order: 0,
             dirty: false
-        }], parse({
+        }], createTasks({
             tasks: ['mod1'],
             dependencies: ['lib'],
             program: 'node build.js'
@@ -79,7 +79,7 @@ describe('#parse', () => {
             program: programDefaults({ name: 'mod1' }, __dirname),
             order: 0,
             dirty: false
-        }], parse({
+        }], createTasks({
             tasks: [{
                 name: 'mod1'
             }],
@@ -104,7 +104,7 @@ describe('#parse', () => {
             }, __dirname),
             order: 0,
             dirty: false
-        }], parse({
+        }], createTasks({
             tasks: [{
                 name: 'mod1',
                 path: 'map/mod1'
@@ -139,7 +139,7 @@ describe('#parse', () => {
             program: programDefaults({ name: 'mod3' }, __dirname),
             order: 2,
             dirty: false
-        }], parse({
+        }], createTasks({
             tasks: ['mod1', 'mod2', 'mod3']
         }, __dirname));
     });
@@ -166,7 +166,7 @@ describe('#parse', () => {
             program: programDefaults({ name: 'mod3' }, __dirname),
             order: 1,
             dirty: false
-        }], parse({
+        }], createTasks({
             tasks: ['mod1', ['mod2', 'mod3']]
         }, __dirname));
     });
@@ -199,7 +199,7 @@ describe('#parse', () => {
             }, programDefaults({ name: 'mod2' }, __dirname)),
             order: 1,
             dirty: false
-        }], parse({
+        }], createTasks({
             tasks: ['mod1', {
                 name: 'mod2',
                 dependencies: ['lib2'],
@@ -232,7 +232,7 @@ describe('#parse', () => {
             }, programDefaults({ name: 'mod1' }, __dirname)),
             order: 0,
             dirty: false
-        }], parse({
+        }], createTasks({
             tasks: ['mod1'],
             dependencies: ['lib'],
             program: defaultsDeep({

@@ -1,16 +1,15 @@
 const path = require('path');
 const findCacheDir = require('find-cache-dir');
-const fsp = require('../lib/fs-promise');
 const defaultsDeep = require('lodash.defaultsdeep');
-const promiseTask = require('../lib/promise-task');
-const Repository = require('../lib/repository');
-const Loger = require('../lib/loger');
+const fsp = require('./fs-promise');
+const queue = require('./queue');
+const Repository = require('./repository');
+const Loger = require('./loger');
 const DEFAULT = require('./config/config.default.json');
 const CACHE_DEFAULT = require('./config/cache.default.json');
 const PACKAGE = require('../package.json');
-
-const parse = require('./parse');
-const build = require('./build');
+const createTasks = require('./create-tasks');
+const runTasks = require('./run-tasks');
 
 
 /**
@@ -49,11 +48,11 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
     const repository = new Repository(options.cache, options.repository, 'revision');
 
-    return promiseTask.serial([
+    return queue.serial([
 
 
         // 将外部输入的配置转换成内部任务描述队列
-        parse(options, context),
+        createTasks(options, context),
 
 
         // 检查任务是否有变更
@@ -67,8 +66,8 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
                 ]).then(([modCommit, ...libCommits]) => {
 
-                    let modChanged = modCommit[0] !== modCommit[1];
-                    let libChanged = libCommits.filter(libCommit => libCommit[0] !== libCommit[1]).length !== 0;
+                    const modChanged = modCommit[0] !== modCommit[1];
+                    const libChanged = libCommits.filter(libCommit => libCommit[0] !== libCommit[1]).length !== 0;
                     task.dirty = options.force || modChanged || libChanged;
 
                     cache.tasks[task.name] = {
@@ -102,7 +101,7 @@ const taskRunner = (options = {}, context = process.cwd()) => {
 
         // 运行构建器
         tasks => {
-            return build(tasks, options.parallel);
+            return runTasks(tasks, options.parallel);
         },
 
 
@@ -113,7 +112,7 @@ const taskRunner = (options = {}, context = process.cwd()) => {
                 .catch(() => defaultsDeep({}, CACHE_DEFAULT))
                 .then(oldAssets => defaultsDeep(cache, oldAssets))
                 .then(cache => {
-                    let json = JSON.stringify(cache, null, 2);
+                    const json = JSON.stringify(cache, null, 2);
                     return fsp.writeFile(options.cache, json, 'utf8').then(() => cache);
                 });
         },
@@ -126,7 +125,7 @@ const taskRunner = (options = {}, context = process.cwd()) => {
         }
 
     ]).then(results => {
-        let timeEnd = Math.round((Date.now() - time) / 1000);
+        const timeEnd = Math.round((Date.now() - time) / 1000);
         loger.log('░░', `${PACKAGE.name}:`, `${timeEnd}s`);
         return results[results.length - 1];
     });

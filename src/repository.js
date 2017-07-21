@@ -32,7 +32,7 @@ class Repository {
 
 
     getNewCommitId(target) {
-        let commitId = this.cache[target];
+        const commitId = this.cache[target];
         if (commitId) {
             return Promise.resolve(commitId);
         } else {
@@ -67,15 +67,15 @@ class Repository {
             // 将绝对路径转换为相对路径存储
             Object.keys(data[this.tableName]).forEach(target => {
                 if (path.isAbsolute(target)) {
-                    let commitId = data[this.tableName][target];
-                    let relativePath = path.relative(this.dirname, target);
+                    const commitId = data[this.tableName][target];
+                    const relativePath = path.relative(this.dirname, target);
                     data[this.tableName][relativePath] = commitId;
                     delete data[this.tableName][target];
                 }
             });
             return data;
         }).then(data => {
-            let content = JSON.stringify(data, null, 2);
+            const content = JSON.stringify(data, null, 2);
             return fsp.writeFile(this.storagePath, content, 'utf8');
         });
     }
@@ -88,8 +88,8 @@ class Repository {
             // 将相对路径转换为绝对路径进行内部运算
             Object.keys(data[this.tableName]).forEach(target => {
                 if (!path.isAbsolute(target)) {
-                    let commitId = data[this.tableName][target];
-                    let resolvePath = path.resolve(this.dirname, target);
+                    const commitId = data[this.tableName][target];
+                    const resolvePath = path.resolve(this.dirname, target);
                     data[this.tableName][resolvePath] = commitId;
                     delete data[this.tableName][target];
                 }
@@ -116,9 +116,9 @@ class Repository {
 
     // 获取目标的修订 ID
     [GET_REVISION](target) {
-        let type = this.type;
-        let cwd = path.dirname(target);
-        let basename = path.basename(target);
+        const type = this.type;
+        const cwd = path.dirname(target);
+        const basename = path.basename(target);
         let cmd;
         let runner;
 

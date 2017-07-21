@@ -1,5 +1,5 @@
 const assert = require('assert');
-const template = require('../../lib/template');
+const template = require('../src/template');
 
 describe('#template', () => {
     it('set variables', () => {

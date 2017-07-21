@@ -1,7 +1,7 @@
 const assert = require('assert');
-const promiseTask = require('../../lib/promise-task');
+const queue = require('../src/queue');
 
-describe('#promise-task', () => {
+describe('#queue', () => {
 
     const delay = (fuc, time) => {
         return new Promise(results => {
@@ -11,10 +11,10 @@ describe('#promise-task', () => {
         });
     }
 
-    describe('#promise-task.serial', () => {
+    describe('#queue.serial', () => {
 
         it('results', () => {
-            return promiseTask.serial([
+            return queue.serial([
                 0,
                 (result) => {
                     assert.deepEqual(0, result)
@@ -34,7 +34,7 @@ describe('#promise-task', () => {
         });
 
         it('order', () => {
-            return promiseTask.serial([
+            return queue.serial([
                 0,
                 () => {
                     return delay(() => 1, 30);
@@ -51,7 +51,7 @@ describe('#promise-task', () => {
         });
 
         it('Promise reject', () => {
-            return promiseTask.serial([
+            return queue.serial([
                 () => 0,
                 () => 1,
                 () => Promise.reject(2),
@@ -62,7 +62,7 @@ describe('#promise-task', () => {
         });
 
         it('Function error', () => {
-            return promiseTask.serial([
+            return queue.serial([
                 () => 0,
                 () => 1,
                 () => {
@@ -77,11 +77,11 @@ describe('#promise-task', () => {
     });
 
 
-    describe('#promise-task.parallel', () => {
+    describe('#queue.parallel', () => {
         const limit = 2;
 
         it('results', () => {
-            return promiseTask.parallel([
+            return queue.parallel([
                 () => 0,
                 () => 1,
                 () => 2,
@@ -92,7 +92,7 @@ describe('#promise-task', () => {
         });
 
         it('order', () => {
-            return promiseTask.parallel([
+            return queue.parallel([
                 () => {
                     return delay(() => 0, 40);
                 },
@@ -111,7 +111,7 @@ describe('#promise-task', () => {
         });
 
         it('Promise reject', () => {
-            return promiseTask.parallel([
+            return queue.parallel([
                 () => 0,
                 () => 1,
                 () => Promise.reject(2),
@@ -125,7 +125,7 @@ describe('#promise-task', () => {
 
 
         it('Function error', () => {
-            return promiseTask.parallel([
+            return queue.parallel([
                 () => 0,
                 () => 1,
                 () => {
@@ -141,7 +141,7 @@ describe('#promise-task', () => {
 
 
         it('Function error', () => {
-            return promiseTask.parallel([
+            return queue.parallel([
                 null,
                 undefined,
                 {},

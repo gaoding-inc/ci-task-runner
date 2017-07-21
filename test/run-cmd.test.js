@@ -1,14 +1,13 @@
-const path = require('path');
 const assert = require('assert');
-const worker = require('../../lib/worker');
+const runCmd = require('../src/run-cmd');
 
-describe('#worker', () => {
+describe('#runCmd', () => {
     it('exec script', () => {
-        return worker('echo "hello"');
+        return runCmd('echo "hello"');
     });
 
     // it('childProcess.exec error', () => {
-    //     return worker("", {
+    //     return runCmd("", {
     //         cwd: {}
     //     }).then(() => {
     //         throw new Error('error');
@@ -18,7 +17,7 @@ describe('#worker', () => {
     // });
 
     it('exec error', () => {
-        return worker(`@error%`, {
+        return runCmd(`@error%`, {
             timeout: 100
         }).then(() => {
             throw new Error('error');
@@ -28,7 +27,7 @@ describe('#worker', () => {
     });
 
     it('options.timeout', () => {
-        return worker(`node -e "setTimeout(()=> {}, 3000)"`, {
+        return runCmd(`node -e "setTimeout(()=> {}, 3000)"`, {
             timeout: 100
         }).then(() => {
             throw new Error('options.timeout: error');

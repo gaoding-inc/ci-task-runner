@@ -1,6 +1,6 @@
-const promiseTask = require('../lib/promise-task');
-const Loger = require('../lib/loger');
-const worker = require('../lib/worker');
+const queue = require('./queue');
+const Loger = require('./loger');
+const runCmd = require('./run-cmd');
 const PACKAGE = require('../package.json');
 
 
@@ -12,32 +12,32 @@ const PACKAGE = require('../package.json');
  */
 module.exports = (tasks, parallel = require('os').cpus().length) => {
 
-    let taskFucs = [[]];
+    const taskFucs = [[]];
     let preOrder = 0;
 
 
-    let taskFuc = task => () => {
+    const taskFuc = task => () => {
 
-        let program = task.program;
-        let time = Date.now();
-        let logStyles = [
+        const program = task.program;
+        const time = Date.now();
+        const logStyles = [
             null,
             { minWidth: 16, color: 'green', textDecoration: 'underline' },
             null,
             { color: 'gray' }
         ];
 
-        let loger = new Loger([null, ...logStyles]);
+        const loger = new Loger([null, ...logStyles]);
         loger.log('░░', `${PACKAGE.name}:`, task.name, '[running]');
 
-        return worker(program.command, program.options).then(() => {
+        return runCmd(program.command, program.options).then(() => {
 
-            let loger = new Loger([{ color: 'green' }, ...logStyles]);
-            let timeEnd = Math.round((Date.now() - time) / 1000)
+            const loger = new Loger([{ color: 'green' }, ...logStyles]);
+            const timeEnd = Math.round((Date.now() - time) / 1000)
             loger.log('░░', `${PACKAGE.name}:`, task.name, '[success]', `${timeEnd}s`);
 
         }).catch(errors => {
-            let loger = new Loger([{ color: 'red' }, ...logStyles]);
+            const loger = new Loger([{ color: 'red' }, ...logStyles]);
             loger.error('░░', `${PACKAGE.name}:`, task.name, '[failure]');
             throw errors;
         });
@@ -53,8 +53,8 @@ module.exports = (tasks, parallel = require('os').cpus().length) => {
     });
 
 
-    return promiseTask.serial(taskFucs.map(taskFucs => () => {
-        return promiseTask.parallel(taskFucs, parallel);
+    return queue.serial(taskFucs.map(taskFucs => () => {
+        return queue.parallel(taskFucs, parallel);
     })).then(buildResults => {
         return [].concat(...buildResults);
     });

@@ -1,5 +1,5 @@
 const path = require('path');
-const template = require('../lib/template');
+const template = require('./template');
 const defaultsDeep = require('lodash.defaultsdeep');
 const DEFAULT = require('./config/config.program.default.json');
 
@@ -41,10 +41,10 @@ class Task extends File {
  * @return  {Task[]}
  */
 module.exports = (options, context) => {
-    let tasks = [];
+    const tasks = [];
 
 
-    let parseDependencie = lib => {
+    const parseDependencie = lib => {
         if (typeof lib === 'string') {
             lib = {
                 name: lib,
@@ -58,7 +58,7 @@ module.exports = (options, context) => {
     };
 
 
-    let parseProgram = program => {
+    const parseProgram = program => {
         if (typeof program === 'string') {
             program = {
                 command: program,
@@ -71,14 +71,14 @@ module.exports = (options, context) => {
 
 
     // 设置字符串变量
-    let setVariables = (target, variables) => {
-        let type = typeof target;
+    const setVariables = (target, variables) => {
+        const type = typeof target;
         if (type === 'string') {
             return template(target, variables);
         } else if (Array.isArray(target)) {
             return target.map(target => setVariables(target, variables));
         } else if (type === 'object' && type !== null) {
-            let object = {};
+            const object = {};
             Object.keys(target).forEach(key => object[key] = setVariables(target[key], variables));
             return object;
         } else {
@@ -87,7 +87,7 @@ module.exports = (options, context) => {
     };
 
 
-    let parseTask = (task, order) => {
+    const parseTask = (task, order) => {
 
         if (typeof task === 'string') {
             task = {
@@ -109,8 +109,8 @@ module.exports = (options, context) => {
             )
         };
 
-        let dependencies = task.dependencies.map(parseDependencie);
-        let program = setVariables(task.program, {
+        const dependencies = task.dependencies.map(parseDependencie);
+        const program = setVariables(task.program, {
             taskName: task.name,
             taskPath: task.path,
             taskDirname: path.dirname(task.path)
@@ -126,7 +126,7 @@ module.exports = (options, context) => {
         });
     };
 
-    let each = (task, index) => {
+    const each = (task, index) => {
         if (Array.isArray(task)) {
             task.forEach(task => each(task, index));
         } else {

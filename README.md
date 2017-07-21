@@ -139,9 +139,13 @@ Setting start command.
 
 #### `program.options`
 
-Progress configuration. Reference: [child_process.exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback).
+Progress configuration.
 
-> The `timeout` field in `program.options` takes effect and terminates the process and throws an error. `child_process.exec` only throw error.
+* `cwd` Current working directory of the child process
+* `env` Environment key-value pairs
+* `timeout` Timeout
+* `uid` Sets the user identity of the process
+* `gid` Sets the group identity of the process
 
 #### Variable
 

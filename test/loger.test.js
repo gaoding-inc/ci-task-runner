@@ -1,5 +1,5 @@
 const assert = require('assert');
-const Loger = require('../../lib/loger');
+const Loger = require('../src/loger');
 
 
 describe('#loger', () => {
