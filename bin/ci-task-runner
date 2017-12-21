@@ -63,7 +63,7 @@ function init() {
             "program": "cd ${taskPath}"
         };
 
-        fs.writeFileSync(`./.ci-task-runner.json'`, JSON.stringify(config, null, 2), 'utf8');
+        fs.writeFileSync(`./.ci-task-runner.json`, JSON.stringify(config, null, 2), 'utf8');
         console.log(`".ci-task-runner.json" has been created.`);
     }
 }
